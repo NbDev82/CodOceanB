@@ -29,6 +29,8 @@ public class SecurityConfig {
     private String apiPrefix;
     @Value("${frontend.url}")
     private String frontendUrl;
+    @Value("${frontend.mobile.url}")
+    private String frontendMobileUrl;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,6 +63,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(frontendUrl);
+        configuration.addAllowedOrigin(frontendMobileUrl);
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("POST");
         configuration.addAllowedMethod("PUT");
