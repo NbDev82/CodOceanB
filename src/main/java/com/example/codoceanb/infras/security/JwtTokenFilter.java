@@ -1,6 +1,5 @@
 package com.example.codoceanb.infras.security;//package com.university.codesolution.login.filter;
 
-import com.example.codoceanb.login.component.JwtTokenUtils;
 import com.example.codoceanb.login.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,8 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-
+@Order(2)
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("/api")
     private String apiPrefix;
@@ -40,19 +39,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response); //enable bypass
                 return;
             }
-            final String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        "authHeader null or not started with Bearer");
-                return;
-            }
-            final String token = authHeader.substring(7);
+
+            final String token = getJwtFromRequest(request, response);
             final String email = jwtTokenUtil.extractEmail(token);
             if (email != null
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User userDetails = (User) userDetailsService.loadUserByUsername(email);
-                if(jwtTokenUtil.isTokenExpired(token)) {
+                if(jwtTokenUtil.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -68,7 +61,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(e.getMessage());
         }
-
     }
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
@@ -104,5 +96,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         }
         return false;
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request, HttpServletResponse response ) throws IOException {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.sendError(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "authHeader null or not started with Bearer");
+        }
+        return authHeader.substring(7);
     }
 }

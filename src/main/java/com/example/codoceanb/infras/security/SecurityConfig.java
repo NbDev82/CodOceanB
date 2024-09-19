@@ -1,28 +1,28 @@
 package com.example.codoceanb.infras.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
     @Value("/api")
@@ -32,6 +32,10 @@ public class SecurityConfig {
     @Value("${frontend.mobile.url}")
     private String frontendMobileUrl;
 
+    @Autowired
+    @Lazy
+    private JwtTokenFilter jwtTokenFilter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -39,7 +43,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
-//                                    String.format("%s/login/**", apiPrefix),
                                     "/api/login/**",
                                     "/api/profile/**",
                                     "/v2/api-docs",
@@ -51,11 +54,25 @@ public class SecurityConfig {
                                     "/configuration/security",
                                     "/swagger-ui/**",
                                     "/webjars/**",
-                                    "/swagger-ui.html"
-                            ).permitAll()
+                                    "/swagger-ui.html")
+                            .permitAll()
+                            .requestMatchers(
+                                    "/api/profile/**",
+                                    "/api/topics/**",
+                                    "/api/search/**")
+                            .hasRole("USER")
+//                            .requestMatchers(
+//                                    "")
+//                            .hasRole("VIP_USER").requestMatchers(
+//                                    "")
+//                            .hasRole("MODERATOR")
+                            .requestMatchers(
+                                    "/api/admin/**")
+                            .hasRole("ADMIN")
                             .anyRequest().authenticated();
                 })
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
