@@ -25,7 +25,7 @@ public class ProfileDTO {
     private String email;
     private String urlImage;
 
-    private LocalDateTime addedAt;
+    private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 

@@ -1,7 +1,7 @@
 package com.example.codoceanb.login.service;
 
 import com.example.codoceanb.infras.service.EmailService;
-import com.example.codoceanb.login.component.JwtTokenUtils;
+import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.entity.OTP;
 import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.exception.UserNotFoundException;
@@ -65,7 +65,7 @@ public class OTPServiceImpl implements OTPService{
         OTP otpExisted = otpRepos.findByUserEmailAndType(email,type);
         boolean isMatches =otpExisted != null && passwordEncoder.matches(otp, otpExisted.getEncryptedOTP());
         if(isMatches) {
-            User user = userRepos.findByEmail(email);
+            User user = userRepos.findByEmail(email).orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
             user.setActive(true);
             userRepos.save(user);
         }
@@ -112,13 +112,9 @@ public class OTPServiceImpl implements OTPService{
 
     private void saveOTP(OTP otp, String email) {
         if (email != null && otp != null) {
-            User user = userRepos.findByEmail(email);
-            if (user != null) {
-                otp.setUser(user);
-                otpRepos.save(otp);
-            } else {
-                throw new UserNotFoundException("User not found with email: " + email);
-            }
+            User user = userRepos.findByEmail(email).orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
+            otp.setUser(user);
+            otpRepos.save(otp);
         } else {
             throw new IllegalArgumentException("Email or OTP cannot be null");
         }

@@ -1,9 +1,8 @@
 package com.example.codoceanb.login.service;
 
-import com.example.codoceanb.login.component.JwtTokenUtils;
+import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.dto.UserDTO;
 import com.example.codoceanb.login.entity.User;
-import com.example.codoceanb.login.exception.PermissionDenyException;
 import com.example.codoceanb.login.exception.UserNotFoundException;
 import com.example.codoceanb.login.mapper.UserMapper;
 import com.example.codoceanb.login.repository.UserRepos;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,8 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -39,28 +36,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepos.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException(email);
-        }
-        return user;
+        return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
     }
 
     @Override
     public Boolean createUser(UserDTO userDTO)  {
         String email = userDTO.getEmail();
         String phoneNumber = userDTO.getPhoneNumber();
-        User.ERole eRole = User.ERole.USER;
+        userDTO.setRole(User.ERole.USER);
 
         if (userRepos.existsByPhoneNumberOrEmail(phoneNumber, email)) {
             throw new DataIntegrityViolationException("Account already exits");
         }
 
-        if (User.ERole.ADMIN.equals(eRole)) {
-            throw new PermissionDenyException("Registering an Admin account is not allowed");
-        }
-
         User user = userMapper.toEntity(userDTO);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         String password = userDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
@@ -110,17 +101,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public User getEntityUserById(Long userId) {
+        return userRepos.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
+    }
+
+    @Override
+    public UserDTO getUserById(Long userId) {
+        User user = userRepos.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
+        return userMapper.toDTO(user);
+    }
+    @Override
     public User getUserDetailsFromToken(String token) throws Exception{
         if(jwtTokenUtil.isTokenExpired(token)){
             throw new Exception("Token is expired");
         }
         String email= jwtTokenUtil.extractEmail(token);
-        User user = userRepos.findByEmail(email);
-        if(user != null){
-            return user;
-        }else{
-            throw new Exception("User not found");
-        }
+        return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found",email)));
     }
 }
 
