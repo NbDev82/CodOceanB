@@ -1,5 +1,11 @@
 package com.example.codoceanb.login.entity;
 
+import com.example.codoceanb.comment.entity.Comment;
+import com.example.codoceanb.contest.entity.Contest;
+import com.example.codoceanb.contest.entity.ContestEnrollment;
+import com.example.codoceanb.notification.entity.Notification;
+import com.example.codoceanb.submitcode.problem.entity.Problem;
+import com.example.codoceanb.submitcode.submission.entity.Submission;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,8 +43,8 @@ public class User implements UserDetails {
     private String urlImage;
     private String password;
 
-    @Column(name = "added_at")
-    private LocalDateTime addedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -49,17 +55,33 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ERole role;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Problem> ownedProblems;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ContestEnrollment> contestEnrollments;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Contest> contests;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Submission> submissions;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<OTP> otps;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority("ROLE_"+getRole().name().toUpperCase()));
-        //authorityList.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-
+        authorityList.add(new SimpleGrantedAuthority("ROLE_"+role.name().toUpperCase()));
         return authorityList;
     }
     @Override
