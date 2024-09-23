@@ -121,12 +121,18 @@ public class LoginController {
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
                                                @RequestHeader(value = "Authorization", required = false) String token) {
-        if (token != null && !token.isEmpty()) {
-            token = token.substring(7);
-            accountService.changePassword(token,changePasswordRequest.getNewPassword());
-        } else {
-            throw new PermissionDenyException("Permission deny!");
+        try {
+            if (token != null && !token.isEmpty()) {
+                token = token.substring(7);
+                accountService.changePassword(token, changePasswordRequest.getNewPassword());
+                return ResponseEntity.ok().build();
+            } else {
+                throw new PermissionDenyException("Permission deny!");
+            }
+        } catch (PermissionDenyException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return null;
     }
 }
