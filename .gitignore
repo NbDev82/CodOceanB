@@ -42,3 +42,6 @@ mylog.log.*.gz
 *.plantuml
 
 **/.env
+
+#test data
+src/main/java/com/example/codoceanb/infras/testdata/
