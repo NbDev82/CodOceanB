@@ -1,6 +1,6 @@
 package com.example.codoceanb.login.service;
 
-import com.example.codoceanb.login.component.JwtTokenUtils;
+import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.exception.UserNotFoundException;
 import com.example.codoceanb.login.repository.UserRepos;
@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccountServiceImpl implements AccountService{
+public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private UserRepos userRepos;
@@ -21,35 +21,22 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public String login(String email, String password) throws Exception {
-        try{
-            User existingUser = userRepos.findByEmail(email);
-            if(!passwordEncoder.matches(password, existingUser.getPassword())){
-                throw new BadCredentialsException("Password not match");
-            }
-            return jwtTokenUtil.generateToken(existingUser);
+        User existingUser = userRepos.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found!"));
+        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
+            throw new BadCredentialsException("Invalid credentials");
         }
-        catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid credentials", e);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Login failed", e);
-        }
+        return jwtTokenUtil.generateToken(existingUser);
     }
 
     @Override
     public void changePassword(String token, String newPassword) {
-        try {
-            String email = jwtTokenUtil.extractEmail(token);
-            User user = userRepos.findByEmail(email);
-            if (user == null) {
-                throw new UserNotFoundException("User not found!");
-            }
-            
-            String encodedPassword = passwordEncoder.encode(newPassword);
-            user.setPassword(encodedPassword);
-            userRepos.save(user);
-        } catch (Exception e) {
-            throw new RuntimeException("Change password failed!", e);
-        }
+        String email = jwtTokenUtil.extractEmail(token);
+        User user = userRepos.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found!"));
+        
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepos.save(user);
     }
 }

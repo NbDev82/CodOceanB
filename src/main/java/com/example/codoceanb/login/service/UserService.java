@@ -12,4 +12,7 @@ public interface UserService {
     User getUserDetailsFromToken(String token )throws Exception;
     User updateUser(UserDTO userDTO, Long userId);
     ProfileResponse getProfile(String token);
+    User getEntityUserById(Long userId);
+
+    UserDTO getUserById(Long userId);
 }

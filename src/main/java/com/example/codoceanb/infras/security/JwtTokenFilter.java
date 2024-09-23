@@ -1,6 +1,5 @@
-package com.example.codoceanb.infras.security;//package com.university.codesolution.login.filter;
+package com.example.codoceanb.infras.security;
 
-import com.example.codoceanb.login.component.JwtTokenUtils;
 import com.example.codoceanb.login.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,8 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,35 +23,29 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-
+@Order(2)
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("/api")
     private String apiPrefix;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtil;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            if(isBypassToken(request)) {
-                filterChain.doFilter(request, response); //enable bypass
+            if (isBypassToken(request)) {
+                filterChain.doFilter(request, response);
                 return;
             }
-            final String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        "authHeader null or not started with Bearer");
-                return;
-            }
-            final String token = authHeader.substring(7);
+
+            final String token = getJwtFromRequest(request, response);
             final String email = jwtTokenUtil.extractEmail(token);
-            if (email != null
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User userDetails = (User) userDetailsService.loadUserByUsername(email);
-                if(jwtTokenUtil.isTokenExpired(token)) {
+                if (jwtTokenUtil.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -63,30 +56,26 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
-            filterChain.doFilter(request, response); //enable bypass
-        }catch (Exception e) {
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(e.getMessage());
         }
-
     }
+
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
-                // Healthcheck request, no JWT token required
                 Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
                 Pair.of(String.format("%s/actuator/**", apiPrefix), "GET"),
-
                 Pair.of(String.format("%s/login/**", apiPrefix), "POST"),
                 Pair.of(String.format("%s/login/**", apiPrefix), "GET"),
-
-                // Swagger
-                Pair.of("/api-docs","GET"),
-                Pair.of("/api-docs/**","GET"),
-                Pair.of("/swagger-resources","GET"),
-                Pair.of("/swagger-resources/**","GET"),
-                Pair.of("/configuration/ui","GET"),
-                Pair.of("/configuration/security","GET"),
-                Pair.of("/swagger-ui/**","GET"),
+                Pair.of("/api-docs", "GET"),
+                Pair.of("/api-docs/**", "GET"),
+                Pair.of("/swagger-resources", "GET"),
+                Pair.of("/swagger-resources/**", "GET"),
+                Pair.of("/configuration/ui", "GET"),
+                Pair.of("/configuration/security", "GET"),
+                Pair.of("/swagger-ui/**", "GET"),
                 Pair.of("/swagger-ui.html", "GET"),
                 Pair.of("/swagger-ui/index.html", "GET")
         );
@@ -97,12 +86,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         for (Pair<String, String> token : bypassTokens) {
             String path = token.getFirst();
             String method = token.getSecond();
-            // Check if the request path and method match any pair in the bypassTokens list
-            if (requestPath.matches(path.replace("**", ".*"))
-                    && requestMethod.equalsIgnoreCase(method)) {
+            if (requestPath.matches(path.replace("**", ".*")) && requestMethod.equalsIgnoreCase(method)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "authHeader null or not started with Bearer");
+        }
+        return authHeader.substring(7);
     }
 }
