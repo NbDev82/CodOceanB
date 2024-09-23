@@ -20,36 +20,27 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class OTPServiceImpl implements OTPService{
+public class OTPServiceImpl implements OTPService {
     private static final Logger log = LogManager.getLogger(OTPServiceImpl.class);
 
-    @Autowired
-    private OTPRepos otpRepos;
-    @Autowired
-    private UserRepos userRepos;
-    @Autowired
-    private JwtTokenUtils jwtTokenUtil;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private EmailService emailService;
+    private final OTPRepos otpRepos;
+    private final UserRepos userRepos;
+    private final JwtTokenUtils jwtTokenUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public boolean requestOTP(String tokenOrEmail, OTP.EType type) {
-        return type == OTP.EType.ACTIVE_ACCOUNT?
-                requestActiveAccountOTP(tokenOrEmail, type):
+        return type == OTP.EType.ACTIVE_ACCOUNT ?
+                requestActiveAccountOTP(tokenOrEmail, type) :
                 requestResetPasswordOTP(tokenOrEmail, type);
     }
 
     @Override
     public VerifyOTPResponse verify(String tokenOrEmail, String otp, OTP.EType type) {
-        if(type.equals(OTP.EType.ACTIVE_ACCOUNT)) {
-            return verifyActiveAccountOTP(tokenOrEmail, otp, type);
-        } else {
-            return verifyResetPasswordOTP(tokenOrEmail, otp, type);
-        }
-
+        return type.equals(OTP.EType.ACTIVE_ACCOUNT) ?
+                verifyActiveAccountOTP(tokenOrEmail, otp, type) :
+                verifyResetPasswordOTP(tokenOrEmail, otp, type);
     }
 
     private VerifyOTPResponse verifyResetPasswordOTP(String email, String otp, OTP.EType type) {
@@ -62,10 +53,11 @@ public class OTPServiceImpl implements OTPService{
     }
 
     private VerifyOTPResponse verifyOtp(String email, String otp, OTP.EType type) {
-        OTP otpExisted = otpRepos.findByUserEmailAndType(email,type);
-        boolean isMatches =otpExisted != null && passwordEncoder.matches(otp, otpExisted.getEncryptedOTP());
-        if(isMatches) {
-            User user = userRepos.findByEmail(email).orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
+        OTP otpExisted = otpRepos.findByUserEmailAndType(email, type);
+        boolean isMatches = otpExisted != null && passwordEncoder.matches(otp, otpExisted.getEncryptedOTP());
+        if (isMatches) {
+            User user = userRepos.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
             user.setActive(true);
             userRepos.save(user);
         }
@@ -85,24 +77,24 @@ public class OTPServiceImpl implements OTPService{
 
     public boolean handleRequestOTP(String email, OTP.EType type) {
         OTP existedOTP = checkExistedOTP(email, type);
-        if(existedOTP != null) {
+        if (existedOTP != null) {
             deleteOTP(existedOTP);
         }
 
         String otpString = generateOtpString();
         OTP otp = createOTP(otpString, type);
         saveOTP(otp, email);
-        sendEmail(email,otpString,type);
+        sendEmail(email, otpString, type);
 
         return true;
     }
 
     private void sendEmail(String email, String otpString, OTP.EType type) {
-        String subject = type.equals(OTP.EType.ACTIVE_ACCOUNT)?
-                "This is your OTP for active your account":
+        String subject = type.equals(OTP.EType.ACTIVE_ACCOUNT) ?
+                "This is your OTP for active your account" :
                 "This is your OTP for reset your password";
-        String htmlEmail = emailService.createHtmlEmailContentWithOTP(otpString,type);
-        emailService.sendHtmlContent(email,subject,htmlEmail);
+        String htmlEmail = emailService.createHtmlEmailContentWithOTP(otpString, type);
+        emailService.sendHtmlContent(email, subject, htmlEmail);
     }
 
     public String generateOtpString() {
@@ -112,7 +104,8 @@ public class OTPServiceImpl implements OTPService{
 
     private void saveOTP(OTP otp, String email) {
         if (email != null && otp != null) {
-            User user = userRepos.findByEmail(email).orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
+            User user = userRepos.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
             otp.setUser(user);
             otpRepos.save(otp);
         } else {
@@ -121,13 +114,12 @@ public class OTPServiceImpl implements OTPService{
     }
 
     private OTP checkExistedOTP(String email, OTP.EType type) {
-        return otpRepos.findByUserEmailAndType(email,type);
+        return otpRepos.findByUserEmailAndType(email, type);
     }
 
     private void deleteOTP(OTP existedOTP) {
         otpRepos.delete(existedOTP);
     }
-
 
     private OTP createOTP(String otpString, OTP.EType type) {
         String encryptedOTP = passwordEncoder.encode(otpString);

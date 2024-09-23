@@ -25,10 +25,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-    @Value("/api")
-    private String apiPrefix;
     @Value("${frontend.url}")
     private String frontendUrl;
+
     @Value("${frontend.mobile.url}")
     private String frontendMobileUrl;
 
@@ -40,37 +39,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(requests -> {
-                    requests
-                            .requestMatchers(
-                                    "/api/login/**",
-                                    "/api/profile/**",
-                                    "/v2/api-docs",
-                                    "/v3/api-docs",
-                                    "/v3/api-docs/**",
-                                    "/swagger-resources",
-                                    "/swagger-resources/**",
-                                    "/configuration/ui",
-                                    "/configuration/security",
-                                    "/swagger-ui/**",
-                                    "/webjars/**",
-                                    "/swagger-ui.html")
-                            .permitAll()
-                            .requestMatchers(
-                                    "/api/profile/**",
-                                    "/api/topics/**",
-                                    "/api/search/**")
-                            .hasRole("USER")
-//                            .requestMatchers(
-//                                    "")
-//                            .hasRole("VIP_USER").requestMatchers(
-//                                    "")
-//                            .hasRole("MODERATOR")
-                            .requestMatchers(
-                                    "/api/admin/**")
-                            .hasRole("ADMIN")
-                            .anyRequest().authenticated();
-                })
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(
+                                "/api/login/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html")
+                        .permitAll()
+                        .requestMatchers(
+                                "/api/profile/**",
+                                "/api/topics/**",
+                                "/api/search/**")
+                        .hasRole("USER")
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -81,10 +65,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(frontendUrl);
         configuration.addAllowedOrigin(frontendMobileUrl);
-        configuration.addAllowedMethod("GET");
-        configuration.addAllowedMethod("POST");
-        configuration.addAllowedMethod("PUT");
-        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
 

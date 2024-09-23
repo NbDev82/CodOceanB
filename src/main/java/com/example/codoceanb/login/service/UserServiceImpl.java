@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Boolean createUser(UserDTO userDTO)  {
+    public Boolean createUser(UserDTO userDTO) {
         String email = userDTO.getEmail();
         String phoneNumber = userDTO.getPhoneNumber();
         userDTO.setRole(User.ERole.USER);
@@ -75,10 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (userDTO.getPhoneNumber() != null) {
             existingUser.setPhoneNumber(userDTO.getPhoneNumber());
         }
-        if (userDTO.getPassword() != null
-                && !userDTO.getPassword().isEmpty())
-        {
-
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             String newPassword = userDTO.getPassword();
             String encodedPassword = passwordEncoder.encode(newPassword);
             existingUser.setPassword(encodedPassword);
@@ -112,13 +108,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
         return userMapper.toDTO(user);
     }
+
     @Override
-    public User getUserDetailsFromToken(String token) throws Exception{
-        if(jwtTokenUtil.isTokenExpired(token)){
+    public User getUserDetailsFromToken(String token) throws Exception {
+        if (jwtTokenUtil.isTokenExpired(token)) {
             throw new Exception("Token is expired");
         }
-        String email= jwtTokenUtil.extractEmail(token);
-        return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found",email)));
+        String email = jwtTokenUtil.extractEmail(token);
+        return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", email)));
     }
 }
-
