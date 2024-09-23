@@ -3,11 +3,14 @@ package com.example.codoceanb.login.controller;
 import com.example.codoceanb.login.dto.UserDTO;
 import com.example.codoceanb.login.dto.UserLoginDTO;
 import com.example.codoceanb.login.entity.OTP;
+import com.example.codoceanb.login.exception.PermissionDenyException;
 import com.example.codoceanb.login.mapper.UserMapper;
+import com.example.codoceanb.login.request.ChangePasswordRequest;
 import com.example.codoceanb.login.request.VerifyOTPRequest;
 import com.example.codoceanb.login.response.LoginResponse;
 import com.example.codoceanb.login.response.RegisterResponse;
 import com.example.codoceanb.login.response.VerifyOTPResponse;
+import com.example.codoceanb.login.service.AccountService;
 import com.example.codoceanb.login.service.OTPService;
 import com.example.codoceanb.login.service.UserService;
 import com.example.codoceanb.login.utils.MessageKeys;
@@ -33,75 +36,61 @@ public class LoginController {
     private final UserService userService;
 
     @Autowired
+    private final AccountService accountService;
+
+    @Autowired
     private final OTPService otpService;
 
     @Autowired
     private final UserMapper userMapper;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> createUser(
-            @RequestBody UserDTO userDTO
-    ) {
-        RegisterResponse registerResponse=new RegisterResponse();
-        try{
-            Boolean result = userService.createUser(userDTO);
-            if (result) registerResponse.setMessage("Register successfully");
+    public ResponseEntity<RegisterResponse> createUser(@RequestBody UserDTO userDTO) {
+        try {
+            boolean result = userService.createUser(userDTO);
+            String message = result ? MessageKeys.REGISTER_SUCCESSFULLY : MessageKeys.REGISTER_FAILED;
             return ResponseEntity.ok(RegisterResponse.builder()
-                    .message(result?
-                            MessageKeys.REGISTER_SUCCESSFULLY
-                            :
-                            MessageKeys.REGISTER_FAILED)
+                    .message(message)
                     .build());
-        }catch (DataIntegrityViolationException e) {
-            registerResponse.setMessage(MessageKeys.PHONE_NUMBER_ALREADY_EXISTS);
-            return ResponseEntity.badRequest().body(registerResponse);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(RegisterResponse.builder()
+                    .message(MessageKeys.PHONE_NUMBER_ALREADY_EXISTS)
+                    .build());
         } catch (Exception e) {
-            registerResponse.setMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(registerResponse);
+            return ResponseEntity.badRequest().body(RegisterResponse.builder()
+                    .message(e.getMessage())
+                    .build());
         }
-
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<LoginResponse> login(
-            @RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request
-    ) {
-        try{
-            LoginResponse loginResponse = new LoginResponse();
-
-            String token = userService.login(
-                    userLoginDTO.getEmail(),
-                    userLoginDTO.getPassword()
-            );
-            loginResponse.setToken(token);
+    public ResponseEntity<LoginResponse> login(@RequestBody UserLoginDTO userLoginDTO) {
+        try {
+            String token = accountService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
             Boolean isActive = userService.getUserDetailsFromToken(token).isActive();
-
+            
             return ResponseEntity.ok(LoginResponse.builder()
                     .message(MessageKeys.LOGIN_SUCCESSFULLY)
                     .token(token)
                     .isActive(isActive)
                     .build());
-        }catch (BadCredentialsException e) {
-            LoginResponse loginResponse = LoginResponse.builder()
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(LoginResponse.builder()
                     .message(MessageKeys.PASSWORD_NOT_MATCH)
-                    .build();
-            return ResponseEntity.badRequest().body(loginResponse);
-
+                    .build());
         } catch (Exception e) {
-            LoginResponse loginResponse = LoginResponse.builder()
+            return ResponseEntity.badRequest().body(LoginResponse.builder()
                     .message(MessageKeys.LOGIN_FAILED)
-                    .build();
-            return ResponseEntity.badRequest().body(loginResponse);
+                    .build());
         }
     }
 
     @GetMapping("/request-otp")
     public ResponseEntity<Void> requestOtp(@RequestParam(required = false) String email,
-                                                  @NonNull HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
+                                           @RequestHeader(value = "Authorization") String token) {
         boolean isSuccessful;
-        if(authHeader != null && email == null) {
-            String token = authHeader.substring(7);
+        if(token != null && email == null) {
+            token = token.substring(7);
             isSuccessful = otpService.requestOTP(token, OTP.EType.ACTIVE_ACCOUNT);
         }
         else {
@@ -115,21 +104,35 @@ public class LoginController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<VerifyOTPResponse> verifyOtp(@RequestBody VerifyOTPRequest verifyRequest,
-            @NonNull HttpServletRequest request) {
+                                                       @RequestHeader(value = "Authorization", required = false) String token) {
         VerifyOTPResponse response;
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader != null) {
-            String token = authHeader.substring(7);
+        if (token != null && !token.isEmpty()) {
+            token = token.substring(7);
             response = otpService.verify(token, verifyRequest.getOtp(), OTP.EType.ACTIVE_ACCOUNT);
         } else {
             response = otpService.verify(verifyRequest.getEmail(), verifyRequest.getOtp(), OTP.EType.FORGOT_PASSWORD);
         }
 
-        if (response.isSuccessfully()) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        return response.isSuccessfully() ?
+                ResponseEntity.ok(response) :
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
+                                               @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            if (token != null && !token.isEmpty()) {
+                token = token.substring(7);
+                accountService.changePassword(token, changePasswordRequest.getNewPassword());
+                return ResponseEntity.ok().build();
+            } else {
+                throw new PermissionDenyException("Permission deny!");
+            }
+        } catch (PermissionDenyException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

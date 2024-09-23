@@ -110,22 +110,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public String login(String email,String password){
-        try{
-            User existingUser = userRepos.findByEmail(email);
-            if(!passwordEncoder.matches(password, existingUser.getPassword())){
-                throw new BadCredentialsException("Password not match");
-            }
-            return jwtTokenUtil.generateToken(existingUser);
-        }
-        catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid credentials", e);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Login failed", e);
-        }
-    }
-    @Override
     public User getUserDetailsFromToken(String token) throws Exception{
         if(jwtTokenUtil.isTokenExpired(token)){
             throw new Exception("Token is expired");
