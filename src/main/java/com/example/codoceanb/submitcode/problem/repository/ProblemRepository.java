@@ -23,8 +23,8 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
     @Query("SELECT p " +
             "FROM Problem p " +
-            "WHERE ( p.isDeleted = false AND p.owner.id = :userId ) ")
-    List<Problem> getProblemsByOwner(Long userId);
+            "WHERE ( p.isDeleted = false AND p.owner.email = :email ) ")
+    List<Problem> getProblemsByOwner(String email);
 
     @Query("SELECT p " +
             "FROM Problem p " +
@@ -42,4 +42,10 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
             "WHERE t IN :topics AND size(p.submissions) != 0 " +
             "ORDER BY size(p.submissions) DESC")
     List<Problem> findTopByTopicsOrderBySubmissionsDesc(@Param("topics") List<Problem.ETopic> topics, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Problem p " +
+           "JOIN p.submissions s " +
+           "JOIN s.user u " +
+           "WHERE u.email = :email AND s.status = 'ACCEPTED' AND p.isDeleted = false")
+    List<Problem> findSolvedProblemsByUser(@Param("email") String email);
 }

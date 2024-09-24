@@ -33,18 +33,6 @@ public class ProblemController {
         return ResponseEntity.ok(problemService.getAllDTOs());
     }
 
-    @GetMapping("/get-problems-by-owner")
-    public ResponseEntity<List<ProblemDTO>> getProblemsByOwner(Long userId) {
-        log.info("Fetching problems by owner id: {}", userId);
-
-        return ResponseEntity.ok(problemService.getProblemsByOwner(userId));
-    }
-
-    @GetMapping("/get-problems-by-owner-and-name")
-    public ResponseEntity<List<ProblemDTO>> getProblemsByOwnerAndName(Long userId, String problemName) {
-        return ResponseEntity.ok(problemService.getProblemsByOwnerAndName(userId, problemName));
-    }
-
     @PostMapping("/add")
     public ResponseEntity<Boolean> addProblem(@RequestBody @NonNull AddProblemRequest request) {
         return ResponseEntity.ok(problemService.add(request));
@@ -58,13 +46,6 @@ public class ProblemController {
             log.info(e.getMessage());
             return ResponseEntity.ok(false);
         }
-    }
-
-    @GetMapping("/get-profile-problems")
-    public ResponseEntity<List<ProblemDTO>> getProfileProblem(Long userId) {
-        log.info("Fetching problems by owner id: {}", userId);
-
-        return ResponseEntity.ok(problemService.getProfileProblemsByOwner(userId));
     }
 
     @GetMapping("/pickOne")

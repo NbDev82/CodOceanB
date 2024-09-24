@@ -1,5 +1,6 @@
 package com.example.codoceanb.submitcode.problem.service;
 
+import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.service.UserService;
 import com.example.codoceanb.submitcode.DTO.AddProblemRequestDTO;
@@ -41,15 +42,18 @@ public class ProblemServiceImpl implements ProblemService{
 
     private final UserService userService;
 
+    private final JwtTokenUtils jwtTokenUtils;
+
     @Autowired
     public ProblemServiceImpl(ProblemRepository problemRepository,
-                              TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, ProblemMapper mapper, UserService userService) {
+                              TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, ProblemMapper mapper, UserService userService, JwtTokenUtils jwtTokenUtils) {
         this.problemRepository = problemRepository;
         this.testCaseRepository = testCaseRepository;
         this.parameterRepository = parameterRepository;
         this.libraryRepository = libraryRepository;
         this.mapper = mapper;
         this.userService = userService;
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
@@ -73,18 +77,16 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public List<ProblemDTO> getProblemsByOwner(Long userId) {
-        return mapper.toDTOs(problemRepository.getProblemsByOwner(userId));
+    public List<ProblemDTO> getAllUploadedProblemsByUser(String token) {
+        String email = jwtTokenUtils.extractEmail(token);
+        return mapper.toDTOs(problemRepository.getProblemsByOwner(email));
     }
 
     @Override
-    public List<ProblemDTO> getProfileProblemsByOwner(Long userId) {
-        return mapper.toDTOs(problemRepository.getProblemsByOwner(userId));
-    }
-
-    @Override
-    public List<ProblemDTO> getProblemsByOwnerAndName(Long userId, String problemName) {
-        return mapper.toDTOs(problemRepository.getProblemsByOwnerAndName(userId, problemName));
+    public List<ProblemDTO> getAllSolvedProblemsByUser(String token) {
+        String email = jwtTokenUtils.extractEmail(token);
+        List<Problem> solvedProblems = problemRepository.findSolvedProblemsByUser(email);
+        return mapper.toDTOs(solvedProblems);
     }
 
     @Override

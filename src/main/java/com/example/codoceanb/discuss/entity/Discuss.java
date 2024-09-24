@@ -30,11 +30,14 @@ public class Discuss implements Serializable {
 
     private String description;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "end_at")
+    private LocalDateTime endAt;
 
     private String image;
 
