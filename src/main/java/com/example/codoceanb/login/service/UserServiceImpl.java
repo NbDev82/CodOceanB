@@ -2,6 +2,7 @@ package com.example.codoceanb.login.service;
 
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.dto.UserDTO;
+import com.example.codoceanb.login.entity.OTP;
 import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.exception.UserNotFoundException;
 import com.example.codoceanb.login.mapper.UserMapper;
@@ -32,6 +33,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepos userRepos;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtil;
+
+    private final OTPService otpService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -96,6 +99,60 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Override
+    public ProfileResponse changeProfile(String token, ProfileDTO profileDTO) {
+        try {
+            User user = getUserDetailsFromToken(token);
+            if (profileDTO.getFullName() != null) {
+                user.setFullName(profileDTO.getFullName());
+            }
+            if (profileDTO.getPhoneNumber() != null) {
+                user.setPhoneNumber(profileDTO.getPhoneNumber());
+            }
+            if (profileDTO.getDateOfBirth() != null) {
+                user.setDateOfBirth(profileDTO.getDateOfBirth());
+            }
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepos.save(user);
+            ProfileDTO updatedProfileDTO = profileMapper.toDTO(user);
+            return ProfileResponse.builder()
+                    .profile(updatedProfileDTO)
+                    .build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse changeEmail(String token, String otp, String newEmail) {
+        try {
+            boolean isSuccessful = otpService.verify(token, otp, OTP.EType.CHANGE_EMAIL);
+            if(isSuccessful) {
+                User user = getUserDetailsFromToken(token);
+                if (newEmail != null && !newEmail.isEmpty()) {
+                    if (userRepos.existsByEmail(newEmail)) {
+                        throw new DataIntegrityViolationException("Email already exists");
+                    }
+                    user.setEmail(newEmail);
+                    user.setUpdatedAt(LocalDateTime.now());
+                    userRepos.save(user);
+                    ProfileDTO updatedProfileDTO = profileMapper.toDTO(user);
+                    return ProfileResponse.builder()
+                            .profile(updatedProfileDTO)
+                            .build();
+                } else {
+                    throw new IllegalArgumentException("New email must not be null or empty");
+                }
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+    
     @Override
     public User getEntityUserById(Long userId) {
         return userRepos.findById(userId)

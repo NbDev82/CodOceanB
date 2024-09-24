@@ -7,16 +7,16 @@ import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.exception.UserNotFoundException;
 import com.example.codoceanb.login.repository.OTPRepos;
 import com.example.codoceanb.login.repository.UserRepos;
-import com.example.codoceanb.login.response.VerifyOTPResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,48 +31,28 @@ public class OTPServiceImpl implements OTPService {
 
     @Override
     public boolean requestOTP(String tokenOrEmail, OTP.EType type) {
-        return type == OTP.EType.ACTIVE_ACCOUNT ?
-                requestActiveAccountOTP(tokenOrEmail, type) :
-                requestResetPasswordOTP(tokenOrEmail, type);
+        String email = (type == OTP.EType.ACTIVE_ACCOUNT || type == OTP.EType.CHANGE_EMAIL) ? 
+                        jwtTokenUtil.extractEmail(tokenOrEmail) : tokenOrEmail;
+        return handleRequestOTP(email, type);
     }
 
     @Override
-    public VerifyOTPResponse verify(String tokenOrEmail, String otp, OTP.EType type) {
-        return type.equals(OTP.EType.ACTIVE_ACCOUNT) ?
-                verifyActiveAccountOTP(tokenOrEmail, otp, type) :
-                verifyResetPasswordOTP(tokenOrEmail, otp, type);
+    public boolean verify(String tokenOrEmail, String otp, OTP.EType type) {
+        String email = (type == OTP.EType.ACTIVE_ACCOUNT || type == OTP.EType.CHANGE_EMAIL) ? 
+                        jwtTokenUtil.extractEmail(tokenOrEmail) : tokenOrEmail;
+        return handleVerifyOtp(email, otp, type);
     }
 
-    private VerifyOTPResponse verifyResetPasswordOTP(String email, String otp, OTP.EType type) {
-        return verifyOtp(email, otp, type);
-    }
-
-    private VerifyOTPResponse verifyActiveAccountOTP(String token, String otp, OTP.EType type) {
-        String email = jwtTokenUtil.extractEmail(token);
-        return verifyOtp(email, otp, type);
-    }
-
-    private VerifyOTPResponse verifyOtp(String email, String otp, OTP.EType type) {
+    private boolean handleVerifyOtp(String email, String otp, OTP.EType type) {
         OTP otpExisted = otpRepos.findByUserEmailAndType(email, type);
         boolean isMatches = otpExisted != null && passwordEncoder.matches(otp, otpExisted.getEncryptedOTP());
-        if (isMatches) {
+        if (isMatches && type.equals(OTP.EType.ACTIVE_ACCOUNT)) {
             User user = userRepos.findByEmail(email)
                     .orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
             user.setActive(true);
             userRepos.save(user);
         }
-        return VerifyOTPResponse.builder()
-                .isSuccessfully(isMatches)
-                .build();
-    }
-
-    public boolean requestResetPasswordOTP(String email, OTP.EType type) {
-        return handleRequestOTP(email, type);
-    }
-
-    public boolean requestActiveAccountOTP(String token, OTP.EType type) {
-        String email = jwtTokenUtil.extractEmail(token);
-        return handleRequestOTP(email, type);
+        return isMatches;
     }
 
     public boolean handleRequestOTP(String email, OTP.EType type) {

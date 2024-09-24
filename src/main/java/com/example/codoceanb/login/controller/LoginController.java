@@ -9,13 +9,10 @@ import com.example.codoceanb.login.request.ChangePasswordRequest;
 import com.example.codoceanb.login.request.VerifyOTPRequest;
 import com.example.codoceanb.login.response.LoginResponse;
 import com.example.codoceanb.login.response.RegisterResponse;
-import com.example.codoceanb.login.response.VerifyOTPResponse;
 import com.example.codoceanb.login.service.AccountService;
 import com.example.codoceanb.login.service.OTPService;
 import com.example.codoceanb.login.service.UserService;
 import com.example.codoceanb.login.utils.MessageKeys;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,16 +81,19 @@ public class LoginController {
                     .build());
         }
     }
-
+    
     @GetMapping("/request-otp")
     public ResponseEntity<Void> requestOtp(@RequestParam(required = false) String email,
                                            @RequestHeader(value = "Authorization") String token) {
-        boolean isSuccessful;
-        if(token != null && email == null) {
+        boolean isSuccessful = false;
+        if(token != null && !token.isEmpty()) {
             token = token.substring(7);
-            isSuccessful = otpService.requestOTP(token, OTP.EType.ACTIVE_ACCOUNT);
-        }
-        else {
+            if(email == null || email.isEmpty()) {
+                isSuccessful = otpService.requestOTP(token, OTP.EType.ACTIVE_ACCOUNT);
+            } else {
+                isSuccessful = otpService.requestOTP(token, OTP.EType.CHANGE_EMAIL);
+            }
+        } else if(email != null && !email.isEmpty()) {
             isSuccessful = otpService.requestOTP(email, OTP.EType.FORGOT_PASSWORD);
         }
 
@@ -103,19 +103,19 @@ public class LoginController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<VerifyOTPResponse> verifyOtp(@RequestBody VerifyOTPRequest verifyRequest,
-                                                       @RequestHeader(value = "Authorization", required = false) String token) {
-        VerifyOTPResponse response;
-        if (token != null && !token.isEmpty()) {
+    public ResponseEntity<Void> verifyOtp(@RequestBody VerifyOTPRequest verifyRequest,
+                                          @RequestHeader(value = "Authorization", required = false) String token) {
+        boolean isSuccessful;
+        if(token != null && !token.isEmpty()) {
             token = token.substring(7);
-            response = otpService.verify(token, verifyRequest.getOtp(), OTP.EType.ACTIVE_ACCOUNT);
+            isSuccessful = otpService.verify(token, verifyRequest.getOtp(), OTP.EType.ACTIVE_ACCOUNT);
         } else {
-            response = otpService.verify(verifyRequest.getEmail(), verifyRequest.getOtp(), OTP.EType.FORGOT_PASSWORD);
+            isSuccessful = otpService.verify(verifyRequest.getEmail(), verifyRequest.getOtp(), OTP.EType.FORGOT_PASSWORD);
         }
 
-        return response.isSuccessfully() ?
-                ResponseEntity.ok(response) :
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return isSuccessful?
+                ResponseEntity.status(HttpStatus.CREATED).build():
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/change-password")
