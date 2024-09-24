@@ -140,10 +140,8 @@ public class SubmissionServiceImpl implements SubmissionService{
             Submission submission = createSubmission(user, code, problem, eLanguage, resultDTO.getStatus());
             submission.setMemory(resultDTO.getMemory());
             submission.setRuntime(resultDTO.getRuntime());
-            submission.setScore(Double.parseDouble(resultDTO.getPassedTestcase()));
 
             addSubmission(user, submission);
-
         }
     }
 

@@ -28,8 +28,6 @@ public class Submission implements Serializable {
     @Column(name = "code_submitted", columnDefinition = "text")
     private String codeSubmitted;
 
-    private double score;
-
     @Enumerated(EnumType.STRING)
     private EStatus status;
 

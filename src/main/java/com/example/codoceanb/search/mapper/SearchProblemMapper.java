@@ -34,8 +34,6 @@ public interface SearchProblemMapper {
     @Mapping(target = "functionName", ignore = true)
     @Mapping(target = "outputDataType", ignore = true)
     @Mapping(target = "description", ignore = true)
-    @Mapping(target = "point", ignore = true)
-
     Problem toEntity(ProblemDTO problemDTO);
 
     List<Problem> toEntities(List<ProblemDTO> problemDTOs);
