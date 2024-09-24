@@ -43,8 +43,6 @@ public class Problem implements Serializable {
     @Column(name = "output_datatype")
     private String outputDataType;
 
-    private double point;
-
     @Enumerated(EnumType.STRING)
     private EDifficultyLevel difficultyLevel;
 
@@ -83,17 +81,17 @@ public class Problem implements Serializable {
     }
 
     public enum ETopic {
+        DIVIDE_AND_CONQUER,
+        TREE,
+        GRAPH,
+        DYNAMIC_PROGRAMMING,
+        BIT_MANIPULATION,
+        BACKTRACKING,
         STRING,
         ARRAY,
         SORTING,
         MATH,
-        COUNTING,
-        SEARCH,
+        GREEDY,
         RECURSION,
-        REGEX,
-        STACK,
-        GEOMETRY,
-        DATA_STRUCTURE,
-        LOOPING;
     }
 }

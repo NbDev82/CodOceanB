@@ -20,6 +20,7 @@ import com.example.codoceanb.submitcode.testcase.repository.TestCaseRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -123,6 +124,13 @@ public class ProblemServiceImpl implements ProblemService{
         return problems.get(randomIndex);
     }
 
+    @Override
+    public List<ProblemDTO> getTopProblemsByTopic(String topic, int limit) {
+        List<Problem.ETopic> topics = new ArrayList<>();
+        topics.add(Problem.ETopic.valueOf(topic));
+        return mapper.toDTOs(problemRepository.findTopByTopicsOrderBySubmissionsDesc(topics, PageRequest.of(0, limit)));
+    }
+
     private void createAndSaveLibraryFromRequest(AddProblemRequest request, Problem problem) {
         List<String> libraries = request.getLibraries();
 
@@ -154,7 +162,6 @@ public class ProblemServiceImpl implements ProblemService{
 
     private Problem createProblemFromRequest(AddProblemRequestDTO problemDTO) {
         Problem.EDifficultyLevel difficulty = Problem.EDifficultyLevel.valueOf(problemDTO.getDifficulty());
-        int point = getPointFromDifficulty(difficulty);
 
         User user = userService.getEntityUserById(problemDTO.getOwnerId());
         List<Problem.ETopic> topics = new ArrayList<>();
@@ -166,23 +173,11 @@ public class ProblemServiceImpl implements ProblemService{
                 .updatedAt(LocalDateTime.now())
                 .functionName(problemDTO.getFunctionName())
                 .outputDataType(problemDTO.getOutputDataType())
-                .point(point)
                 .difficultyLevel(difficulty)
                 .isDeleted(problemDTO.isDeleted())
                 .owner(user)
                 .topics(topics)
                 .build();
-    }
-
-    private int getPointFromDifficulty(Problem.EDifficultyLevel difficulty) {
-        int point = 0;
-        switch (difficulty) {
-            case EASY -> point = 2;
-            case NORMAL -> point = 5;
-            case HARD -> point = 10;
-        }
-
-        return point;
     }
 
     private void createAndSaveParameterFromRequest(TestCase testCase, List<InputDTO> inputDTOs) {
