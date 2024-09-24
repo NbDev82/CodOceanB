@@ -33,6 +33,7 @@ public class OTP {
     private User user;
     public enum EType {
         FORGOT_PASSWORD,
-        ACTIVE_ACCOUNT
+        ACTIVE_ACCOUNT,
+        CHANGE_EMAIL
     }
 }
