@@ -30,7 +30,7 @@ public class UserDTO {
 
     private double cumulativeScore;
 
-    private LocalDateTime addedAt;
+    private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 

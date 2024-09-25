@@ -31,8 +31,8 @@ public class Problem implements Serializable {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(name = "added_at")
-    private LocalDateTime addedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
