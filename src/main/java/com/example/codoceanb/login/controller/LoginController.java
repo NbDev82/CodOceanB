@@ -87,7 +87,7 @@ public class LoginController {
     
     @GetMapping("/request-otp")
     public ResponseEntity<Void> requestOtp(@RequestParam(required = false) String email,
-                                           @RequestHeader(value = "Authorization") String token) {
+                                           @RequestHeader(value = "Authorization", required = false) String token) {
         boolean isSuccessful = false;
         if(token != null && !token.isEmpty()) {
             token = token.substring(7);
