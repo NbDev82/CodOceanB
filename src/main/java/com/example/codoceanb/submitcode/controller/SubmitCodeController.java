@@ -23,52 +23,39 @@ public class SubmitCodeController {
     private SubmissionService submissionService;
 
     @Autowired
-    private ProblemRepository problemRepos;
+    private ProblemRepository problemRepository;
 
     @PostMapping("/run")
     public ResponseEntity<ResultDTO> submitCode(@RequestBody SubmitCodeRequest request) {
-        Long userId = request.getUserId();
-        String code = request.getCode();
-        Problem problem = problemRepos.findById(request.getProblemId()).orElse(null);
-        Submission.ELanguage eLanguage;
-
-        try{
-            eLanguage = Submission.ELanguage.valueOf(request.getLanguage().toUpperCase());
-        } catch (IllegalArgumentException e){
-            throw new UnsupportedLanguageException("Language is not supported yet!");
-        }
-
-        ResultDTO resultDTO =  submissionService.runCode(userId, code, problem, eLanguage);
+        Problem problem = problemRepository.findById(request.getProblemId())
+                .orElseThrow(() -> new ProblemNotFoundException("Problem not found"));
+        Submission.ELanguage language = parseLanguage(request.getLanguage());
+        
+        ResultDTO resultDTO = submissionService.runCode(request.getUserId(), request.getCode(), problem, language);
         return ResponseEntity.ok(resultDTO);
     }
 
     @PostMapping("/compile")
     public ResponseEntity<ResultDTO> compileCode(@RequestBody SubmitCodeRequest request) {
-        String code = request.getCode();
-        Submission.ELanguage eLanguage;
-
-        try{
-            eLanguage = Submission.ELanguage.valueOf(request.getLanguage().toUpperCase());
-        } catch (IllegalArgumentException e){
-            throw new UnsupportedLanguageException("Language is not supported yet!");
-        }
-
-        ResultDTO resultDTO = submissionService.compile(code, eLanguage);
+        Submission.ELanguage language = parseLanguage(request.getLanguage());
+        ResultDTO resultDTO = submissionService.compile(request.getCode(), language);
         return ResponseEntity.ok(resultDTO);
     }
 
     @GetMapping("/getInputCode")
-    public ResponseEntity<String> getInputCode(Long problemId, String language) {
-        Submission.ELanguage eLanguage;
+    public ResponseEntity<String> getInputCode(@RequestParam Long problemId, @RequestParam String language) {
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemNotFoundException("Problem not found"));
+        Submission.ELanguage eLanguage = parseLanguage(language);
+        String inputCode = submissionService.getInputCode(problem, eLanguage);
+        return ResponseEntity.ok(inputCode);
+    }
 
-        try{
-            eLanguage = Submission.ELanguage.valueOf(language.toUpperCase());
-        } catch (IllegalArgumentException e){
+    private Submission.ELanguage parseLanguage(String language) {
+        try {
+            return Submission.ELanguage.valueOf(language.toUpperCase());
+        } catch (IllegalArgumentException e) {
             throw new UnsupportedLanguageException("Language is not supported yet!");
         }
-
-        Problem problem = problemRepos.findById(problemId).orElseThrow(() -> new ProblemNotFoundException("Problem not found"));
-        String inputCode = submissionService.getInputCode(problem,eLanguage);
-        return ResponseEntity.ok(inputCode);
     }
 }

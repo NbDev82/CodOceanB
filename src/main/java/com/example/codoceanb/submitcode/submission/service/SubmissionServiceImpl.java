@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SubmissionServiceImpl implements SubmissionService{
-    private CompilerStrategy compilerStrategy = null;
+public class SubmissionServiceImpl implements SubmissionService {
+    private CompilerStrategy compilerStrategy;
 
     private final SubmissionRepository submissionRepos;
     private final UserRepos userRepos;
@@ -59,7 +59,7 @@ public class SubmissionServiceImpl implements SubmissionService{
     @Override
     public String getInputCode(Problem problem, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-        return compilerStrategy.createInputCode(problem , "", problem.getTestCases().get(0));
+        return compilerStrategy.createInputCode(problem, "", problem.getTestCases().get(0));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SubmissionServiceImpl implements SubmissionService{
         String fileName = "Solution.java";
         prepareFile(fileName, code);
 
-        CompilerResult compilerResult = compilerStrategy.compile(code,fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileName);
 
         return createResultDTO(compilerResult);
     }
@@ -89,23 +89,22 @@ public class SubmissionServiceImpl implements SubmissionService{
         compilerStrategy = determineCompilerStrategy(eLanguage);
 
         User user = userMapper.toEntity(userService.getUserById(userId));
-        if(user == null) {
-            throw new UserNotFoundException("User not found with Id: "+userId);
+        if (user == null) {
+            throw new UserNotFoundException("User not found with Id: " + userId);
         }
 
         String fileName = "Solution.java";
         prepareFile(fileName, code);
-        CompilerResult compilerResult = compilerStrategy.compile(code,fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileName);
 
-        if(compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
+        if (compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
             CompilerProcessor compilerProcessor = new CompilerProcessor(compilerStrategy);
-            ResultDTO resultDTO = compilerProcessor.run(code,problem);
+            ResultDTO resultDTO = compilerProcessor.run(code, problem);
 
             handleSuccessfulExecution(user, resultDTO, eLanguage, code, problem);
 
             return resultDTO;
-        }
-        else {
+        } else {
             handleCompilationError(user, code, problem);
             return createCompilationErrorResultDTO(compilerResult.getError());
         }
@@ -136,7 +135,7 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     private void handleSuccessfulExecution(User user, ResultDTO resultDTO, Submission.ELanguage eLanguage, String code, Problem problem) {
-        if(!resultDTO.getStatus().equals(Submission.EStatus.COMPILE_ERROR)) {
+        if (!resultDTO.getStatus().equals(Submission.EStatus.COMPILE_ERROR)) {
             Submission submission = createSubmission(user, code, problem, eLanguage, resultDTO.getStatus());
             submission.setMemory(resultDTO.getMemory());
             submission.setRuntime(resultDTO.getRuntime());
@@ -162,7 +161,7 @@ public class SubmissionServiceImpl implements SubmissionService{
     public List<SubmissionDTO> getByUserIdAndProblemId(Long userId, Long problemId) {
         User user = userMapper.toEntity(userService.getUserById(userId));
         Problem problem = problemService.getEntityByProblemId(problemId);
-        List<Submission> submissions = submissionRepos.findByUserAndProblem(user,problem);
+        List<Submission> submissions = submissionRepos.findByUserAndProblem(user, problem);
         submissions.sort((submissionA, submissionB) -> submissionB.getCreatedAt().compareTo(submissionA.getCreatedAt()));
         return submissionMapper.toDTOs(submissions);
     }
@@ -174,11 +173,11 @@ public class SubmissionServiceImpl implements SubmissionService{
         List<Submission> submissions = submissionRepos.findByUser(user);
 
         return returnType.equals(Submission.class)
-                        ? (List<T>) submissions
-                        : submissions.stream()
-                            .map(submissionMapper::toDTO)
-                            .map(returnType::cast)
-                            .collect(Collectors.toList());
+                ? (List<T>) submissions
+                : submissions.stream()
+                .map(submissionMapper::toDTO)
+                .map(returnType::cast)
+                .collect(Collectors.toList());
     }
 
     public void addSubmission(User user, Submission submission) {
