@@ -28,4 +28,14 @@ public class TrendingServiceImpl implements TrendingService {
         log.info("Đã lấy được {} bài toán thịnh hành", trendingProblems.size());
         return trendingProblems;
     }
+
+    @Override
+    public List<ProblemDTO> getTrendingProblems(int limit) {
+        log.info("Đang lấy các bài toán thịnh hành với giới hạn: {}", limit);
+        
+        List<ProblemDTO> trendingProblems = problemService.getTopProblems(limit);
+
+        log.info("Đã lấy được {} bài toán thịnh hành", trendingProblems.size());
+        return trendingProblems;
+    }
 }

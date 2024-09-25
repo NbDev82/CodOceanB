@@ -133,6 +133,13 @@ public class ProblemServiceImpl implements ProblemService{
         return mapper.toDTOs(problemRepository.findTopByTopicsOrderBySubmissionsDesc(topics, PageRequest.of(0, limit)));
     }
 
+    @Override
+    public List<ProblemDTO> getTopProblems(int limit) {
+        List<Problem> topProblems = problemRepository.findTopByOrderBySubmissionsDesc(PageRequest.of(0, limit));
+        return mapper.toDTOs(topProblems);
+    }
+
+
     private void createAndSaveLibraryFromRequest(AddProblemRequest request, Problem problem) {
         List<String> libraries = request.getLibraries();
 
