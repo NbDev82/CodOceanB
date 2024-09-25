@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public interface UserService {
     Boolean createUser(UserDTO userDTO);
     User getUserDetailsFromToken(String token )throws Exception;
+    User getUserDetailsFromCleanToken(String token )throws Exception;
     User updateUser(UserDTO userDTO, Long userId);
     ProfileResponse getProfile(String token);
     ProfileResponse changeProfile(String token, ProfileDTO profileDTO);
