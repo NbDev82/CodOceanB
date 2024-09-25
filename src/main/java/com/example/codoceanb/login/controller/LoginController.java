@@ -110,7 +110,6 @@ public class LoginController {
                                           @RequestHeader(value = "Authorization", required = false) String token) {
         boolean isSuccessful = false;
         if(token != null && !token.isEmpty()) {
-            token = token.substring(7);
             isSuccessful = otpService.verify(token, verifyRequest.getOtp(), OTP.EType.ACTIVE_ACCOUNT);
         }
 
