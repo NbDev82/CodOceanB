@@ -6,7 +6,10 @@ import com.example.codoceanb.login.entity.OTP;
 import com.example.codoceanb.login.exception.PermissionDenyException;
 import com.example.codoceanb.login.mapper.UserMapper;
 import com.example.codoceanb.login.request.ChangePasswordRequest;
+import com.example.codoceanb.login.request.ForgotPasswordRequest;
 import com.example.codoceanb.login.request.VerifyOTPRequest;
+import com.example.codoceanb.login.response.ChangePasswordResponse;
+import com.example.codoceanb.login.response.ForgotPasswordResponse;
 import com.example.codoceanb.login.response.LoginResponse;
 import com.example.codoceanb.login.response.RegisterResponse;
 import com.example.codoceanb.login.service.AccountService;
@@ -105,12 +108,10 @@ public class LoginController {
     @PostMapping("/verify-otp")
     public ResponseEntity<Void> verifyOtp(@RequestBody VerifyOTPRequest verifyRequest,
                                           @RequestHeader(value = "Authorization", required = false) String token) {
-        boolean isSuccessful;
+        boolean isSuccessful = false;
         if(token != null && !token.isEmpty()) {
             token = token.substring(7);
             isSuccessful = otpService.verify(token, verifyRequest.getOtp(), OTP.EType.ACTIVE_ACCOUNT);
-        } else {
-            isSuccessful = otpService.verify(verifyRequest.getEmail(), verifyRequest.getOtp(), OTP.EType.FORGOT_PASSWORD);
         }
 
         return isSuccessful?
@@ -119,20 +120,37 @@ public class LoginController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
-                                               @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<ChangePasswordResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
+                                                                 @RequestHeader(value = "Authorization", required = false) String bearerToken) {
         try {
-            if (token != null && !token.isEmpty()) {
-                token = token.substring(7);
-                accountService.changePassword(token, changePasswordRequest.getNewPassword());
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                accountService.changePassword(bearerToken, changePasswordRequest);
                 return ResponseEntity.ok().build();
             } else {
                 throw new PermissionDenyException("Permission deny!");
             }
         } catch (PermissionDenyException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(ChangePasswordResponse.builder()
+                    .message(MessageKeys.PASSWORD_NOT_MATCH)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            boolean isVerified = otpService.verify(request.getEmail(), request.getOtp(), OTP.EType.FORGOT_PASSWORD);
+            if (isVerified) {
+                accountService.resetPassword(request.getEmail(), request.getNewPassword());
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

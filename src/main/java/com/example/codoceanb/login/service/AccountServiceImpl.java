@@ -4,6 +4,7 @@ import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.login.entity.User;
 import com.example.codoceanb.login.exception.UserNotFoundException;
 import com.example.codoceanb.login.repository.UserRepos;
+import com.example.codoceanb.login.request.ChangePasswordRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,10 +31,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void changePassword(String token, String newPassword) {
-        String email = jwtTokenUtil.extractEmail(token);
+    public void changePassword(String bearerToken, ChangePasswordRequest request) {
+        String email = jwtTokenUtil.extractEmailFromBearerToken(bearerToken);
         User user = userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found!"));
+        
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Mật khẩu cũ không đúng");
+        }
+        
+        String encodedPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(encodedPassword);
+        userRepos.save(user);
+    }
+
+    @Override
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepos.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng!"));
         
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
