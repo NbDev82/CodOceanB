@@ -281,6 +281,11 @@ public class JavaCompiler implements CompilerStrategy{
 
     @Override
     public void writeFile(String fileName, String code) {
+        if (containsMaliciousCode(code)) {
+            log.warn("Phát hiện mã độc hoặc lệnh can thiệp file trong code đầu vào.");
+            throw new SecurityException("Mã nguồn chứa lệnh nguy hiểm không được phép.");
+        }
+
         File file = new File(fileName);
         try {
             FileWriter fileWriter = new FileWriter(fileName);
@@ -293,6 +298,106 @@ public class JavaCompiler implements CompilerStrategy{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean containsMaliciousCode(String code) {
+        // Kiểm tra các mẫu nguy hiểm
+        String[] dangerousPatterns = {
+            // Các mẫu nguy hiểm có thể gây hại cho hệ thống
+            
+            // Dừng chương trình đột ngột
+            "System\\.exit",
+            
+            // Thực thi lệnh hệ thống
+            "Runtime\\.getRuntime\\(\\)\\.exec",
+            
+            // Sử dụng ProcessBuilder để thực thi lệnh hệ thống
+            "ProcessBuilder",
+            
+            // Các thao tác với tệp tin
+            "new File\\(",           // Tạo đối tượng File mới
+            "\\.delete\\(\\)",       // Xóa tệp tin
+            "\\.deleteOnExit\\(\\)", // Đánh dấu tệp tin để xóa khi chương trình kết thúc
+            "\\.format\\(",          // Định dạng dữ liệu, có thể gây lỗi bảo mật nếu sử dụng không đúng cách
+            "\\.renameTo\\(",        // Đổi tên tệp tin
+            
+            // Các lệnh xóa trên Linux và Windows
+            "rm -rf",                // Xóa đệ quy và bắt buộc trên Linux
+            "del /f /q",             // Xóa bắt buộc và im lặng trên Windows
+            "rmdir /s /q",           // Xóa thư mục và nội dung của nó trên Windows
+            
+            // Thay đổi quyền truy cập tệp tin
+            "chmod",                 // Thay đổi quyền truy cập tệp tin trên Linux
+            "chown",                 // Thay đổi chủ sở hữu tệp tin trên Linux
+            "setReadable",           // Đặt quyền đọc cho tệp tin
+            "setWritable",           // Đặt quyền ghi cho tệp tin
+            "setExecutable",         // Đặt quyền thực thi cho tệp tin
+            
+            // Các lớp và phương thức liên quan đến bảo mật
+            "SecurityManager",       // Quản lý bảo mật của ứng dụng
+            "AccessController",      // Kiểm soát truy cập vào tài nguyên hệ thống
+            "doPrivileged",          // Thực hiện hành động với quyền đặc biệt
+            "grant",                 // Cấp quyền truy cập
+            "permission",            // Định nghĩa quyền truy cập
+            "Policy",                // Chính sách bảo mật
+            "setSecurityManager",    // Đặt SecurityManager mới
+            
+            // Các mẫu liên quan đến xóa ổ đĩa
+            "format c:",             // Định dạng ổ đĩa C
+            "format d:",             // Định dạng ổ đĩa D
+            "format e:",             // Định dạng ổ đĩa E
+            "format f:",             // Định dạng ổ đĩa F
+            "diskpart",              // Công cụ quản lý đĩa trên Windows
+            "clean",                 // Xóa toàn bộ dữ liệu trên đĩa
+            "create partition primary", // Tạo phân vùng chính mới
+            
+            // Kiểm tra các đường dẫn Windows
+            "C:\\\\",                // Đường dẫn gốc ổ đĩa C
+            "D:\\\\",                // Đường dẫn gốc ổ đĩa D
+            "E:\\\\",                // Đường dẫn gốc ổ đĩa E
+            "F:\\\\",                // Đường dẫn gốc ổ đĩa F
+            "Program Files",         // Thư mục chứa các chương trình cài đặt
+            "Windows",               // Thư mục hệ thống Windows
+            
+            // Thêm các mẫu mới
+            "System\\.gc\\(\\)",     // Gọi bộ thu gom rác, có thể ảnh hưởng đến hiệu suất
+            "Thread\\.sleep",        // Tạm dừng luồng hiện tại, có thể gây chậm trễ
+            "Runtime\\.halt",        // Dừng JVM ngay lập tức, nguy hiểm
+            "Unsafe",                // Cho phép truy cập bộ nhớ trực tiếp, rất nguy hiểm
+            "ClassLoader",           // Có thể được sử dụng để tải mã độc
+            "URLClassLoader",        // Có thể tải các lớp từ nguồn không đáng tin cậy
+            "System\\.load",         // Tải thư viện native, tiềm ẩn rủi ro bảo mật
+            "System\\.loadLibrary",  // Tương tự System.load
+            "native",                // Đánh dấu phương thức native, có thể gây rủi ro
+            "JNI",                   // Java Native Interface, có thể gây rủi ro bảo mật
+            "sun\\.misc\\.Unsafe",   // Cho phép thao tác bộ nhớ cấp thấp, rất nguy hiểm
+            "java\\.lang\\.reflect", // Reflection có thể được sử dụng để phá vỡ encapsulation
+            "java\\.nio\\.channels\\.FileChannel",  // Cho phép truy cập file trực tiếp, tiềm ẩn rủi ro
+            "java\\.io\\.RandomAccessFile"          // Cho phép đọc/ghi file ngẫu nhiên, có thể gây rủi ro
+        };
+
+        for (String pattern : dangerousPatterns) {
+            if (code.toLowerCase().matches("(?i).*\\b" + pattern + "\\b.*")) {
+                return true;
+            }
+        }
+
+        // Kiểm tra các lệnh xóa file trên Linux
+        if (code.matches("(?i).*\\b(rm|shred)\\s+(-rf?\\s+)?[/\\w]+.*")) {
+            return true;
+        }
+
+        // Kiểm tra việc truy cập các thư mục hệ thống
+        if (code.matches("(?i).*(/etc/|/var/|/usr/|/root/|/bin/|/sbin/).*")) {
+            return true;
+        }
+
+        // Kiểm tra các lệnh nguy hiểm khác
+        if (code.matches("(?i).*(sudo|su)\\s+.*")) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
