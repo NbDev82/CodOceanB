@@ -171,7 +171,7 @@ public class ProblemServiceImpl implements ProblemService{
         return Problem.builder()
                 .name(problemDTO.getTitle())
                 .description(problemDTO.getDescription())
-                .addedAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .functionName(problemDTO.getFunctionName())
                 .outputDataType(problemDTO.getOutputDataType())
