@@ -90,7 +90,6 @@ public class LoginController {
                                            @RequestHeader(value = "Authorization", required = false) String token) {
         boolean isSuccessful = false;
         if(token != null && !token.isEmpty()) {
-            token = token.substring(7);
             if(email == null || email.isEmpty()) {
                 isSuccessful = otpService.requestOTP(token, OTP.EType.ACTIVE_ACCOUNT);
             } else {
