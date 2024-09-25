@@ -43,9 +43,18 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
             "ORDER BY size(p.submissions) DESC")
     List<Problem> findTopByTopicsOrderBySubmissionsDesc(@Param("topics") List<Problem.ETopic> topics, Pageable pageable);
 
+    @Query("SELECT p " +
+            "FROM Problem p " +
+            "JOIN p.topics t " +
+            "WHERE size(p.submissions) != 0 " +
+            "ORDER BY size(p.submissions) DESC")
+    List<Problem> findTopByOrderBySubmissionsDesc(Pageable pageable);
+
     @Query("SELECT DISTINCT p FROM Problem p " +
            "JOIN p.submissions s " +
            "JOIN s.user u " +
            "WHERE u.email = :email AND s.status = 'ACCEPTED' AND p.isDeleted = false")
     List<Problem> findSolvedProblemsByUser(@Param("email") String email);
+
+
 }

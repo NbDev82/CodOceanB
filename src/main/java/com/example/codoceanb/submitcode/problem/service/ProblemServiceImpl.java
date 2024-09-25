@@ -78,13 +78,13 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Override
     public List<ProblemDTO> getAllUploadedProblemsByUser(String token) {
-        String email = jwtTokenUtils.extractEmail(token);
+        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
         return mapper.toDTOs(problemRepository.getProblemsByOwner(email));
     }
 
     @Override
     public List<ProblemDTO> getAllSolvedProblemsByUser(String token) {
-        String email = jwtTokenUtils.extractEmail(token);
+        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
         List<Problem> solvedProblems = problemRepository.findSolvedProblemsByUser(email);
         return mapper.toDTOs(solvedProblems);
     }
@@ -133,6 +133,13 @@ public class ProblemServiceImpl implements ProblemService{
         return mapper.toDTOs(problemRepository.findTopByTopicsOrderBySubmissionsDesc(topics, PageRequest.of(0, limit)));
     }
 
+    @Override
+    public List<ProblemDTO> getTopProblems(int limit) {
+        List<Problem> topProblems = problemRepository.findTopByOrderBySubmissionsDesc(PageRequest.of(0, limit));
+        return mapper.toDTOs(topProblems);
+    }
+
+
     private void createAndSaveLibraryFromRequest(AddProblemRequest request, Problem problem) {
         List<String> libraries = request.getLibraries();
 
@@ -171,7 +178,7 @@ public class ProblemServiceImpl implements ProblemService{
         return Problem.builder()
                 .name(problemDTO.getTitle())
                 .description(problemDTO.getDescription())
-                .addedAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .functionName(problemDTO.getFunctionName())
                 .outputDataType(problemDTO.getOutputDataType())

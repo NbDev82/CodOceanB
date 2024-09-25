@@ -26,7 +26,7 @@ public class DiscussServiceImpl implements DiscussService{
     @Override
     public List<DiscussDTO> getAllUploadedDiscussesByUser(String token) {
         try {
-            String email = jwtTokenUtils.extractEmail(token);
+            String email = jwtTokenUtils.extractEmailFromBearerToken(token);
             List<Discuss> discusses = discussRepository.findByOwnerEmail(email);
             return discusses.stream()
                     .map(this::convertToDTO)

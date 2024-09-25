@@ -23,9 +23,18 @@ public class TrendingController {
     }
 
     @GetMapping("/{topic}/{limit}")
-    public ResponseEntity<List<ProblemDTO>> getTrendingProblems(@PathVariable String topic, @PathVariable int limit) {
+    public ResponseEntity<List<ProblemDTO>> getTrendingProblemsWithTopic(@PathVariable String topic, @PathVariable int limit) {
         try {
             return ResponseEntity.ok(trendingService.getTrendingProblems(topic, limit));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/{limit}")
+    public ResponseEntity<List<ProblemDTO>> getTrendingProblems(@PathVariable int limit) {
+        try {
+            return ResponseEntity.ok(trendingService.getTrendingProblems(limit));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }

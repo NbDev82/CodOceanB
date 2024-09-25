@@ -63,12 +63,12 @@ public class LoginController {
     @PostMapping("/sign-in")
     public ResponseEntity<LoginResponse> login(@RequestBody UserLoginDTO userLoginDTO) {
         try {
-            String token = accountService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-            Boolean isActive = userService.getUserDetailsFromToken(token).isActive();
+            String cleanToken = accountService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+            Boolean isActive = userService.getUserDetailsFromCleanToken(cleanToken).isActive();
             
             return ResponseEntity.ok(LoginResponse.builder()
                     .message(MessageKeys.LOGIN_SUCCESSFULLY)
-                    .token(token)
+                    .token(cleanToken)
                     .isActive(isActive)
                     .build());
         } catch (BadCredentialsException e) {

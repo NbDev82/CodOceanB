@@ -18,4 +18,6 @@ public interface ProblemService {
     List<ProblemDTO> getAllUploadedProblemsByUser(String token);
 
     List<ProblemDTO> getAllSolvedProblemsByUser(String token);
+
+    List<ProblemDTO> getTopProblems(int limit);
 }
