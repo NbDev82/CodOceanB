@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (jwtTokenUtil.isTokenExpired(token)) {
             throw new Exception("Token is expired");
         }
-        String email = jwtTokenUtil.extractEmail(token);
+        String email = jwtTokenUtil.extractEmailFromBearerToken(token);
         return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", email)));
     }
 }

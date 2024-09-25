@@ -78,13 +78,13 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Override
     public List<ProblemDTO> getAllUploadedProblemsByUser(String token) {
-        String email = jwtTokenUtils.extractEmail(token);
+        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
         return mapper.toDTOs(problemRepository.getProblemsByOwner(email));
     }
 
     @Override
     public List<ProblemDTO> getAllSolvedProblemsByUser(String token) {
-        String email = jwtTokenUtils.extractEmail(token);
+        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
         List<Problem> solvedProblems = problemRepository.findSolvedProblemsByUser(email);
         return mapper.toDTOs(solvedProblems);
     }

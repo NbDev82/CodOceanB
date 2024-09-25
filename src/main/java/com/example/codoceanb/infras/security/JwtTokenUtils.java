@@ -76,6 +76,10 @@ public class JwtTokenUtils {
         return expirationDate.before(new Date());
     }
 
+    public boolean isValidToken(String token) {
+        return token != null && token.startsWith("Bearer ");
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -83,6 +87,11 @@ public class JwtTokenUtils {
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractEmailFromBearerToken(String token) {
+        String cleanToken = token.substring(7);
+        return extractEmail(cleanToken);
     }
 
     public Date getExpirationDateFromToken(String token) {
