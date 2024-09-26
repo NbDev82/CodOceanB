@@ -36,8 +36,6 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public SearchResultDTO getProblems(SearchRequest request, String email) {
         try {
-            String ALL_TERM = "all";
-
             Problem.EDifficultyLevel difficulty = request.getDifficulty();
             Problem.ETopic topic = request.getTopic();
             SearchRequest.EStatus status = request.getStatus();
@@ -48,7 +46,7 @@ public class SearchServiceImpl implements SearchService {
 
             List<ProblemDTO> problemDTOs = new ArrayList<>(problemPage.stream()
                     .filter(problem -> topic == null || problem.getTopics().contains(topic))
-                    .filter(problem -> searchTerm.isEmpty() || problem.getName().toLowerCase().contains(searchTerm.toLowerCase()))
+                    .filter(problem -> searchTerm == null || problem.getName().toLowerCase().contains(searchTerm.toLowerCase()))
                     .map(problem -> enrichProblemDTO(problem, email))
                     .filter(problemDTO -> status == null || problemDTO.getStatus().equals(status))
                     .toList());
@@ -61,10 +59,6 @@ public class SearchServiceImpl implements SearchService {
             log.error(e.getMessage());
             throw new ProblemNotFoundException(e.getMessage());
         }
-    }
-
-    private <T extends Enum<T>> T parseEnum(String value, String allTerm, Class<T> enumClass) {
-        return value.equalsIgnoreCase(allTerm) ? null : Enum.valueOf(enumClass, value.toUpperCase());
     }
 
     private ProblemDTO enrichProblemDTO(Problem problem, String email) {
