@@ -2,7 +2,7 @@ package com.example.codoceanb.profile.controller;
 
 import com.example.codoceanb.discuss.service.DiscussService;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
-import com.example.codoceanb.login.service.UserService;
+import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.discuss.dto.DiscussDTO;
 import com.example.codoceanb.profile.dto.ProfileDTO;
 import com.example.codoceanb.profile.request.ChangeEmailRequest;
@@ -12,7 +12,6 @@ import com.example.codoceanb.submitcode.problem.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

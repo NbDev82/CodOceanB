@@ -1,6 +1,6 @@
 package com.example.codoceanb.infras.service;
 
-import com.example.codoceanb.login.entity.OTP;
+import com.example.codoceanb.auth.entity.OTP;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

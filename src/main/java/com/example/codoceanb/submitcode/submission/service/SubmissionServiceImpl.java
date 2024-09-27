@@ -1,10 +1,10 @@
 package com.example.codoceanb.submitcode.submission.service;
 
-import com.example.codoceanb.login.entity.User;
-import com.example.codoceanb.login.exception.UserNotFoundException;
-import com.example.codoceanb.login.mapper.UserMapper;
-import com.example.codoceanb.login.repository.UserRepos;
-import com.example.codoceanb.login.service.UserService;
+import com.example.codoceanb.auth.entity.User;
+import com.example.codoceanb.auth.exception.UserNotFoundException;
+import com.example.codoceanb.auth.mapper.UserMapper;
+import com.example.codoceanb.auth.repository.UserRepos;
+import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.SubmissionDTO;
 import com.example.codoceanb.submitcode.ECompilerConstants;
