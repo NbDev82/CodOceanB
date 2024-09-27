@@ -8,9 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChangePasswordRequest {
-    @JsonProperty("oldPassword")
-    private String oldPassword;
+public class ForgotPasswordRequest {
+    @JsonProperty("email")
+    private String email;
+    @JsonProperty("otp")
+    private String otp;
     @JsonProperty("newPassword")
     private String newPassword;
 }

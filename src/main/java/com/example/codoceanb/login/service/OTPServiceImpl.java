@@ -32,14 +32,14 @@ public class OTPServiceImpl implements OTPService {
     @Override
     public boolean requestOTP(String tokenOrEmail, OTP.EType type) {
         String email = (type == OTP.EType.ACTIVE_ACCOUNT || type == OTP.EType.CHANGE_EMAIL) ? 
-                        jwtTokenUtil.extractEmail(tokenOrEmail) : tokenOrEmail;
+                        jwtTokenUtil.extractEmailFromBearerToken(tokenOrEmail) : tokenOrEmail;
         return handleRequestOTP(email, type);
     }
 
     @Override
     public boolean verify(String tokenOrEmail, String otp, OTP.EType type) {
         String email = (type == OTP.EType.ACTIVE_ACCOUNT || type == OTP.EType.CHANGE_EMAIL) ? 
-                        jwtTokenUtil.extractEmail(tokenOrEmail) : tokenOrEmail;
+                        jwtTokenUtil.extractEmailFromBearerToken(tokenOrEmail) : tokenOrEmail;
         return handleVerifyOtp(email, otp, type);
     }
 
