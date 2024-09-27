@@ -1,6 +1,6 @@
 package com.example.codoceanb.infras.security;
 
-import com.example.codoceanb.login.entity.User;
+import com.example.codoceanb.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

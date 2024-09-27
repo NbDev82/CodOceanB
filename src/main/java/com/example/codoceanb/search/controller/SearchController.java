@@ -1,6 +1,5 @@
 package com.example.codoceanb.search.controller;
 
-import com.example.codoceanb.login.service.UserService;
 import com.example.codoceanb.search.dto.ProblemDTO;
 import com.example.codoceanb.search.dto.SearchResultDTO;
 import com.example.codoceanb.search.requestmodel.SearchRequest;

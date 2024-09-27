@@ -1,7 +1,7 @@
 package com.example.codoceanb.submitcode.problem.entity;
 import com.example.codoceanb.comment.entity.Comment;
 import com.example.codoceanb.contest.entity.Contest;
-import com.example.codoceanb.login.entity.User;
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.library.entity.LibrariesSupport;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;

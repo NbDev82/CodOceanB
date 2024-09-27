@@ -1,4 +1,4 @@
-package com.example.codoceanb.profile.dto;
+package com.example.codoceanb.auth.dto;
 
 import com.example.codoceanb.auth.entity.User;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Data
-public class ProfileDTO {
+public class UserDTO {
+    private Long id;
+
     private String fullName;
 
     private String phoneNumber;
@@ -24,6 +26,9 @@ public class ProfileDTO {
     @NotBlank(message = "Email number is required")
     private String email;
     private String urlImage;
+    private String password;
+
+    private double cumulativeScore;
 
     private LocalDateTime createdAt;
 

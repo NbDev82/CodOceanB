@@ -1,8 +1,8 @@
 package com.example.codoceanb.submitcode.problem.service;
 
 import com.example.codoceanb.infras.security.JwtTokenUtils;
-import com.example.codoceanb.login.entity.User;
-import com.example.codoceanb.login.service.UserService;
+import com.example.codoceanb.auth.entity.User;
+import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.submitcode.DTO.AddProblemRequestDTO;
 import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
 import com.example.codoceanb.submitcode.DTO.InputDTO;

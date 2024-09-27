@@ -1,7 +1,7 @@
 package com.example.codoceanb.comment.entity;
 
 import com.example.codoceanb.discuss.entity.Discuss;
-import com.example.codoceanb.login.entity.User;
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.codoceanb.submitcode.submission.repository;
 
-import com.example.codoceanb.login.entity.User;
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import org.springframework.data.jpa.repository.JpaRepository;
