@@ -10,8 +10,8 @@ public class CompilerProcessor {
         this.compilerStrategy = compilerStrategy;
     }
 
-    public ResultDTO run(String code,
+    public ResultDTO run(String fileLink, String fileName, String code,
                          Problem problem) {
-        return compilerStrategy.run(code, problem);
+        return compilerStrategy.run(fileLink, fileName, code, problem);
     }
 }

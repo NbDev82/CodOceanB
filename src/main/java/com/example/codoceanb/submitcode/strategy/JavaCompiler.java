@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class JavaCompiler implements CompilerStrategy{
-    public static final String FILE_NAME = "Solution.java";
     public static final int TIME_LIMITED = 2;
     private static final Logger log = LogManager.getLogger(JavaCompiler.class);
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -52,7 +51,7 @@ public class JavaCompiler implements CompilerStrategy{
     }
 
     @Override
-    public ResultDTO run(String code, Problem problem) {
+    public ResultDTO run(String fileLink, String fileName, String code, Problem problem) {
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         List<TestCaseResultDTO> testCaseResultDTOs = new ArrayList<>();
         ResultDTO.ResultDTOBuilder builder = ResultDTO.builder();
@@ -69,42 +68,35 @@ public class JavaCompiler implements CompilerStrategy{
             String runCode = createRunCode(code, testCase.getParameters(), functionName, problem.getOutputDataType());
 
             try {
-                writeFile("Solution.java",runCode);
-                CompilerResult compile = compile(code,"Solution.java");
+                writeFile(fileLink, fileName, runCode);
+                CompilerResult compile = compile(code, fileLink, fileName);
 
-                if(compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
+                if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
                     return createCompilationFailureResult(compile);
                 }
 
                 long startTime = System.nanoTime();
                 long startMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
-
-                CompletableFuture<TestCaseResultDTO> completableFuture = new CompletableFuture<>();
-
-                completableFuture.complete(runWithTestCase(functionName));
-
-                TestCaseResultDTO testCaseResultDTO = completableFuture.get();
-
+                TestCaseResultDTO testCaseResultDTO = runWithTestCase(functionName);
                 long endTime = System.nanoTime();
                 long endMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
 
-                double runtimeSeconds = (double) (endTime - startTime) / 1_000_000_000;
+                double runtimeSeconds = (endTime - startTime) / 1_000_000_000.0;
                 double memoryUsedMB = (endMemoryBytes - startMemoryBytes) / (1024.0 * 1024.0);
 
                 testCaseResultDTO.setInput(generateParameterInput(testCase.getParameters()));
                 testCaseResultDTO.setExpectedDatatype(problem.getOutputDataType());
                 testCaseResultDTO.setExpected(testCase.getOutputData());
                 testCaseResultDTO.setPassed(hasMatchingDataTypesAndOutput(testCaseResultDTO));
-
                 testCaseResultDTOs.add(testCaseResultDTO);
 
-                if(runtimeSeconds > TIME_LIMITED) {
+                if (runtimeSeconds > TIME_LIMITED) {
                     testCaseResultDTO.setStatus(Submission.EStatus.TIME_LIMIT_EXCEEDED);
                     builder.lastTestcase(testCaseResultDTO);
                     break;
                 }
 
-                if(!testCaseResultDTO.isPassed()) {
+                if (!testCaseResultDTO.isPassed()) {
                     testCaseResultDTO.setStatus(Submission.EStatus.WRONG_ANSWER);
                     builder.lastTestcase(testCaseResultDTO);
                     break;
@@ -113,15 +105,13 @@ public class JavaCompiler implements CompilerStrategy{
                 maxTestCase++;
                 memoryUsedAverage += memoryUsedMB;
                 runtimeAverage += runtimeSeconds;
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
             } finally {
-                deleteFileCompiled();
+                deleteFileCompiled(fileLink, fileName);
             }
         }
 
         boolean isAccepted = testCases.size() == maxTestCase;
-        Submission.EStatus status = testCaseResultDTOs.get(testCaseResultDTOs.size()-1).getStatus();
+        Submission.EStatus status = testCaseResultDTOs.isEmpty() ? Submission.EStatus.ACCEPTED : testCaseResultDTOs.get(testCaseResultDTOs.size() - 1).getStatus();
 
         return builder
                 .message("That is your result of your code for this problem")
@@ -130,7 +120,7 @@ public class JavaCompiler implements CompilerStrategy{
                 .maxTestcase(String.valueOf(testCases.size()))
                 .passedTestcase(String.valueOf(maxTestCase))
                 .testCaseResultDTOS(testCaseResultDTOs)
-                .isAccepted(testCases.size() == maxTestCase)
+                .isAccepted(isAccepted)
                 .status(isAccepted ? Submission.EStatus.ACCEPTED
                         : status.equals(Submission.EStatus.WRONG_ANSWER)
                         ? Submission.EStatus.WRONG_ANSWER : Submission.EStatus.TIME_LIMIT_EXCEEDED)
@@ -251,7 +241,7 @@ public class JavaCompiler implements CompilerStrategy{
                 .collect(Collectors.joining());
     }
 
-    private Class<?> loadClass() throws IOException, ClassNotFoundException, ClassNotFoundException {
+    private Class<?> loadClass() throws IOException, ClassNotFoundException {
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File("").toURI().toURL()});
         return Class.forName("Solution", true, classLoader);
     }
@@ -280,21 +270,28 @@ public class JavaCompiler implements CompilerStrategy{
     }
 
     @Override
-    public void writeFile(String fileName, String code) {
+    public void writeFile(String fileLink, String fileName, String code) {
         if (containsMaliciousCode(code)) {
             log.warn("Phát hiện mã độc hoặc lệnh can thiệp file trong code đầu vào.");
             throw new SecurityException("Mã nguồn chứa lệnh nguy hiểm không được phép.");
         }
 
-        File file = new File(fileName);
+        File file = new File(fileLink + fileName);
         try {
-            FileWriter fileWriter = new FileWriter(fileName);
-            if(file.exists()) {
-                fileWriter.write("");
+            // Tạo đường dẫn nếu đường dẫn không tồn tại
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
             }
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("");
             fileWriter.write(code);
             fileWriter.close();
-            log.info("File " + fileName + " created successfully.");
+            log.info("File " + fileLink + " created successfully.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -401,11 +398,11 @@ public class JavaCompiler implements CompilerStrategy{
     }
 
     @Override
-    public CompilerResult compile(String code, String fileName) {
+    public CompilerResult compile(String code, String fileLink, String fileName) {
         javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
-            JavaFileObject compilationUnit = getFileObject(fileName, fileManager);
+            JavaFileObject compilationUnit = getFileObject(fileLink + fileName, fileManager);
             List<JavaFileObject> compilationUnits = Collections.singletonList(compilationUnit);
 
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
@@ -454,8 +451,8 @@ public class JavaCompiler implements CompilerStrategy{
     }
 
     @Override
-    public void deleteFileCompiled(){
-        File file = new File(FILE_NAME);
+    public void deleteFileCompiled(String fileLink, String fileName){
+        File file = new File(fileLink + fileName);
         if (file.exists()) {
             if(file.delete()) {
                 log.info("File Solution.java deleted successfully.");

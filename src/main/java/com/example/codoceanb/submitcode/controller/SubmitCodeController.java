@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/submit-code")
+@RequestMapping("/api/submit-code/v1")
 public class SubmitCodeController {
     private static final Logger log = LogManager.getLogger(SubmitCodeController.class);
 

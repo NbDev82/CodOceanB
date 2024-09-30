@@ -20,6 +20,7 @@ import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.submission.mapper.SubmissionMapper;
 import com.example.codoceanb.submitcode.submission.repository.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class SubmissionServiceImpl implements SubmissionService {
+    @Value("${folder.url}")
+    private String CODE_FOLDER_PATH;
     private CompilerStrategy compilerStrategy;
 
     private final SubmissionRepository submissionRepos;
@@ -66,11 +69,12 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public ResultDTO compile(String authHeader, String code, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-
+        User user = userService.getUserDetailsFromToken(authHeader);
         String fileName = "Solution.java";
-        prepareFile(fileName, code);
+        String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
+        prepareFile(fileLink, fileName, code);
 
-        CompilerResult compilerResult = compilerStrategy.compile(code, fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
 
         return createResultDTO(compilerResult);
     }
@@ -91,12 +95,13 @@ public class SubmissionServiceImpl implements SubmissionService {
         User user = userService.getUserDetailsFromToken(authHeader);
 
         String fileName = "Solution.java";
-        prepareFile(fileName, code);
-        CompilerResult compilerResult = compilerStrategy.compile(code, fileName);
+        String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
+        prepareFile(fileLink, fileName, code);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
 
         if (compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
             CompilerProcessor compilerProcessor = new CompilerProcessor(compilerStrategy);
-            ResultDTO resultDTO = compilerProcessor.run(code, problem);
+            ResultDTO resultDTO = compilerProcessor.run(fileLink, fileName, code, problem);
 
             handleSuccessfulExecution(user, resultDTO, eLanguage, code, problem);
 
@@ -141,9 +146,9 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
     }
 
-    private void prepareFile(String fileName, String code) {
-        compilerStrategy.deleteFileCompiled();
-        compilerStrategy.writeFile(fileName, code);
+    private void prepareFile(String fileLink, String fileName, String code) {
+        compilerStrategy.deleteFileCompiled(fileLink, fileName);
+        compilerStrategy.writeFile(fileLink, fileName, code);
     }
 
     private CompilerStrategy determineCompilerStrategy(Submission.ELanguage eLanguage) {
