@@ -8,13 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.text.DecimalFormat;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 public class ProblemDTO {
-    private Long id;
+    private UUID id;
     private String title;
     private Problem.EDifficultyLevel difficulty;
     private boolean isDeleted;

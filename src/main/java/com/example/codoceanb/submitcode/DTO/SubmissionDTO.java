@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 public class SubmissionDTO {
-    private Long id;
+    private UUID id;
     private Submission.ELanguage language;
     private String codeSubmitted;
     private double score;
