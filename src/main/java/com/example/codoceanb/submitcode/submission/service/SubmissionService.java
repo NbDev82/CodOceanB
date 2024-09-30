@@ -6,11 +6,12 @@ import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface SubmissionService {
     String getInputCode(Problem problem, Submission.ELanguage language);
-    ResultDTO compile(String code, Submission.ELanguage eLanguage);
-    ResultDTO runCode(Long userId, String code, Problem problem, Submission.ELanguage eLanguage);
-    List<SubmissionDTO> getByUserIdAndProblemId(Long userId, Long problemId);
-    <T> List<T> getByUserId(long userId, Class<T> returnType);
+    ResultDTO compile(String authHeader, String code, Submission.ELanguage eLanguage);
+    ResultDTO runCode(String authHeader, String code, Problem problem, Submission.ELanguage eLanguage);
+    List<SubmissionDTO> getByUserIdAndProblemId(String authHeader, UUID problemId);
+    <T> List<T> getByUserId(UUID userId, Class<T> returnType);
 }

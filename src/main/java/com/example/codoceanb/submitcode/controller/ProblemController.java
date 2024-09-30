@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/problems")
@@ -22,7 +23,7 @@ public class ProblemController {
     private ProblemService problemService;
 
     @GetMapping("/findById")
-    public ResponseEntity<ProblemDTO> fetchProblem(Long problemId) {
+    public ResponseEntity<ProblemDTO> fetchProblem(UUID problemId) {
         ProblemDTO problemDTO = problemService.findById(problemId, ProblemDTO.class);
         log.info("Fetching problem by id: {}", problemId);
         return ResponseEntity.ok(problemDTO);
@@ -39,7 +40,7 @@ public class ProblemController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Boolean> deleteProblem(@RequestParam Long problemId) {
+    public ResponseEntity<Boolean> deleteProblem(@RequestParam UUID problemId) {
         try {
             return ResponseEntity.ok(problemService.delete(problemId));
         } catch (Exception e){

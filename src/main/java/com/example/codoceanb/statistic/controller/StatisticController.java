@@ -5,10 +5,9 @@ import com.example.codoceanb.statistic.service.StatisticService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/statistic")
@@ -22,8 +21,8 @@ public class StatisticController {
     }
 
     @GetMapping
-    public ResponseEntity<StatisticDTO> getStatistic(@RequestParam Long userId) {
-        StatisticDTO statisticDTO = service.getStatistic(userId);
+    public ResponseEntity<StatisticDTO> getStatistic(@RequestHeader(value = "Authorization") String authHeader) {
+        StatisticDTO statisticDTO = service.getStatistic(authHeader);
         log.info("Get StatisticDTO from StatisticController");
         return ResponseEntity.ok(statisticDTO);
     }

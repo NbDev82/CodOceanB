@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class ProblemServiceImpl implements ProblemService{
@@ -57,7 +58,7 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public <T> T findById(Long problemId, Class<T> returnType) {
+    public <T> T findById(UUID problemId, Class<T> returnType) {
         Problem problem = getEntityByProblemId(problemId);
         log.info("get problemDTO from ProblemServiceImpl");
 
@@ -90,7 +91,7 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public Problem getEntityByProblemId(Long problemId) {
+    public Problem getEntityByProblemId(UUID problemId) {
         log.info("get problem from ProblemServiceImpl");
         return problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException("Requested problem not found"));
@@ -110,7 +111,7 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public Boolean delete(Long problemId) {
+    public Boolean delete(UUID problemId) {
         Problem problem = problemRepository.findById(problemId).orElseThrow(()->new ProblemNotFoundException("Can't find problem with id "+problemId));
         problem.setDeleted(true);
         problemRepository.save(problem);

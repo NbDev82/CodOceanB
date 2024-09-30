@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +64,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public ResultDTO compile(String code, Submission.ELanguage eLanguage) {
+    public ResultDTO compile(String authHeader, String code, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
 
         String fileName = "Solution.java";
@@ -85,13 +86,9 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public ResultDTO runCode(Long userId, String code, Problem problem, Submission.ELanguage eLanguage) {
+    public ResultDTO runCode(String authHeader, String code, Problem problem, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-
-        User user = userMapper.toEntity(userService.getUserById(userId));
-        if (user == null) {
-            throw new UserNotFoundException("User not found with Id: " + userId);
-        }
+        User user = userService.getUserDetailsFromToken(authHeader);
 
         String fileName = "Solution.java";
         prepareFile(fileName, code);
@@ -158,8 +155,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public List<SubmissionDTO> getByUserIdAndProblemId(Long userId, Long problemId) {
-        User user = userMapper.toEntity(userService.getUserById(userId));
+    public List<SubmissionDTO> getByUserIdAndProblemId(String authHeader, UUID problemId) {
+        User user = userService.getUserDetailsFromToken(authHeader);
         Problem problem = problemService.getEntityByProblemId(problemId);
         List<Submission> submissions = submissionRepos.findByUserAndProblem(user, problem);
         submissions.sort((submissionA, submissionB) -> submissionB.getCreatedAt().compareTo(submissionA.getCreatedAt()));
@@ -167,7 +164,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public <T> List<T> getByUserId(long userId, Class<T> returnType) {
+    public <T> List<T> getByUserId(UUID userId, Class<T> returnType) {
         User user = userMapper.toEntity(userService.getUserById(userId));
 
         List<Submission> submissions = submissionRepos.findByUser(user);
