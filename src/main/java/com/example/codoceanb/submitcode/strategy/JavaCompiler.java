@@ -20,15 +20,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -45,85 +45,47 @@ public class JavaCompiler implements CompilerStrategy{
         this.parameterService = parameterService;
     }
 
-    private boolean hasMatchingDataTypesAndOutput(TestCaseResultDTO testCaseResultDTO) {
-        return testCaseResultDTO.getOutputDatatype().equals(testCaseResultDTO.getExpectedDatatype()) &&
-                testCaseResultDTO.getOutputData().equals(testCaseResultDTO.getExpected());
+    private boolean hasMatchingDataTypesAndOutput(String outputDatatype,
+                                                  String expectedDatatype,
+                                                  String outputData,
+                                                  String expected) {
+        return outputDatatype.equals(expectedDatatype) &&
+                outputData.equals(expected);
     }
 
     @Override
     public ResultDTO run(String fileLink, String fileName, String code, Problem problem) {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-        List<TestCaseResultDTO> testCaseResultDTOs = new ArrayList<>();
+        List<TestCaseResultDTO> testCaseResultDTOs;
         ResultDTO.ResultDTOBuilder builder = ResultDTO.builder();
-
         String functionName = problem.getFunctionName();
-
-        double memoryUsedAverage = 0;
-        double runtimeAverage = 0;
-        int maxTestCase = 0;
-
         List<TestCase> testCases = problem.getTestCases();
+        try {
+            String runCodeWithAllTestCase = createRunCodeWithAllTestCase(code, testCases, functionName, problem.getOutputDataType());
 
-        for(TestCase testCase: testCases){
-            String runCode = createRunCode(code, testCase.getParameters(), functionName, problem.getOutputDataType());
-
-            try {
-                writeFile(fileLink, fileName, runCode);
-                CompilerResult compile = compile(code, fileLink, fileName);
-
-                if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
-                    return createCompilationFailureResult(compile);
-                }
-
-                long startTime = System.nanoTime();
-                long startMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
-                TestCaseResultDTO testCaseResultDTO = runWithTestCase(functionName);
-                long endTime = System.nanoTime();
-                long endMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
-
-                double runtimeSeconds = (endTime - startTime) / 1_000_000_000.0;
-                double memoryUsedMB = (endMemoryBytes - startMemoryBytes) / (1024.0 * 1024.0);
-
-                testCaseResultDTO.setInput(generateParameterInput(testCase.getParameters()));
-                testCaseResultDTO.setExpectedDatatype(problem.getOutputDataType());
-                testCaseResultDTO.setExpected(testCase.getOutputData());
-                testCaseResultDTO.setPassed(hasMatchingDataTypesAndOutput(testCaseResultDTO));
-                testCaseResultDTOs.add(testCaseResultDTO);
-
-                if (runtimeSeconds > TIME_LIMITED) {
-                    testCaseResultDTO.setStatus(Submission.EStatus.TIME_LIMIT_EXCEEDED);
-                    builder.lastTestcase(testCaseResultDTO);
-                    break;
-                }
-
-                if (!testCaseResultDTO.isPassed()) {
-                    testCaseResultDTO.setStatus(Submission.EStatus.WRONG_ANSWER);
-                    builder.lastTestcase(testCaseResultDTO);
-                    break;
-                }
-
-                maxTestCase++;
-                memoryUsedAverage += memoryUsedMB;
-                runtimeAverage += runtimeSeconds;
-            } finally {
-                deleteFileCompiled(fileLink, fileName);
+            writeFile(fileLink, fileName, runCodeWithAllTestCase);
+            CompilerResult compile = compile(code, fileLink, fileName);
+            if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
+                return createCompilationFailureResult(compile);
             }
+
+            testCaseResultDTOs = runWithTestCases(problem.getOutputDataType(), testCases, fileLink, functionName);
+            if (testCaseResultDTOs == null) {
+                throw new RuntimeException("Error running the code!");
+            }
+        } finally {
+            deleteFileCompiled(fileLink, fileName);
         }
-
-        boolean isAccepted = testCases.size() == maxTestCase;
-        Submission.EStatus status = testCaseResultDTOs.isEmpty() ? Submission.EStatus.ACCEPTED : testCaseResultDTOs.get(testCaseResultDTOs.size() - 1).getStatus();
-
+        long passedTestCases = testCaseResultDTOs.stream().filter(TestCaseResultDTO::isPassed).count();
+        boolean isAccepted = testCases.size() == passedTestCases;
         return builder
                 .message("That is your result of your code for this problem")
-                .memory(memoryUsedAverage / maxTestCase)
-                .runtime(runtimeAverage / maxTestCase)
                 .maxTestcase(String.valueOf(testCases.size()))
-                .passedTestcase(String.valueOf(maxTestCase))
+                .passedTestcase(String.valueOf(passedTestCases))
                 .testCaseResultDTOS(testCaseResultDTOs)
                 .isAccepted(isAccepted)
-                .status(isAccepted ? Submission.EStatus.ACCEPTED
-                        : status.equals(Submission.EStatus.WRONG_ANSWER)
-                        ? Submission.EStatus.WRONG_ANSWER : Submission.EStatus.TIME_LIMIT_EXCEEDED)
+                .status(isAccepted ?
+                        Submission.EStatus.ACCEPTED :
+                        Submission.EStatus.WRONG_ANSWER)
                 .build();
     }
 
@@ -164,10 +126,63 @@ public class JavaCompiler implements CompilerStrategy{
     }
 
 
+    public String createRunCodeWithAllTestCase(String code, List<TestCase> testCases, String functionName, String outputDataType) {
+        int firstBraceIndex = code.indexOf("{") + 1;
+        int lastBraceIndex = code.length() - 1;
+
+        String header = code.substring(0, firstBraceIndex);
+        String body = code.substring(firstBraceIndex, lastBraceIndex);
+        String footer = code.substring(lastBraceIndex);
+        String parameterDeclarations = generateTestCaseParameterDeclarations(testCases);
+        String inputDataType = testCases.get(0).getParameters().get(0).getInputDataType();
+
+        String parameterReferences = testCases.get(0).getParameters().stream()
+                .map(Parameter::getName)
+                .collect(Collectors.joining(", "));
+
+        String staticMethod = String.format(
+                """
+                       public static %s[] %s() {
+                           %s[] result = new %s[%s.length];
+                           int index = 0;
+                           for(%s inputData : %s) {
+                                result[index++] = %s(inputData);
+                           }
+                        \t return result;
+                        }
+                        """,
+                outputDataType,
+                functionName,
+                outputDataType,
+                outputDataType,
+                parameterReferences,
+                inputDataType,
+                parameterReferences,
+                functionName
+        );
+        return header + "\n" +  parameterDeclarations  + body + "\n" + staticMethod + footer;
+    }
+
+    private String generateTestCaseParameterDeclarations(List<TestCase> testCases) {
+        Parameter p = testCases.get(0).getParameters().get(0);
+
+        String parameterListDeclarations = String.format("public static %s[] %s = {$", p.getInputDataType(), p.getName());
+
+        for (TestCase testCase : testCases) {
+            List<Parameter> parameters = testCase.getParameters();
+            String parameterDeclarations = parameters.stream()
+                    .map(p1 -> String.format("%s", p.getInputData()))
+                    .collect(Collectors.joining("\n\t"));
+            parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
+        }
+        parameterListDeclarations = parameterListDeclarations.replace(",$", "};");
+        return parameterListDeclarations;
+    }
+
     @Override
     public String createRunCode(String code, List<Parameter> parameters, String functionName, String outputDataType) {
         int firstBraceIndex = code.indexOf("{") + 1;
-        int lastBraceIndex = code.length() - 3;
+        int lastBraceIndex = code.length() - 1;
 
         String header = code.substring(0, firstBraceIndex);
         String body = code.substring(firstBraceIndex, lastBraceIndex);
@@ -196,12 +211,6 @@ public class JavaCompiler implements CompilerStrategy{
     public String generateParameterDeclarations(List<Parameter> parameters) {
         return parameters.stream()
                 .map(p -> String.format("public static %s %s = %s;\n", p.getInputDataType(), p.getName(), p.getInputData()))
-                .collect(Collectors.joining("\n\t"));
-    }
-
-    private String generateParameterInput(List<Parameter> parameters) {
-        return parameters.stream()
-                .map(p -> String.format("%s = %s\n", p.getName(), p.getInputData()))
                 .collect(Collectors.joining("\n\t"));
     }
 
@@ -241,32 +250,61 @@ public class JavaCompiler implements CompilerStrategy{
                 .collect(Collectors.joining());
     }
 
-    private Class<?> loadClass() throws IOException, ClassNotFoundException {
-        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File("").toURI().toURL()});
+    private Class<?> loadClass(String fileLink) throws IOException, ClassNotFoundException {
+        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File(fileLink).toURI().toURL()});
         return Class.forName("Solution", true, classLoader);
     }
 
-    public TestCaseResultDTO runWithTestCase(String functionName){
-        TestCaseResultDTO.TestCaseResultDTOBuilder testCaseResultDTO = TestCaseResultDTO.builder();
+    public List<TestCaseResultDTO> runWithTestCases(String outputDataType, List<TestCase> testCases, String fileLink, String functionName) {
         try {
-            Class<?> cls = loadClass();
+            List<TestCaseResultDTO> resultDTOs =  new ArrayList<>();
+
+            Class<?> cls = loadClass(fileLink);
             Method method = cls.getDeclaredMethod(functionName);
 
-            Object result = Modifier.isStatic(method.getModifiers())
+            var result = Modifier.isStatic(method.getModifiers())
                     ? method.invoke(null)
                     : method.invoke(cls.getDeclaredConstructor().newInstance());
 
-            Class<?> returnDataType = method.getReturnType();
-            String returnValue = result.toString();
-            log.info("Return value: {}", returnValue);
+            Class<?> returnDataType = method.getReturnType().getComponentType();
+            String[] returnValueArray = new String[Array.getLength(result)];
+            for (int i = 0; i < Array.getLength(result); i++) {
+                returnValueArray[i] = String.valueOf(Array.get(result, i));
+            }
 
-            testCaseResultDTO
-                    .outputData(returnValue)
-                    .outputDatatype(returnDataType.getName());
+            int i =0;
+
+            log.info("Return value: {}", Arrays.toString(returnValueArray));
+            for(String value : returnValueArray) {
+                TestCase testCase = testCases.get(i++);
+                TestCaseResultDTO.TestCaseResultDTOBuilder testCaseResultDTO = TestCaseResultDTO.builder();
+                testCaseResultDTO
+                        .input(generateParameterInput(testCase.getParameters()))
+                        .expectedDatatype(outputDataType)
+                        .expected(testCase.getOutputData())
+                        .outputData(value)
+                        .outputDatatype(returnDataType.getName());
+                boolean isPassed = hasMatchingDataTypesAndOutput(returnDataType.getName(), outputDataType, value, testCase.getOutputData());
+                testCaseResultDTO.isPassed(isPassed);
+
+                testCaseResultDTO.status(
+                        isPassed ?
+                                Submission.EStatus.ACCEPTED :
+                                Submission.EStatus.WRONG_ANSWER);
+                resultDTOs.add(testCaseResultDTO.build());
+            }
+
+            return resultDTOs;
         } catch (ReflectiveOperationException | IOException e) {
             log.warn("Error executing method: {}", e.getMessage());
+            return null;
         }
-        return testCaseResultDTO.build();
+    }
+
+    private String generateParameterInput(List<Parameter> parameters) {
+        return parameters.stream()
+                .map(p -> String.format("%s = %s\n", p.getName(), p.getInputData()))
+                .collect(Collectors.joining("\n\t"));
     }
 
     @Override

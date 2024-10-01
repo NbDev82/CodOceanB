@@ -24,6 +24,4 @@ public class ResultDTO {
 
     private double runtime;
     private double memory;
-
-    private TestCaseResultDTO lastTestcase;
 }
