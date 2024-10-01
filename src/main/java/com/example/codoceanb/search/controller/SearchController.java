@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/search")
 public class SearchController {
@@ -20,8 +22,6 @@ public class SearchController {
 
     @Autowired
     private SearchService searchService;
-    @Autowired
-    private JwtTokenUtils jwtTokenUtils;
 
     @GetMapping("/problems")
     public ResponseEntity<SearchResultDTO> getProblems(
@@ -31,35 +31,20 @@ public class SearchController {
             @RequestParam(required = false) Problem.EDifficultyLevel difficulty,
             @RequestParam(required = false) Problem.ETopic topic,
             @RequestParam(required = false) String searchTerm,
-            @RequestHeader(value = "Authorization") String token) {
-        
-        if (!jwtTokenUtils.isValidToken(token)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        
-        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
+            @RequestHeader(value = "Authorization") String authHeader) {
         SearchRequest request = createSearchRequest(pageNumber, limit, status, difficulty, topic, searchTerm);
-        SearchResultDTO searchResultDTO = searchService.getProblems(request, email);
-        
+        SearchResultDTO searchResultDTO = searchService.getProblems(request, authHeader);
         return ResponseEntity.ok(searchResultDTO);
     }
-    
-
     
     private SearchRequest createSearchRequest(int pageNumber, int limit, SearchRequest.EStatus status,
                                               Problem.EDifficultyLevel difficulty, Problem.ETopic topic, String searchTerm) {
         return new SearchRequest(pageNumber, limit, status, difficulty, topic, searchTerm);
     }
 
-    @GetMapping("/problems/{id}")
-    public ResponseEntity<ProblemDTO> getProblemDetail(@PathVariable Long id, @RequestHeader(value = "Authorization") String token) {
-        if (!jwtTokenUtils.isValidToken(token)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        
-        String email = jwtTokenUtils.extractEmailFromBearerToken(token);
-        ProblemDTO problemDetail = searchService.getProblemDetail(id, email);
-        
+    @GetMapping("/problems/{problemId}")
+    public ResponseEntity<ProblemDTO> getProblemDetail(@PathVariable(value = "problemId") UUID problemId) {
+        ProblemDTO problemDetail = searchService.getProblemDetail(problemId);
         return ResponseEntity.ok(problemDetail);
     }
 }

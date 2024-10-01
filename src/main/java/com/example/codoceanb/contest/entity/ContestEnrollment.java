@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "contest_enrollments")
@@ -17,8 +18,8 @@ import java.io.Serializable;
 @Builder
 public class ContestEnrollment implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     private double score;
 

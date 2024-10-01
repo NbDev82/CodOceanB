@@ -1,5 +1,7 @@
 package com.example.codoceanb.statistic.service;
 
+import com.example.codoceanb.auth.entity.User;
+import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.statistic.dto.StatisticDTO;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.submission.service.SubmissionService;
@@ -18,14 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StatisticServiceImpl implements  StatisticService {
     private final SubmissionService submissionService;
 
-    public StatisticServiceImpl(SubmissionService submissionService) {
+    private final UserService userService;
+
+    public StatisticServiceImpl(SubmissionService submissionService, UserService userService) {
         this.submissionService = submissionService;
+        this.userService = userService;
     }
 
     @Override
-    public StatisticDTO getStatistic(Long userId) {
-
-        List<Submission> acceptedSubmissions = submissionService.getByUserId(userId, Submission.class)
+    public StatisticDTO getStatistic(String authHeader) {
+        User user = userService.getUserDetailsFromToken(authHeader);
+        List<Submission> acceptedSubmissions = submissionService.getByUserId(user.getId(), Submission.class)
                 .stream()
                 .filter(submission -> submission.getStatus().equals(Submission.EStatus.ACCEPTED))
                 .toList();

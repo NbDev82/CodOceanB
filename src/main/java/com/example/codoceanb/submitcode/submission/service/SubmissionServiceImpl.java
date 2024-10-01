@@ -12,24 +12,25 @@ import com.example.codoceanb.submitcode.exception.UnsupportedLanguageException;
 import com.example.codoceanb.submitcode.parameter.service.ParameterService;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.service.ProblemService;
-import com.example.codoceanb.submitcode.strategy.CompilerProcessor;
-import com.example.codoceanb.submitcode.strategy.CompilerResult;
-import com.example.codoceanb.submitcode.strategy.CompilerStrategy;
-import com.example.codoceanb.submitcode.strategy.JavaCompiler;
+import com.example.codoceanb.submitcode.strategy.*;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.submission.mapper.SubmissionMapper;
 import com.example.codoceanb.submitcode.submission.repository.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class SubmissionServiceImpl implements SubmissionService{
-    private CompilerStrategy compilerStrategy = null;
+public class SubmissionServiceImpl implements SubmissionService {
+    @Value("${folder.url}")
+    private String CODE_FOLDER_PATH;
+    private CompilerStrategy compilerStrategy;
 
     private final SubmissionRepository submissionRepos;
     private final UserRepos userRepos;
@@ -59,17 +60,18 @@ public class SubmissionServiceImpl implements SubmissionService{
     @Override
     public String getInputCode(Problem problem, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-        return compilerStrategy.createInputCode(problem , "", problem.getTestCases().get(0));
+        return compilerStrategy.createInputCode(problem, "", problem.getTestCases().get(0));
     }
 
     @Override
-    public ResultDTO compile(String code, Submission.ELanguage eLanguage) {
+    public ResultDTO compile(String authHeader, String code, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-
+        User user = userService.getUserDetailsFromToken(authHeader);
         String fileName = "Solution.java";
-        prepareFile(fileName, code);
+        String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
+        prepareFile(fileLink, fileName, code);
 
-        CompilerResult compilerResult = compilerStrategy.compile(code,fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
 
         return createResultDTO(compilerResult);
     }
@@ -85,27 +87,23 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     @Override
-    public ResultDTO runCode(Long userId, String code, Problem problem, Submission.ELanguage eLanguage) {
+    public ResultDTO runCode(String authHeader, String code, Problem problem, Submission.ELanguage eLanguage) {
         compilerStrategy = determineCompilerStrategy(eLanguage);
-
-        User user = userMapper.toEntity(userService.getUserById(userId));
-        if(user == null) {
-            throw new UserNotFoundException("User not found with Id: "+userId);
-        }
+        User user = userService.getUserDetailsFromToken(authHeader);
 
         String fileName = "Solution.java";
-        prepareFile(fileName, code);
-        CompilerResult compilerResult = compilerStrategy.compile(code,fileName);
+        String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
+        prepareFile(fileLink, fileName, code);
+        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
 
-        if(compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
+        if (compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
             CompilerProcessor compilerProcessor = new CompilerProcessor(compilerStrategy);
-            ResultDTO resultDTO = compilerProcessor.run(code,problem);
+            ResultDTO resultDTO = compilerProcessor.run(fileLink, fileName, code, problem);
 
             handleSuccessfulExecution(user, resultDTO, eLanguage, code, problem);
 
             return resultDTO;
-        }
-        else {
+        } else {
             handleCompilationError(user, code, problem);
             return createCompilationErrorResultDTO(compilerResult.getError());
         }
@@ -136,7 +134,7 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     private void handleSuccessfulExecution(User user, ResultDTO resultDTO, Submission.ELanguage eLanguage, String code, Problem problem) {
-        if(!resultDTO.getStatus().equals(Submission.EStatus.COMPILE_ERROR)) {
+        if (!resultDTO.getStatus().equals(Submission.EStatus.COMPILE_ERROR)) {
             Submission submission = createSubmission(user, code, problem, eLanguage, resultDTO.getStatus());
             submission.setMemory(resultDTO.getMemory());
             submission.setRuntime(resultDTO.getRuntime());
@@ -145,9 +143,9 @@ public class SubmissionServiceImpl implements SubmissionService{
         }
     }
 
-    private void prepareFile(String fileName, String code) {
-        compilerStrategy.deleteFileCompiled();
-        compilerStrategy.writeFile(fileName, code);
+    private void prepareFile(String fileLink, String fileName, String code) {
+        compilerStrategy.deleteFileCompiled(fileLink, fileName);
+        compilerStrategy.writeFile(fileLink, fileName, code);
     }
 
     private CompilerStrategy determineCompilerStrategy(Submission.ELanguage eLanguage) {
@@ -159,26 +157,26 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     @Override
-    public List<SubmissionDTO> getByUserIdAndProblemId(Long userId, Long problemId) {
-        User user = userMapper.toEntity(userService.getUserById(userId));
+    public List<SubmissionDTO> getByUserIdAndProblemId(String authHeader, UUID problemId) {
+        User user = userService.getUserDetailsFromToken(authHeader);
         Problem problem = problemService.getEntityByProblemId(problemId);
-        List<Submission> submissions = submissionRepos.findByUserAndProblem(user,problem);
+        List<Submission> submissions = submissionRepos.findByUserAndProblem(user, problem);
         submissions.sort((submissionA, submissionB) -> submissionB.getCreatedAt().compareTo(submissionA.getCreatedAt()));
         return submissionMapper.toDTOs(submissions);
     }
 
     @Override
-    public <T> List<T> getByUserId(long userId, Class<T> returnType) {
+    public <T> List<T> getByUserId(UUID userId, Class<T> returnType) {
         User user = userMapper.toEntity(userService.getUserById(userId));
 
         List<Submission> submissions = submissionRepos.findByUser(user);
 
         return returnType.equals(Submission.class)
-                        ? (List<T>) submissions
-                        : submissions.stream()
-                            .map(submissionMapper::toDTO)
-                            .map(returnType::cast)
-                            .collect(Collectors.toList());
+                ? (List<T>) submissions
+                : submissions.stream()
+                .map(submissionMapper::toDTO)
+                .map(returnType::cast)
+                .collect(Collectors.toList());
     }
 
     public void addSubmission(User user, Submission submission) {

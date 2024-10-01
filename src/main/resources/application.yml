@@ -39,6 +39,9 @@ frontend:
     mobile:
         url: ${PROD_FRONTEND_MOBILE_URL}
 
+folder:
+    url: ${CODE_FOLDER_PATH}
+
 third-party:
     sending-email:
         address: ${PRO_EMAIL_ADDRESS}

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "test_cases")
@@ -20,7 +21,7 @@ import java.util.List;
 public class TestCase implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     @Column(name = "output_data")
     private String outputData;

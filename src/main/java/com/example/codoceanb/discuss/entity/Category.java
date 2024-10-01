@@ -6,6 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "categories")
@@ -16,8 +17,8 @@ import java.util.List;
 @Builder
 public class Category implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @Column(name = "title")
     private String categoryTitle;
     @Column(name = "description")

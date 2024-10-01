@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public User updateUser(UserDTO userDTO, Long userId) {
+    public User updateUser(UserDTO userDTO, UUID userId) {
         User existingUser = userRepos.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
         String newPhoneNumber = userDTO.getPhoneNumber();
@@ -154,26 +155,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
     
     @Override
-    public User getEntityUserById(Long userId) {
+    public User getEntityUserById(UUID userId) {
         return userRepos.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
     }
 
     @Override
-    public UserDTO getUserById(Long userId) {
+    public UserDTO getUserById(UUID userId) {
         User user = userRepos.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
         return userMapper.toDTO(user);
     }
 
     @Override
-    public User getUserDetailsFromToken(String token) throws Exception {
+    public User getUserDetailsFromToken(String token){
         String email = jwtTokenUtil.extractEmailFromBearerToken(token);
         return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", email)));
     }
 
     @Override
-    public User getUserDetailsFromCleanToken(String token) throws Exception {
+    public User getUserDetailsFromCleanToken(String token){
         String email = jwtTokenUtil.extractEmail(token);
         return userRepos.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", email)));
     }

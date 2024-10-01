@@ -1,5 +1,6 @@
 package com.example.codoceanb.search.service;
 
+import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.search.dto.ProblemDTO;
 import com.example.codoceanb.search.dto.SearchResultDTO;
 import com.example.codoceanb.search.exception.ProblemNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -27,15 +29,19 @@ public class SearchServiceImpl implements SearchService {
     private final SearchProblemMapper mapper;
     private final ProblemRepository problemRepos;
 
+    private final JwtTokenUtils jwtTokenUtils;
+
     @Autowired
-    public SearchServiceImpl(SearchProblemMapper mapper, ProblemRepository problemRepos) {
+    public SearchServiceImpl(SearchProblemMapper mapper, ProblemRepository problemRepos, JwtTokenUtils jwtTokenUtils) {
         this.mapper = mapper;
         this.problemRepos = problemRepos;
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
-    public SearchResultDTO getProblems(SearchRequest request, String email) {
+    public SearchResultDTO getProblems(SearchRequest request, String authHeader) {
         try {
+            String email = jwtTokenUtils.extractEmailFromBearerToken(authHeader);
             Problem.EDifficultyLevel difficulty = request.getDifficulty();
             Problem.ETopic topic = request.getTopic();
             SearchRequest.EStatus status = request.getStatus();
@@ -92,7 +98,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public ProblemDTO getProblemDetail(Long id, String email) {
+    public ProblemDTO getProblemDetail(UUID id) {
         Problem problem = problemRepos.findById(id)
                 .orElseThrow(() -> new ProblemNotFoundException("Problem not found"));
         return mapper.toDTO(problem, null);

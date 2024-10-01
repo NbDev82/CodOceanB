@@ -45,3 +45,4 @@ mylog.log.*.gz
 
 #test data
 src/main/java/com/example/codoceanb/infras/testdata/
+CodeFolder/
