@@ -1,6 +1,5 @@
 package com.example.codoceanb.submitcode.strategy;
 
-
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.TestCaseResultDTO;
 import com.example.codoceanb.submitcode.ECompilerConstants;
@@ -18,8 +17,6 @@ import javax.tools.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -34,11 +31,8 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
-public class JavaCompiler implements CompilerStrategy{
-    public static final int TIME_LIMITED = 2;
+public class JavaCompiler implements CompilerStrategy {
     private static final Logger log = LogManager.getLogger(JavaCompiler.class);
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
-
     private final ParameterService parameterService;
 
     public JavaCompiler(ParameterService parameterService) {
@@ -59,11 +53,12 @@ public class JavaCompiler implements CompilerStrategy{
         ResultDTO.ResultDTOBuilder builder = ResultDTO.builder();
         String functionName = problem.getFunctionName();
         List<TestCase> testCases = problem.getTestCases();
+
         try {
             String runCodeWithAllTestCase = createRunCodeWithAllTestCase(code, testCases, functionName, problem.getOutputDataType());
-
             writeFile(fileLink, fileName, runCodeWithAllTestCase);
             CompilerResult compile = compile(code, fileLink, fileName);
+
             if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
                 return createCompilationFailureResult(compile);
             }
@@ -75,17 +70,17 @@ public class JavaCompiler implements CompilerStrategy{
         } finally {
             deleteFileCompiled(fileLink, fileName);
         }
+
         long passedTestCases = testCaseResultDTOs.stream().filter(TestCaseResultDTO::isPassed).count();
         boolean isAccepted = testCases.size() == passedTestCases;
+
         return builder
                 .message("That is your result of your code for this problem")
                 .maxTestcase(String.valueOf(testCases.size()))
                 .passedTestcase(String.valueOf(passedTestCases))
                 .testCaseResultDTOS(testCaseResultDTOs)
                 .isAccepted(isAccepted)
-                .status(isAccepted ?
-                        Submission.EStatus.ACCEPTED :
-                        Submission.EStatus.WRONG_ANSWER)
+                .status(isAccepted ? Submission.EStatus.ACCEPTED : Submission.EStatus.WRONG_ANSWER)
                 .build();
     }
 
@@ -111,7 +106,7 @@ public class JavaCompiler implements CompilerStrategy{
                 status = Submission.EStatus.COMPILE_ERROR;
                 break;
             default:
-                message = "Unexpected compilation error: {}" + compilerResult.getError();
+                message = "Unexpected compilation error: " + compilerResult.getError();
                 log.warn(message);
                 return ResultDTO.builder()
                         .status(Submission.EStatus.COMPILE_ERROR)
@@ -125,7 +120,6 @@ public class JavaCompiler implements CompilerStrategy{
                 .build();
     }
 
-
     public String createRunCodeWithAllTestCase(String code, List<TestCase> testCases, String functionName, String outputDataType) {
         int firstBraceIndex = code.indexOf("{") + 1;
         int lastBraceIndex = code.length() - 1;
@@ -135,32 +129,23 @@ public class JavaCompiler implements CompilerStrategy{
         String footer = code.substring(lastBraceIndex);
         String parameterDeclarations = generateTestCaseParameterDeclarations(testCases);
         String inputDataType = testCases.get(0).getParameters().get(0).getInputDataType();
-
         String parameterReferences = testCases.get(0).getParameters().stream()
                 .map(Parameter::getName)
                 .collect(Collectors.joining(", "));
 
         String staticMethod = String.format(
-                """
-                       public static %s[] %s() {
-                           %s[] result = new %s[%s.length];
-                           int index = 0;
-                           for(%s inputData : %s) {
-                                result[index++] = %s(inputData);
-                           }
-                        \t return result;
-                        }
-                        """,
-                outputDataType,
-                functionName,
-                outputDataType,
-                outputDataType,
-                parameterReferences,
-                inputDataType,
-                parameterReferences,
-                functionName
+                "public static %s[] %s() {\n" +
+                        "    %s[] result = new %s[%s.length];\n" +
+                        "    int index = 0;\n" +
+                        "    for (%s inputData : %s) {\n" +
+                        "        result[index++] = %s(inputData);\n" +
+                        "    }\n" +
+                        "    return result;\n" +
+                        "}",
+                outputDataType, functionName, outputDataType, outputDataType, parameterReferences, inputDataType, parameterReferences, functionName
         );
-        return header + "\n" +  parameterDeclarations  + body + "\n" + staticMethod + footer;
+
+        return header + "\n" + parameterDeclarations + body + "\n" + staticMethod + footer;
     }
 
     private String generateTestCaseParameterDeclarations(List<TestCase> testCases) {
@@ -175,43 +160,7 @@ public class JavaCompiler implements CompilerStrategy{
                     .collect(Collectors.joining("\n\t"));
             parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
         }
-        parameterListDeclarations = parameterListDeclarations.replace(",$", "};");
-        return parameterListDeclarations;
-    }
-
-    @Override
-    public String createRunCode(String code, List<Parameter> parameters, String functionName, String outputDataType) {
-        int firstBraceIndex = code.indexOf("{") + 1;
-        int lastBraceIndex = code.length() - 1;
-
-        String header = code.substring(0, firstBraceIndex);
-        String body = code.substring(firstBraceIndex, lastBraceIndex);
-        String footer = code.substring(lastBraceIndex);
-
-        String parameterDeclarations = generateParameterDeclarations(parameters);
-
-        String parameterReferences = parameters.stream()
-                .map(Parameter::getName)
-                .collect(Collectors.joining(", "));
-
-        String staticMethod = String.format(
-                """
-                       public static %s %s() {
-                        \t return %s(%s);
-                        }
-                        """,
-                outputDataType,
-                functionName,
-                functionName,
-                parameterReferences
-        );
-        return header + "\n" +  parameterDeclarations  + body + "\n" + staticMethod + footer;
-    }
-
-    public String generateParameterDeclarations(List<Parameter> parameters) {
-        return parameters.stream()
-                .map(p -> String.format("public static %s %s = %s;\n", p.getInputDataType(), p.getName(), p.getInputData()))
-                .collect(Collectors.joining("\n\t"));
+        return parameterListDeclarations.replace(",$", "};");
     }
 
     private void validateTestCase(TestCase testCase) {
@@ -223,24 +172,17 @@ public class JavaCompiler implements CompilerStrategy{
     @Override
     public String createInputCode(Problem problem, String code, TestCase testCase) {
         validateTestCase(testCase);
-
         StringBuilder listParameter = parameterService.createListParameter(testCase.getParameters());
         String importStatements = createImportStatements(problem);
 
         return String.format(
-                """
-                        %s
-                        public class Solution {
-                        \tpublic static %s %s (%s) {
-                        \t\t%s
-                        \t}
-                        }
-                        """,
-                importStatements,
-                problem.getOutputDataType(),
-                problem.getFunctionName(),
-                listParameter,
-                code);
+                "%s\n" +
+                        "public class Solution {\n" +
+                        "    public static %s %s (%s) {\n" +
+                        "        %s\n" +
+                        "    }\n" +
+                        "}",
+                importStatements, problem.getOutputDataType(), problem.getFunctionName(), listParameter, code);
     }
 
     private String createImportStatements(Problem problem) {
@@ -257,12 +199,10 @@ public class JavaCompiler implements CompilerStrategy{
 
     public List<TestCaseResultDTO> runWithTestCases(String outputDataType, List<TestCase> testCases, String fileLink, String functionName) {
         try {
-            List<TestCaseResultDTO> resultDTOs =  new ArrayList<>();
-
+            List<TestCaseResultDTO> resultDTOs = new ArrayList<>();
             Class<?> cls = loadClass(fileLink);
             Method method = cls.getDeclaredMethod(functionName);
-
-            var result = Modifier.isStatic(method.getModifiers())
+            Object result = Modifier.isStatic(method.getModifiers())
                     ? method.invoke(null)
                     : method.invoke(cls.getDeclaredConstructor().newInstance());
 
@@ -272,25 +212,18 @@ public class JavaCompiler implements CompilerStrategy{
                 returnValueArray[i] = String.valueOf(Array.get(result, i));
             }
 
-            int i =0;
-
             log.info("Return value: {}", Arrays.toString(returnValueArray));
-            for(String value : returnValueArray) {
-                TestCase testCase = testCases.get(i++);
-                TestCaseResultDTO.TestCaseResultDTOBuilder testCaseResultDTO = TestCaseResultDTO.builder();
-                testCaseResultDTO
+            for (int i = 0; i < returnValueArray.length; i++) {
+                TestCase testCase = testCases.get(i);
+                boolean isPassed = hasMatchingDataTypesAndOutput(returnDataType.getName(), outputDataType, returnValueArray[i], testCase.getOutputData());
+                TestCaseResultDTO.TestCaseResultDTOBuilder testCaseResultDTO = TestCaseResultDTO.builder()
                         .input(generateParameterInput(testCase.getParameters()))
                         .expectedDatatype(outputDataType)
                         .expected(testCase.getOutputData())
-                        .outputData(value)
-                        .outputDatatype(returnDataType.getName());
-                boolean isPassed = hasMatchingDataTypesAndOutput(returnDataType.getName(), outputDataType, value, testCase.getOutputData());
-                testCaseResultDTO.isPassed(isPassed);
-
-                testCaseResultDTO.status(
-                        isPassed ?
-                                Submission.EStatus.ACCEPTED :
-                                Submission.EStatus.WRONG_ANSWER);
+                        .outputData(returnValueArray[i])
+                        .outputDatatype(returnDataType.getName())
+                        .isPassed(isPassed)
+                        .status(isPassed ? Submission.EStatus.ACCEPTED : Submission.EStatus.WRONG_ANSWER);
                 resultDTOs.add(testCaseResultDTO.build());
             }
 
@@ -316,7 +249,6 @@ public class JavaCompiler implements CompilerStrategy{
 
         File file = new File(fileLink + fileName);
         try {
-            // Tạo đường dẫn nếu đường dẫn không tồn tại
             File parentDir = file.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 parentDir.mkdirs();
@@ -428,11 +360,7 @@ public class JavaCompiler implements CompilerStrategy{
         }
 
         // Kiểm tra các lệnh nguy hiểm khác
-        if (code.matches("(?i).*(sudo|su)\\s+.*")) {
-            return true;
-        }
-
-        return false;
+        return code.matches("(?i).*(sudo|su)\\s+.*");
     }
 
     @Override
@@ -442,14 +370,12 @@ public class JavaCompiler implements CompilerStrategy{
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
             JavaFileObject compilationUnit = getFileObject(fileLink + fileName, fileManager);
             List<JavaFileObject> compilationUnits = Collections.singletonList(compilationUnit);
-
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
             javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
             boolean compilationSuccess = task.call();
-
             if (!compilationSuccess) {
-                final StringBuilder errorStringBuilder = getErrorStringBuilder(diagnostics);
+                StringBuilder errorStringBuilder = getErrorStringBuilder(diagnostics);
                 return new CompilerResult(ECompilerConstants.COMPILATION_ERROR, errorStringBuilder.toString());
             }
             return new CompilerResult(ECompilerConstants.SUCCESS);
@@ -477,24 +403,19 @@ public class JavaCompiler implements CompilerStrategy{
     //http://www.java2s.com/example/java-api/javax/tools/javafilemanager/getjavafileforinput-3-0.html
     private JavaFileObject getFileObject(String fileName, StandardJavaFileManager fileManager) throws IOException {
         JavaFileObject fileObject = fileManager.getJavaFileForInput(StandardLocation.PLATFORM_CLASS_PATH, fileName, JavaFileObject.Kind.CLASS);
-        if (fileObject != null)
-            return fileObject;
+        if (fileObject != null) return fileObject;
 
-        fileObject = fileManager.getJavaFileForInput(StandardLocation.CLASS_PATH, fileName,
-                JavaFileObject.Kind.CLASS);
-        if (fileObject != null)
-            return fileObject;
+        fileObject = fileManager.getJavaFileForInput(StandardLocation.CLASS_PATH, fileName, JavaFileObject.Kind.CLASS);
+        if (fileObject != null) return fileObject;
 
         return fileManager.getJavaFileObjects(fileName).iterator().next();
     }
 
     @Override
-    public void deleteFileCompiled(String fileLink, String fileName){
+    public void deleteFileCompiled(String fileLink, String fileName) {
         File file = new File(fileLink + fileName);
-        if (file.exists()) {
-            if(file.delete()) {
-                log.info("File Solution.java deleted successfully.");
-            }
+        if (file.exists() && file.delete()) {
+            log.info("File {} deleted successfully.", fileName);
         }
     }
 }

@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface CompilerStrategy {
     String createInputCode(Problem problem, String code, TestCase testCase);
-    String createRunCode(String code, List<Parameter> parameters, String functionName, String outputDataType);
-
     void writeFile(String fileLink, String fileName, String code);
     void deleteFileCompiled(String fileLink, String fileName);
     CompilerResult compile(String code, String fileLink, String fileName);
