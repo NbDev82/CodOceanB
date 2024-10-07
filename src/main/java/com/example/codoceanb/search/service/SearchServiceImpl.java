@@ -48,10 +48,10 @@ public class SearchServiceImpl implements SearchService {
             String searchTerm = request.getSearchTerm();
 
             Pageable sortedById = PageRequest.of(request.getPageNumber(), request.getLimit(), Sort.by("id"));
-            Page<Problem> problemPage = problemRepos.findByCriteria(difficulty, sortedById);
+            Page<Problem> problemPage = problemRepos.findByCriteria(difficulty, topic, sortedById);
 
             List<ProblemDTO> problemDTOs = new ArrayList<>(problemPage.stream()
-                    .filter(problem -> topic == null || problem.getTopics().contains(topic))
+//                    .filter(problem -> topic == null || problem.getTopics().contains(topic))
                     .filter(problem -> searchTerm == null || problem.getName().toLowerCase().contains(searchTerm.toLowerCase()))
                     .map(problem -> enrichProblemDTO(problem, email))
                     .filter(problemDTO -> status == null || problemDTO.getStatus().equals(status))

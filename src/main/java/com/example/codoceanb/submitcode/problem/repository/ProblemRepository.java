@@ -2,7 +2,6 @@ package com.example.codoceanb.submitcode.problem.repository;
 
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,8 +17,9 @@ public interface ProblemRepository extends JpaRepository<Problem, UUID> {
     @Query("SELECT p " +
             "FROM Problem p " +
             "WHERE ( :difficulty IS NULL OR p.difficultyLevel = :difficulty ) " +
+            "AND (:topic IS NULL OR :topic MEMBER OF p.topics) " +
             "AND p.isDeleted = false ")
-    Page<Problem> findByCriteria(Problem.EDifficultyLevel difficulty, Pageable pageable);
+    Page<Problem> findByCriteria(Problem.EDifficultyLevel difficulty, Problem.ETopic topic, Pageable pageable);
 
 
     @Query("SELECT p " +
