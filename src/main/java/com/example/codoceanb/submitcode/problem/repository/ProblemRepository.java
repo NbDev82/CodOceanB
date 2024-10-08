@@ -16,10 +16,10 @@ public interface ProblemRepository extends JpaRepository<Problem, UUID> {
 
     @Query("SELECT p " +
             "FROM Problem p " +
-            "WHERE ( :difficulty IS NULL OR p.difficultyLevel = :difficulty ) " +
+            "WHERE ( :difficulty IS NULL OR p.difficulty = :difficulty ) " +
             "AND (:topic IS NULL OR :topic MEMBER OF p.topics) " +
             "AND p.isDeleted = false ")
-    Page<Problem> findByCriteria(Problem.EDifficultyLevel difficulty, Problem.ETopic topic, Pageable pageable);
+    Page<Problem> findByCriteria(Problem.EDifficulty difficulty, Problem.ETopic topic, Pageable pageable);
 
 
     @Query("SELECT p " +
@@ -29,7 +29,7 @@ public interface ProblemRepository extends JpaRepository<Problem, UUID> {
 
     @Query("SELECT p " +
             "FROM Problem p " +
-            "WHERE ( p.isDeleted = false AND  p.owner.id = :userId AND p.name LIKE %:problemName% )")
+            "WHERE ( p.isDeleted = false AND  p.owner.id = :userId AND p.title LIKE %:problemName% )")
     List<Problem> getProblemsByOwnerAndName(Long userId, String problemName);
 
     @Query("SELECT p " +

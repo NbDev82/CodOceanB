@@ -9,5 +9,5 @@ import java.util.UUID;
 @Data
 public class PickOneDTO {
     private UUID id;
-    private String name;
+    private String title;
 }

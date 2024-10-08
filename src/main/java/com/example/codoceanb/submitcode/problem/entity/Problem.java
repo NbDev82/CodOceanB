@@ -27,7 +27,7 @@ public class Problem implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private String name;
+    private String title;
 
     @Column(columnDefinition = "text")
     private String description;
@@ -45,7 +45,7 @@ public class Problem implements Serializable {
     private String outputDataType;
 
     @Enumerated(EnumType.STRING)
-    private EDifficultyLevel difficultyLevel;
+    private EDifficulty difficulty;
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
@@ -77,7 +77,7 @@ public class Problem implements Serializable {
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
     private List<Submission> submissions;
 
-    public enum EDifficultyLevel {
+    public enum EDifficulty {
         EASY, NORMAL, HARD;
     }
 

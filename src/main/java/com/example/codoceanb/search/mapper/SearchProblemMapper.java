@@ -18,9 +18,9 @@ public interface SearchProblemMapper {
     @Mapping(target = "acceptedCount",
             expression = "java(countAccepted(problem))")
     @Mapping(target = "title",
-            expression = "java(problem.getName())")
+            expression = "java(problem.getTitle())")
     @Mapping(target = "difficulty",
-            expression = "java(problem.getDifficultyLevel())")
+            expression = "java(problem.getDifficulty())")
     @Mapping(target = "status",
             expression = "java(getStatus(problem,email))")
     @Mapping(target = "id",

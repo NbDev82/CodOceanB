@@ -171,19 +171,19 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     private Problem createProblemFromRequest(AddProblemRequestDTO problemDTO) {
-        Problem.EDifficultyLevel difficulty = Problem.EDifficultyLevel.valueOf(problemDTO.getDifficulty());
+        Problem.EDifficulty difficulty = Problem.EDifficulty.valueOf(problemDTO.getDifficulty());
 
         User user = userService.getEntityUserById(problemDTO.getOwnerId());
         List<Problem.ETopic> topics = new ArrayList<>();
 
         return Problem.builder()
-                .name(problemDTO.getTitle())
+                .title(problemDTO.getTitle())
                 .description(problemDTO.getDescription())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .functionName(problemDTO.getFunctionName())
                 .outputDataType(problemDTO.getOutputDataType())
-                .difficultyLevel(difficulty)
+                .difficulty(difficulty)
                 .isDeleted(problemDTO.isDeleted())
                 .owner(user)
                 .topics(topics)

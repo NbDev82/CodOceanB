@@ -49,7 +49,7 @@ public class StatisticServiceImpl implements  StatisticService {
         LocalDateTime endOfWeek = getEndOfWeek();
 
         acceptedSubmissions.forEach(submission -> {
-            switch (submission.getProblem().getDifficultyLevel()) {
+            switch (submission.getProblem().getDifficulty()) {
                 case EASY -> totalEasy.incrementAndGet();
                 case NORMAL -> totalNormal.incrementAndGet();
                 case HARD -> totalHard.incrementAndGet();
@@ -59,7 +59,7 @@ public class StatisticServiceImpl implements  StatisticService {
                 DayOfWeek submissionDayOfWeek = submission.getCreatedAt().getDayOfWeek();
                 int index = dayIndexMap.getOrDefault(submissionDayOfWeek, -1);
                 if (index != -1) {
-                    switch (submission.getProblem().getDifficultyLevel()) {
+                    switch (submission.getProblem().getDifficulty()) {
                         case EASY -> EASY.set(index, EASY.get(index) + 1);
                         case NORMAL -> NORMAL.set(index, NORMAL.get(index) + 1);
                         case HARD -> HARD.set(index, HARD.get(index) + 1);

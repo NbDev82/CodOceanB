@@ -23,11 +23,8 @@ public class Discuss implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(length = 100 , nullable = false)
-    private String topic;
-
-    @Column(length = 100000000 )
-    private String content;
+    @Column(length = 100000000)
+    private String title;
 
     private String description;
 
@@ -42,21 +39,18 @@ public class Discuss implements Serializable {
 
     private String image;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "discuss_categories",
+            joinColumns = @JoinColumn(name = "discuss_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User owner;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "problem_id")
-    private Problem problem;
-
-    @OneToMany(mappedBy = "discuss", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
     private List<Comment> comments;
-
-
 }

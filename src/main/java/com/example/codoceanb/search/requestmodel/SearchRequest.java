@@ -16,7 +16,7 @@ public class SearchRequest {
     private int pageNumber;
     private int limit;
     private EStatus status;
-    private Problem.EDifficultyLevel difficulty;
+    private Problem.EDifficulty difficulty;
     private Problem.ETopic topic;
     private String searchTerm;
 

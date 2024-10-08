@@ -28,7 +28,7 @@ public class SearchController {
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) SearchRequest.EStatus status,
-            @RequestParam(required = false) Problem.EDifficultyLevel difficulty,
+            @RequestParam(required = false) Problem.EDifficulty difficulty,
             @RequestParam(required = false) Problem.ETopic topic,
             @RequestParam(required = false) String searchTerm,
             @RequestHeader(value = "Authorization") String authHeader) {
@@ -38,7 +38,7 @@ public class SearchController {
     }
     
     private SearchRequest createSearchRequest(int pageNumber, int limit, SearchRequest.EStatus status,
-                                              Problem.EDifficultyLevel difficulty, Problem.ETopic topic, String searchTerm) {
+                                              Problem.EDifficulty difficulty, Problem.ETopic topic, String searchTerm) {
         return new SearchRequest(pageNumber, limit, status, difficulty, topic, searchTerm);
     }
 

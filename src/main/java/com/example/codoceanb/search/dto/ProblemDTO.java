@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ProblemDTO {
     private UUID id;
     private String title;
-    private Problem.EDifficultyLevel difficulty;
+    private Problem.EDifficulty difficulty;
     private boolean isDeleted;
     private SearchRequest.EStatus status;
     private int acceptedCount;
