@@ -11,4 +11,5 @@ import java.util.List;
 @Builder
 public class CategoryDTO {
     private String name;
+    private String description;
 }
