@@ -42,7 +42,7 @@ public class SearchServiceImpl implements SearchService {
     public SearchResultDTO getProblems(SearchRequest request, String authHeader) {
         try {
             String email = jwtTokenUtils.extractEmailFromBearerToken(authHeader);
-            Problem.EDifficultyLevel difficulty = request.getDifficulty();
+            Problem.EDifficulty difficulty = request.getDifficulty();
             Problem.ETopic topic = request.getTopic();
             SearchRequest.EStatus status = request.getStatus();
             String searchTerm = request.getSearchTerm();
@@ -52,7 +52,7 @@ public class SearchServiceImpl implements SearchService {
 
             List<ProblemDTO> problemDTOs = new ArrayList<>(problemPage.stream()
 //                    .filter(problem -> topic == null || problem.getTopics().contains(topic))
-                    .filter(problem -> searchTerm == null || problem.getName().toLowerCase().contains(searchTerm.toLowerCase()))
+                    .filter(problem -> searchTerm == null || problem.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))
                     .map(problem -> enrichProblemDTO(problem, email))
                     .filter(problemDTO -> status == null || problemDTO.getStatus().equals(status))
                     .toList());

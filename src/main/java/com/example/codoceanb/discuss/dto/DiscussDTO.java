@@ -13,12 +13,11 @@ import java.util.UUID;
 @Builder
 public class DiscussDTO {
     private UUID id;
-    private String topic;
-    private String content;
+    private String title;
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime endAt;
     private String image;
-    private String commentCount;
+    private int commentCount;
 }

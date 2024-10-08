@@ -52,7 +52,7 @@ public class ProblemController {
     @GetMapping("/pickOne")
     public ResponseEntity<PickOneDTO> pickProblem() {
         Problem problem = problemService.getRandomProblem();
-        PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getName());
+        PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getTitle());
         log.info("Fetching random problem");
         return ResponseEntity.ok(dto);
     }

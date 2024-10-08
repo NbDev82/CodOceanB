@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/submit-code/v1",
                                 "/api/profile/**",
+                                "/api/discuss/**",
                                 "/api/topics/**",
                                 "/api/search/**",
                                 "/api/trending/**")
