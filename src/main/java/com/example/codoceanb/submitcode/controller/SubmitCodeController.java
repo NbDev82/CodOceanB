@@ -8,6 +8,7 @@ import com.example.codoceanb.submitcode.exception.UnsupportedLanguageException;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
 import com.example.codoceanb.submitcode.request.SubmitCodeRequest;
+import com.example.codoceanb.submitcode.request.TestCodeWithCustomTestcaseRequest;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.submission.service.SubmissionService;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,13 @@ public class SubmitCodeController {
         Submission.ELanguage language = parseLanguage(request.getLanguage());
         
         ResultDTO resultDTO = submissionService.runCode(authHeader, request.getCode(), problem, language);
+        return ResponseEntity.ok(resultDTO);
+    }
+
+    @PostMapping("/test-with-custom-testcases")
+    public ResponseEntity<ResultDTO> testWithCustomTestCases(@RequestBody TestCodeWithCustomTestcaseRequest request,
+                                                @RequestHeader(value = "Authorization") String authHeader) {
+        ResultDTO resultDTO = submissionService.testWithCustomTestCases(authHeader, request);
         return ResponseEntity.ok(resultDTO);
     }
 

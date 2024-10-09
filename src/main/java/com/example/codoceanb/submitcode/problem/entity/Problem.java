@@ -41,6 +41,9 @@ public class Problem implements Serializable {
     @Column(name = "function_name")
     private String functionName;
 
+    @Column(name = "correct_answer", columnDefinition = "text")
+    private String correctAnswer;
+
     @Column(name = "output_datatype")
     private String outputDataType;
 
