@@ -8,10 +8,12 @@ import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.SubmissionDTO;
 import com.example.codoceanb.submitcode.ECompilerConstants;
+import com.example.codoceanb.submitcode.exception.ProblemNotFoundException;
 import com.example.codoceanb.submitcode.exception.UnsupportedLanguageException;
 import com.example.codoceanb.submitcode.parameter.service.ParameterService;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.service.ProblemService;
+import com.example.codoceanb.submitcode.request.TestCodeWithCustomTestcaseRequest;
 import com.example.codoceanb.submitcode.strategy.*;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.submission.mapper.SubmissionMapper;
@@ -71,7 +73,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
         prepareFile(fileLink, fileName, code);
 
-        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(fileLink, fileName);
 
         return createResultDTO(compilerResult);
     }
@@ -94,7 +96,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         String fileName = "Solution.java";
         String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
         prepareFile(fileLink, fileName, code);
-        CompilerResult compilerResult = compilerStrategy.compile(code, fileLink, fileName);
+        CompilerResult compilerResult = compilerStrategy.compile(fileLink, fileName);
 
         if (compilerResult.getCompilerConstants().equals(ECompilerConstants.SUCCESS)) {
             CompilerProcessor compilerProcessor = new CompilerProcessor(compilerStrategy);
@@ -177,6 +179,29 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .map(submissionMapper::toDTO)
                 .map(returnType::cast)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ResultDTO testWithCustomTestCases(String authHeader, TestCodeWithCustomTestcaseRequest request) {
+        User user = userService.getUserDetailsFromToken(authHeader);
+        Problem problem = problemService.findById(request.getProblemId(), Problem.class);
+        Submission.ELanguage language = parseLanguage(request.getLanguage());
+        compilerStrategy = determineCompilerStrategy(language);
+
+        String fileName = "Solution.java";
+        String fileLink = String.format("%s/%s/", CODE_FOLDER_PATH, user.getId());
+
+        CompilerProcessor compilerProcessor = new CompilerProcessor(compilerStrategy);
+        return compilerProcessor.runWithCustomTestcase(fileLink, fileName, request.getCustomTestCaseDTOs() , request.getCode(), problem);
+
+    }
+
+    private Submission.ELanguage parseLanguage(String language) {
+        try {
+            return Submission.ELanguage.valueOf(language.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedLanguageException("Language is not supported yet!");
+        }
     }
 
     public void addSubmission(User user, Submission submission) {

@@ -17,7 +17,8 @@ public interface DiscussRepository extends JpaRepository<Discuss, UUID> {
     @Query(value = "SELECT d.id, d.category_id, d.content, d.created_at, d.description, d.end_at, d.image, d.user_id, d.problem_id, d.topic, d.updated_at, COUNT(c.id) AS comment_count " +
                    "FROM discusses d " +
                    "LEFT JOIN comments c ON d.id = c.discuss_id " +
-                   "WHERE (:searchTerm IS NULL OR d.content LIKE %:searchTerm%) " +
+                   "WHERE d.is_closed IS FALSE " +
+                   "AND (:searchTerm IS NULL OR d.content LIKE %:searchTerm%) " +
                    "AND (:category IS NULL OR d.category_id = :category) " +
                    "GROUP BY d.id, d.category_id, d.content, d.created_at, d.description, d.end_at, d.image, d.user_id, d.problem_id, d.topic, d.updated_at " +
                    "ORDER BY comment_count DESC",

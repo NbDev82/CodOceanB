@@ -10,7 +10,7 @@ public class AddProblemRequestDTO {
     private UUID ownerId;
     private String title;
     private String description;
-    private String point;
+    private String correctAnswer;
     private String difficulty;
     private List<String> topics;
     private boolean deleted;

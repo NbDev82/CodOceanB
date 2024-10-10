@@ -39,6 +39,9 @@ public class Discuss implements Serializable {
 
     private String image;
 
+    @Column(name = "is_closed")
+    private boolean isClosed;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "discuss_categories",

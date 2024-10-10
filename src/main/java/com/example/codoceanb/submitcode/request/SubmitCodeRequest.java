@@ -12,8 +12,8 @@ import java.util.UUID;
 @Data
 @Builder
 public class SubmitCodeRequest {
-    private String code;
-    private String language;
-    private UUID problemId;
+    protected String code;
+    protected String language;
+    protected UUID problemId;
 }
 

@@ -182,6 +182,7 @@ public class ProblemServiceImpl implements ProblemService{
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .functionName(problemDTO.getFunctionName())
+                .correctAnswer(problemDTO.getCorrectAnswer())
                 .outputDataType(problemDTO.getOutputDataType())
                 .difficulty(difficulty)
                 .isDeleted(problemDTO.isDeleted())

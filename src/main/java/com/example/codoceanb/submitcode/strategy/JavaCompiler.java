@@ -1,5 +1,7 @@
 package com.example.codoceanb.submitcode.strategy;
 
+import com.example.codoceanb.auth.entity.User;
+import com.example.codoceanb.submitcode.DTO.CustomTestCaseDTO;
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.TestCaseResultDTO;
 import com.example.codoceanb.submitcode.ECompilerConstants;
@@ -26,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,7 +57,7 @@ public class JavaCompiler implements CompilerStrategy {
         try {
             String runCodeWithAllTestCase = createRunCodeWithAllTestCase(code, testCases, functionName, problem.getOutputDataType());
             writeFile(fileLink, fileName, runCodeWithAllTestCase);
-            CompilerResult compile = compile(code, fileLink, fileName);
+            CompilerResult compile = compile(fileLink, fileName);
 
             if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
                 return createCompilationFailureResult(compile);
@@ -82,6 +82,106 @@ public class JavaCompiler implements CompilerStrategy {
                 .isAccepted(isAccepted)
                 .status(isAccepted ? Submission.EStatus.ACCEPTED : Submission.EStatus.WRONG_ANSWER)
                 .build();
+    }
+
+    @Override
+    public ResultDTO runWithCustomTestcase(String fileLink, String fileName, List<CustomTestCaseDTO> customTestCaseDTOs, String code, Problem problem) {
+        try {
+            List<String> correctAnswerWithCustomTestcase = getCorrectAnswerWithCustomTestcase(fileLink, fileName, customTestCaseDTOs, problem.getCorrectAnswer(), problem);
+            ResultDTO ActualAnswerWithCustomTestcase = getActualAnswerWithCustomTestcase(fileLink, fileName, customTestCaseDTOs, code, problem);
+            return compareResultWithCorrectAnswer(correctAnswerWithCustomTestcase, ActualAnswerWithCustomTestcase);
+        } finally {
+            deleteFileCompiled(fileLink, fileName);
+        }
+    }
+
+    private List<String> getCorrectAnswerWithCustomTestcase(String fileLink, String fileName, List<CustomTestCaseDTO> customTestCaseDTOs, String code, Problem problem) {
+        List<TestCase> testCases = problem.getTestCases();
+        String functionName = problem.getFunctionName();
+        String runCodeWithCustomTestCase = createRunCodeWithCustomTestCase(code, testCases, functionName, problem.getOutputDataType(), customTestCaseDTOs);
+        
+        writeFile(fileLink, fileName, runCodeWithCustomTestCase);
+        CompilerResult compile = compile(fileLink, fileName);
+        
+        if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
+            throw new RuntimeException("Error compiling the code!");
+        }
+
+        List<String> testCaseResultDTOs = runWithCustomTestCases(fileLink, functionName);
+        if (testCaseResultDTOs == null) {
+            throw new RuntimeException("Error running the code!");
+        }
+        
+        return testCaseResultDTOs;
+    }
+
+    private ResultDTO getActualAnswerWithCustomTestcase(String fileLink, String fileName, List<CustomTestCaseDTO> customTestCaseDTOs, String code, Problem problem) {
+        List<TestCase> testCases = problem.getTestCases();
+        String functionName = problem.getFunctionName();
+        String runCodeWithCustomTestCase = createRunCodeWithCustomTestCase(code, testCases, functionName, problem.getOutputDataType(), customTestCaseDTOs);
+        
+        writeFile(fileLink, fileName, runCodeWithCustomTestCase);
+        CompilerResult compile = compile(fileLink, fileName);
+        
+        if (compile.getCompilerConstants() != ECompilerConstants.SUCCESS) {
+            throw new RuntimeException("Error compiling the code!");
+        }
+
+        List<String> result = runWithCustomTestCases(fileLink, functionName);
+        if (result == null) {
+            throw new RuntimeException("Error running the code!");
+        }
+
+        List<TestCaseResultDTO> testCaseResultDTOs = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
+            String output = result.get(i);
+            String input = customTestCaseDTOs.get(i).getInputData();
+            TestCaseResultDTO testCaseResultDTO = TestCaseResultDTO.builder()
+                    .outputDatatype(problem.getOutputDataType())
+                    .outputData(output)
+                    .expectedDatatype(problem.getOutputDataType())
+                    .input(input)
+                    .build();
+            testCaseResultDTOs.add(testCaseResultDTO);
+        }
+
+        return ResultDTO.builder()
+                .isAccepted(true)
+                .testCaseResultDTOS(testCaseResultDTOs)
+                .build();
+    }
+
+    private ResultDTO compareResultWithCorrectAnswer(List<String> correctAnswerWithCustomTestcase, ResultDTO resultDTO) {
+        boolean isAccepted = true;
+        List<String> results = resultDTO.getTestCaseResultDTOS().stream()
+                .map(TestCaseResultDTO::getOutputData)
+                .toList();
+
+        int passedTestcase = 0;
+        int maxTestcase = results.size();
+
+        for (int i = 0; i < correctAnswerWithCustomTestcase.size(); i++) {
+            TestCaseResultDTO resultDTO1 = resultDTO.getTestCaseResultDTOS().get(i);
+            resultDTO1.setExpected(correctAnswerWithCustomTestcase.get(i));
+            if (!correctAnswerWithCustomTestcase.get(i).equals(results.get(i))) {
+                isAccepted = false;
+                resultDTO1.setPassed(false);
+                resultDTO.getTestCaseResultDTOS().get(i).setStatus(Submission.EStatus.WRONG_ANSWER);
+            } else {
+                resultDTO1.setPassed(true);
+                resultDTO.getTestCaseResultDTOS().get(i).setStatus(Submission.EStatus.ACCEPTED);
+                passedTestcase++;
+            }
+
+            resultDTO.getTestCaseResultDTOS().set(i,resultDTO1);
+        }
+
+        resultDTO.setMaxTestcase(String.valueOf(maxTestcase));
+        resultDTO.setPassedTestcase(String.valueOf(passedTestcase));
+        resultDTO.setAccepted(isAccepted);
+        resultDTO.setStatus(isAccepted? Submission.EStatus.ACCEPTED : Submission.EStatus.WRONG_ANSWER);
+        resultDTO.setMessage(isAccepted ? "All test cases passed!" : "Some test cases failed.");
+        return resultDTO;
     }
 
     private ResultDTO createCompilationFailureResult(CompilerResult compilerResult) {
@@ -120,6 +220,38 @@ public class JavaCompiler implements CompilerStrategy {
                 .build();
     }
 
+    private String createRunCodeWithCustomTestCase(String code,
+                                                   List<TestCase> testCases,
+                                                   String functionName,
+                                                   String outputDataType,
+                                                   List<CustomTestCaseDTO> customTestCaseDTOs) {
+        int firstBraceIndex = code.indexOf("{") + 1;
+        int lastBraceIndex = code.length() - 1;
+
+        String header = code.substring(0, firstBraceIndex);
+        String body = code.substring(firstBraceIndex, lastBraceIndex);
+        String footer = code.substring(lastBraceIndex);
+        String parameterDeclarations = generateCustomTestCaseParameterDeclarations(testCases, customTestCaseDTOs);
+        String inputDataType = testCases.get(0).getParameters().get(0).getInputDataType();
+        String parameterReferences = testCases.get(0).getParameters().stream()
+                .map(Parameter::getName)
+                .collect(Collectors.joining(", "));
+
+        String staticMethod = String.format(
+                "public static %s[] %s() {\n" +
+                        "    %s[] result = new %s[%s.length];\n" +
+                        "    int index = 0;\n" +
+                        "    for (%s inputData : %s) {\n" +
+                        "        result[index++] = %s(inputData);\n" +
+                        "    }\n" +
+                        "    return result;\n" +
+                        "}",
+                outputDataType, functionName, outputDataType, outputDataType, parameterReferences, inputDataType, parameterReferences, functionName
+        );
+
+        return String.join("\n", header, parameterDeclarations, body, staticMethod, footer);
+    }
+
     public String createRunCodeWithAllTestCase(String code, List<TestCase> testCases, String functionName, String outputDataType) {
         int firstBraceIndex = code.indexOf("{") + 1;
         int lastBraceIndex = code.length() - 1;
@@ -145,7 +277,18 @@ public class JavaCompiler implements CompilerStrategy {
                 outputDataType, functionName, outputDataType, outputDataType, parameterReferences, inputDataType, parameterReferences, functionName
         );
 
-        return header + "\n" + parameterDeclarations + body + "\n" + staticMethod + footer;
+        return String.join("\n", header, parameterDeclarations, body, staticMethod, footer);
+    }
+
+    private String generateCustomTestCaseParameterDeclarations(List<TestCase> testCases, List<CustomTestCaseDTO> customTestCaseDTOs) {
+        Parameter p = testCases.get(0).getParameters().get(0);
+
+        String parameterListDeclarations = String.format("public static %s[] %s = {$", p.getInputDataType(), p.getName());
+        String parameterDeclarations = customTestCaseDTOs.stream()
+                .map(dto -> String.format("%s", dto.getInputData()))
+                .collect(Collectors.joining(",\t"));
+        parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
+        return parameterListDeclarations.replace(",$", "};\n");
     }
 
     private String generateTestCaseParameterDeclarations(List<TestCase> testCases) {
@@ -156,7 +299,7 @@ public class JavaCompiler implements CompilerStrategy {
         for (TestCase testCase : testCases) {
             List<Parameter> parameters = testCase.getParameters();
             String parameterDeclarations = parameters.stream()
-                    .map(p1 -> String.format("%s", p.getInputData()))
+                    .map(p1 -> String.format("%s", p1.getInputData()))
                     .collect(Collectors.joining("\n\t"));
             parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
         }
@@ -195,6 +338,28 @@ public class JavaCompiler implements CompilerStrategy {
     private Class<?> loadClass(String fileLink) throws IOException, ClassNotFoundException {
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{new File(fileLink).toURI().toURL()});
         return Class.forName("Solution", true, classLoader);
+    }
+
+    public List<String> runWithCustomTestCases(String fileLink, String functionName) {
+        try {
+            Class<?> cls = loadClass(fileLink);
+            Method method = cls.getDeclaredMethod(functionName);
+            Object result = Modifier.isStatic(method.getModifiers())
+                    ? method.invoke(null)
+                    : method.invoke(cls.getDeclaredConstructor().newInstance());
+
+            String[] returnValueArray = new String[Array.getLength(result)];
+            for (int i = 0; i < Array.getLength(result); i++) {
+                returnValueArray[i] = String.valueOf(Array.get(result, i));
+            }
+
+            log.info("Return value: {}", Arrays.toString(returnValueArray));
+
+            return new ArrayList<>(Arrays.asList(returnValueArray));
+        } catch (ReflectiveOperationException | IOException e) {
+            log.warn("Error executing method: {}", e.getMessage());
+            return null;
+        }
     }
 
     public List<TestCaseResultDTO> runWithTestCases(String outputDataType, List<TestCase> testCases, String fileLink, String functionName) {
@@ -364,7 +529,7 @@ public class JavaCompiler implements CompilerStrategy {
     }
 
     @Override
-    public CompilerResult compile(String code, String fileLink, String fileName) {
+    public CompilerResult compile(String fileLink, String fileName) {
         javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {

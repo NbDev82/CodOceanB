@@ -43,6 +43,6 @@ public class DiscussController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteDiscuss(@PathVariable UUID id) {
         discussService.deleteDiscuss(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
