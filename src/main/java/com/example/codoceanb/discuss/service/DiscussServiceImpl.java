@@ -139,10 +139,10 @@ public class DiscussServiceImpl implements DiscussService{
     @Override
     public void deleteDiscuss(UUID id) {
         try {
-            if (!discussRepository.existsById(id)) {
-                throw new IllegalArgumentException("Discuss not found");
-            }
-            discussRepository.deleteById(id);
+            Discuss discuss = discussRepository.findById(id)
+                    .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+            discuss.setClosed(true);
+            discussRepository.save(discuss);
         } catch (Exception e) {
             log.error("Error deleting discuss: ", e);
             throw new RuntimeException("Unable to delete discuss");
