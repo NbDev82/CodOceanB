@@ -14,11 +14,12 @@ public interface UserService {
     Boolean createUser(UserDTO userDTO);
     User getUserDetailsFromToken(String token);
     User getUserDetailsFromCleanToken(String token);
-    User updateUser(UserDTO userDTO, UUID userId);
     ProfileResponse getProfile(String token);
     ProfileResponse changeProfile(String token, ProfileDTO profileDTO);
     User getEntityUserById(UUID userId);
     UserDTO getUserById(UUID userId);
 
     ProfileResponse changeEmail(String token, String otp, String newEmail);
+
+    UserDTO getCurrentUser(String authHeader);
 }

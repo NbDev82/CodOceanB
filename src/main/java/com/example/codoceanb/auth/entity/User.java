@@ -44,6 +44,24 @@ public class User implements UserDetails {
     private String urlImage;
     private String password;
 
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "school")
+    private String school;
+
+    @Column(name = "occupation")
+    private String occupation;
+
+    @Column(name = "favorite_programming_language")
+    private String favoriteProgrammingLanguage;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -52,6 +70,9 @@ public class User implements UserDetails {
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    @Column(name = "is_first_login")
+    private boolean isFirstLogin;
 
     @Enumerated(EnumType.STRING)
     private ERole role;
@@ -65,8 +86,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Contest> contests;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Token> tokens;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Token token;
 
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
     private List<Notification> notifications;

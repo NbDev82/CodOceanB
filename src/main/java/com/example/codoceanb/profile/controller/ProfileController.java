@@ -40,6 +40,12 @@ public class ProfileController {
         return ResponseEntity.ok(userService.changeProfile(authHeader, profileDTO));
     }
 
+//    @GetMapping("/collect-user-info")
+//    public ResponseEntity<ProfileDTO> collectUserInfo(@RequestHeader(value = "Authorization") String authHeader) {
+//        ProfileDTO profileDTO = userService.collectUserInfo(authHeader);
+//        return ResponseEntity.ok(profileDTO);
+//    }
+
     @PostMapping("/change-email")
     public ResponseEntity<ProfileResponse> changeEmail(@RequestBody ChangeEmailRequest request,
                                                        @RequestHeader(value = "Authorization") String authHeader) {

@@ -16,12 +16,8 @@ import java.util.UUID;
 @Builder
 @Data
 public class UserDTO {
-    private UUID id;
-
     private String fullName;
-
     private String phoneNumber;
-
     private LocalDateTime dateOfBirth;
 
     @NotBlank(message = "Email number is required")
@@ -29,12 +25,6 @@ public class UserDTO {
     private String urlImage;
     private String password;
 
-    private double cumulativeScore;
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
-    @NotNull(message = "Role ID is required")
-    private User.ERole role;
 }

@@ -17,6 +17,7 @@ public interface UserMapper {
     List<UserDTO> toDTOs(List<User> users);
 
     @Mapping(target = "isActive", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "urlImage", source = "urlImage")
     User toEntity(UserDTO userDTO);
 

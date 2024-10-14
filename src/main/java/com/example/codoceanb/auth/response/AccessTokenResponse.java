@@ -8,16 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginResponse {
+public class AccessTokenResponse {
     @JsonProperty("accessToken")
     private String accessToken;
-    @JsonProperty("refreshToken")
-    private String refreshToken;
     @JsonProperty("message")
     private String message;
-    @JsonProperty("isActive")
-    private Boolean isActive;
-    @JsonProperty("isFirstLogin")
-    private Boolean isFirstLogin;
-
 }
