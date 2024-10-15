@@ -30,6 +30,10 @@ public class AccountServiceImpl implements AccountService {
     public String login(String email, String password) {
         User existingUser = userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found!"));
+        if(existingUser.isFirstLogin()) {
+            existingUser.setFirstLogin(false);
+            userRepos.save(existingUser);
+        }
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
         }

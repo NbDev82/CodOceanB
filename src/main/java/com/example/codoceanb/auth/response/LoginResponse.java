@@ -1,5 +1,6 @@
 package com.example.codoceanb.auth.response;
 
+import com.example.codoceanb.auth.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -19,5 +20,7 @@ public class LoginResponse {
     private Boolean isActive;
     @JsonProperty("isFirstLogin")
     private Boolean isFirstLogin;
+    @JsonProperty("role")
+    private User.ERole role;
 
 }

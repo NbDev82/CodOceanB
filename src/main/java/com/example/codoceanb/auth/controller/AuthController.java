@@ -70,6 +70,7 @@ public class AuthController {
                     .accessToken(accessToken)
                     .isActive(user.isActive())
                     .isFirstLogin(user.isFirstLogin())
+                    .role(user.getRole())
                     .build());
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(LoginResponse.builder()
