@@ -53,17 +53,20 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(encodedPassword);
         userRepos.save(user);
-        tokenRepos.findAndDeleteByUserEmail(email);
+        tokenRepos.deleteByUser(user);
     }
 
     @Override
     public void resetPassword(String email, String newPassword) {
         User user = userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        tokenRepos.findAndDeleteByUserEmail(email);
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
         userRepos.save(user);
+
+        Token token = tokenRepos.findByUser(user);
+        token.setToken(null);
+        tokenRepos.save(token);
     }
 
     @Override
@@ -96,6 +99,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String refreshToken(String refreshToken) {
+        refreshToken = refreshToken.substring(7);
         Token token = tokenRepos.findByToken(refreshToken)
                 .orElseThrow(() ->  new TokenNotFoundException("Token not found"));
         return jwtTokenUtil.generateToken(token.getUser());

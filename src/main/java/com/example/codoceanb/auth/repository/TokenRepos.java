@@ -14,7 +14,7 @@ public interface TokenRepos extends JpaRepository<Token, UUID> {
 
     Optional<Token> findByToken(String refreshToken);
 
-    void findAndDeleteByUserEmail(String email);
-
     Token findByUser(User user);
+
+    void deleteByUser(User user);
 }
