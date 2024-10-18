@@ -49,7 +49,10 @@ public class JwtTokenUtils {
 
     public boolean validateToken(String token, User userDetails) throws Exception {
         String email = extractEmail(token);
-        return isValidToken(token) && email.equals(userDetails.getEmail());
+        boolean isActive = extractIsActive(token);
+        return isValidToken(token) &&
+                email.equals(userDetails.getEmail()) &&
+                isActive;
     }
 
     private Key getSignKey() {
@@ -87,6 +90,10 @@ public class JwtTokenUtils {
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+     public boolean extractIsActive(String token) {
+        return extractClaim(token, claims -> claims.get("isActive", Boolean.class));
     }
 
     public String extractEmailFromBearerToken(String token) {
