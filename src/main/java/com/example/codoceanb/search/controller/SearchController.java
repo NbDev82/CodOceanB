@@ -30,7 +30,7 @@ public class SearchController {
             @RequestParam(required = false) SearchRequest.EStatus status,
             @RequestParam(required = false) Problem.EDifficulty difficulty,
             @RequestParam(required = false) Problem.ETopic topic,
-            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false, defaultValue = "") String searchTerm,
             @RequestHeader(value = "Authorization") String authHeader) {
         SearchRequest request = createSearchRequest(pageNumber, limit, status, difficulty, topic, searchTerm);
         SearchResultDTO searchResultDTO = searchService.getProblems(request, authHeader);
