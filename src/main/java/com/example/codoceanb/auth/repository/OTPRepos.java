@@ -12,10 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface OTPRepos extends JpaRepository<OTP, UUID> {
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM OTP o WHERE o.expirationDate < :now")
-    void deleteExpiredOtps(LocalDateTime now);
-
     OTP findByUserEmailAndType(String email, OTP.EType type);
+
+    OTP findByUserEmail(String email);
 }

@@ -46,13 +46,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Boolean createUser(UserDTO userDTO) {
         String email = userDTO.getEmail();
         String phoneNumber = userDTO.getPhoneNumber();
-        userDTO.setRole(User.ERole.USER);
 
         if (userRepos.existsByPhoneNumberOrEmail(phoneNumber, email)) {
             throw new DataIntegrityViolationException("Account already exits");
         }
 
         User user = userMapper.toEntity(userDTO);
+        user.setRole(User.ERole.USER);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         String password = userDTO.getPassword();
@@ -61,29 +61,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userRepos.save(user);
         return true;
-    }
-
-    @Transactional
-    @Override
-    public User updateUser(UserDTO userDTO, UUID userId) {
-        User existingUser = userRepos.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));
-        String newPhoneNumber = userDTO.getPhoneNumber();
-        if (!existingUser.getPhoneNumber().equals(newPhoneNumber) && userRepos.existsByPhoneNumber(newPhoneNumber)) {
-            throw new DataIntegrityViolationException("Phone number already exists");
-        }
-        if (userDTO.getFullName() != null) {
-            existingUser.setFullName(userDTO.getFullName());
-        }
-        if (userDTO.getPhoneNumber() != null) {
-            existingUser.setPhoneNumber(userDTO.getPhoneNumber());
-        }
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-            String newPassword = userDTO.getPassword();
-            String encodedPassword = passwordEncoder.encode(newPassword);
-            existingUser.setPassword(encodedPassword);
-        }
-        return userRepos.save(existingUser);
     }
 
     @Override
@@ -100,6 +77,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Transactional
     @Override
     public ProfileResponse changeProfile(String token, ProfileDTO profileDTO) {
         try {
@@ -153,7 +131,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return null;
         }
     }
-    
+
+    @Override
+    public UserDTO getCurrentUser(String authHeader) {
+        String email = jwtTokenUtil.extractEmailFromBearerToken(authHeader);
+        return userMapper.toDTO(userRepos.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found")));
+    }
+
     @Override
     public User getEntityUserById(UUID userId) {
         return userRepos.findById(userId)

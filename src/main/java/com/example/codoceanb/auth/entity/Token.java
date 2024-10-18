@@ -21,17 +21,11 @@ public class Token implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+
+    @Column(columnDefinition = "text")
     private String token;
 
-    @Column(name="token_type")
-    private String tokenType;
-
-    @Column(name="expiration")
-    private LocalDateTime expirationDate;
-
-    private boolean expired;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 }

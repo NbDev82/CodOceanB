@@ -1,18 +1,19 @@
 package com.example.codoceanb.infras.security;
 
 import com.example.codoceanb.auth.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,39 +22,38 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenUtils {
-    @Value("${jwt.expiration:2592000}")
-    private int expiration;
+    private static final Logger log = LogManager.getLogger(JwtTokenUtils.class);
 
-    @Value("${jwt.secret:TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=}")
-    private String secretKey;
+    private final String secretKey;
 
-    public String generateToken(User user) throws Exception {
+    public JwtTokenUtils() {
+        this.secretKey = generateSecretKey();
+    }
+
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
         claims.put("userId", user.getId());
         claims.put("email", user.getEmail());
         claims.put("isActive", user.isActive());
 
-        try {
-            return Jwts.builder()
-                    .setClaims(claims)
-                    .setSubject(user.getEmail())
-                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
-                    .signWith(getSignKey(), SignatureAlgorithm.HS256)
-                    .compact();
-        } catch (Exception e) {
-            throw new Exception("Cannot create JWT token, error: " + e.getMessage());
-        }
+        int expiration = 1000 * 60 * 3;
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public boolean validateToken(String token, User userDetails) {
+    public boolean validateToken(String token, User userDetails) throws Exception {
         String email = extractEmail(token);
-        return (!isTokenExpired(token) && email.equals(userDetails.getEmail()));
+        return isValidToken(token) && email.equals(userDetails.getEmail());
     }
 
     private Key getSignKey() {
-        byte[] bytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(bytes);
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
     private String generateSecretKey() {
@@ -71,18 +71,18 @@ public class JwtTokenUtils {
                 .getBody();
     }
 
-    public boolean isTokenExpired(String token) {
-        Date expirationDate = extractClaim(token, Claims::getExpiration);
-        return expirationDate.before(new Date());
-    }
-
-    public boolean isValidToken(String token) {
-        return token != null && token.startsWith("Bearer ");
+    public boolean isValidToken(String token) throws Exception {
+        try {
+            extractAllClaims(token);
+            return true;
+        } catch (Exception e) {
+            log.error("Lỗi xác thực token: " + e.getMessage());
+            throw new Exception("Lỗi xác thực token: " + e.getMessage());
+        }
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+        return claimsResolver.apply(extractAllClaims(token));
     }
 
     public String extractEmail(String token) {
@@ -90,11 +90,14 @@ public class JwtTokenUtils {
     }
 
     public String extractEmailFromBearerToken(String token) {
-        String cleanToken = token.substring(7);
-        return extractEmail(cleanToken);
+        return extractEmail(token.substring(7));
     }
 
-    public Date getExpirationDateFromToken(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(new Date(Duration.ofDays(7).toMillis()))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 }

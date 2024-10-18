@@ -1,11 +1,14 @@
 package com.example.codoceanb.auth.controller;
 
+import com.example.codoceanb.auth.dto.UserDTO;
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.mapper.UserMapper;
 import com.example.codoceanb.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +20,9 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    @Autowired
-    private final UserMapper userMapper;
-
+    @GetMapping("/current")
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        UserDTO user =userService.getCurrentUser(authHeader);
+        return ResponseEntity.ok(user);
+    }
 }

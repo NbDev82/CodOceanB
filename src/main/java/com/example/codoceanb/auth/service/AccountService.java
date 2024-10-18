@@ -7,4 +7,10 @@ public interface AccountService {
     void changePassword(String bearerToken, ChangePasswordRequest request);
 
     void resetPassword(String email, String newPassword);
+
+    void deleteRefreshToken(String refreshToken);
+
+    String generateAndSaveRefreshToken(String accessToken);
+
+    String refreshToken(String refreshToken);
 }

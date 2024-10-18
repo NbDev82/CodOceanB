@@ -44,24 +44,29 @@ public class OTPServiceImpl implements OTPService {
     private boolean handleVerifyOtp(String email, String otp, OTP.EType type) {
         OTP otpExisted = otpRepos.findByUserEmailAndType(email, type);
         boolean isMatches = otpExisted != null && passwordEncoder.matches(otp, otpExisted.getEncryptedOTP());
-        if (isMatches && type.equals(OTP.EType.ACTIVE_ACCOUNT)) {
-            User user = userRepos.findByEmail(email)
-                    .orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
-            user.setActive(true);
-            userRepos.save(user);
+        if (isMatches && LocalDateTime.now().isBefore(otpExisted.getExpirationDate())) {
+            if(type.equals(OTP.EType.ACTIVE_ACCOUNT)) {
+                User user = userRepos.findByEmail(email)
+                        .orElseThrow(() -> new UserNotFoundException(String.format("User %s not found", email)));
+                user.setActive(true);
+                userRepos.save(user);
+            }
+            otpExisted.setEncryptedOTP(null);
+            otpRepos.save(otpExisted);
         }
         return isMatches;
     }
 
     public boolean handleRequestOTP(String email, OTP.EType type) {
-        OTP existedOTP = checkExistedOTP(email, type);
-        if (existedOTP != null) {
-            deleteOTP(existedOTP);
-        }
-
+        OTP existedOTP = otpRepos.findByUserEmailAndType(email, type);
         String otpString = generateOtpString();
-        OTP otp = createOTP(otpString, type);
-        saveOTP(otp, email);
+        if(existedOTP == null) {
+            existedOTP = createOTP(otpString, type);
+        } else {
+            existedOTP.setEncryptedOTP(passwordEncoder.encode(otpString));
+        }
+        existedOTP.setExpirationDate(LocalDateTime.now().plusMinutes(5));
+        saveOTP(existedOTP, email);
         sendEmail(email, otpString, type);
 
         return true;
