@@ -11,4 +11,6 @@ public class MessageKeys{
     public static  final String EMAIL_ALREADY_EXISTS = "user.login.email_already_exists";
     public static final String REFRESH_TOKEN_FAILED = "user.login.refresh_access_token_failed";
     public static final String REFRESH_TOKEN_SUCCESSFUL = "user.login.refresh_access_token_successful";
+    public static final String REFRESH_PASSWORD_SUCCESSFUL = "user.login.refresh_password_successful";
+    public static final String REFRESH_PASSWORD_FAILED = "user.login.refresh_password_failed";
 }

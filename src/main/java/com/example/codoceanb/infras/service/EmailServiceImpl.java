@@ -13,10 +13,10 @@ import java.util.Properties;
 
 @Service
 public class EmailServiceImpl implements EmailService {
-        @Value("${third-party.sending-email.address}")
+    @Value("${third-party.sending-email.address}")
     private String from;
 
-        @Value("${third-party.sending-email.password}")
+    @Value("${third-party.sending-email.password}")
     private String password;
     @Override
     public void sendHtmlContent(String toEmail, String subject, String htmlBody) {

@@ -6,7 +6,7 @@ public interface AccountService {
     String login(String email, String password) throws Exception;
     void changePassword(String bearerToken, ChangePasswordRequest request);
 
-    void resetPassword(String email, String newPassword);
+    String resetPassword(String email, String newPassword);
 
     void deleteRefreshToken(String refreshToken);
 
