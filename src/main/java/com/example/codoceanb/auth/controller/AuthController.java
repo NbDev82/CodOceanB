@@ -48,7 +48,7 @@ public class AuthController {
                     .build());
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body(RegisterResponse.builder()
-                    .message(MessageKeys.EMAIL_ALREADY_EXISTS)
+                    .message(MessageKeys.AUTH_ALREADY_EXISTS)
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(RegisterResponse.builder()

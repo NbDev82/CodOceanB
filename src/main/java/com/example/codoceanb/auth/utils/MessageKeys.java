@@ -8,7 +8,7 @@ public class MessageKeys{
     public static final String LOGIN_FAILED =  "user.login.login_failed";
     public static final String PASSWORD_NOT_MATCH =  "user.register.password_not_match";
     public static final String USER_IS_LOCKED = "user.login.user_is_locked";
-    public static  final String EMAIL_ALREADY_EXISTS = "user.login.email_already_exists";
+    public static  final String AUTH_ALREADY_EXISTS = "user.login.auth_already_exists";
     public static final String REFRESH_TOKEN_FAILED = "user.login.refresh_access_token_failed";
     public static final String REFRESH_TOKEN_SUCCESSFUL = "user.login.refresh_access_token_successful";
     public static final String REFRESH_PASSWORD_SUCCESSFUL = "user.login.refresh_password_successful";
