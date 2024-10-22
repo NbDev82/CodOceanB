@@ -4,6 +4,7 @@ import com.example.codoceanb.comment.entity.Comment;
 import com.example.codoceanb.contest.entity.Contest;
 import com.example.codoceanb.contest.entity.ContestEnrollment;
 import com.example.codoceanb.notification.entity.Notification;
+import com.example.codoceanb.payment.entity.Payment;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import jakarta.persistence.*;
@@ -68,6 +69,9 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "vip_exp_date")
+    private LocalDateTime VIPExpDate;
+
     @Column(name = "is_active")
     private boolean isActive;
 
@@ -100,6 +104,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<OTP> otps;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Payment> payments;
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
@@ -133,7 +141,8 @@ public class User implements UserDetails {
 
     public enum ERole {
         USER(0),
-        ADMIN(1);
+        USER_VIP(1),
+        ADMIN(2);
         private final int value;
         ERole(int value) {
             this.value = value;

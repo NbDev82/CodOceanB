@@ -13,4 +13,6 @@ public class MessageKeys{
     public static final String REFRESH_TOKEN_SUCCESSFUL = "user.login.refresh_access_token_successful";
     public static final String REFRESH_PASSWORD_SUCCESSFUL = "user.login.refresh_password_successful";
     public static final String REFRESH_PASSWORD_FAILED = "user.login.refresh_password_failed";
+    public static final String CAPTURE_PAYPAL_SUCCESSFUL = "paypal.capture.successful";
+    public static final String CAPTURE_PAYPAL_FAILED = "paypal.capture.failed";
 }
