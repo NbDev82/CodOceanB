@@ -22,7 +22,7 @@ public class ProblemController {
     @Autowired
     private ProblemService problemService;
 
-    @GetMapping("/findById")
+    @GetMapping("/find-by-id")
     public ResponseEntity<ProblemDTO> fetchProblem(UUID problemId) {
         ProblemDTO problemDTO = problemService.findById(problemId, ProblemDTO.class);
         log.info("Fetching problem by id: {}", problemId);
@@ -49,7 +49,7 @@ public class ProblemController {
         }
     }
 
-    @GetMapping("/pickOne")
+    @GetMapping("/pick-one")
     public ResponseEntity<PickOneDTO> pickProblem() {
         Problem problem = problemService.getRandomProblem();
         PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getTitle());

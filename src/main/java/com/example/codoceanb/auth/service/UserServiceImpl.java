@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setRole(User.ERole.USER);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setFirstLogin(true);
         String password = userDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);

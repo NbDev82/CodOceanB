@@ -3,6 +3,7 @@ package com.example.codoceanb.auth.service;
 import com.example.codoceanb.auth.entity.Token;
 import com.example.codoceanb.auth.exception.TokenNotFoundException;
 import com.example.codoceanb.auth.repository.TokenRepos;
+import com.example.codoceanb.auth.utils.MessageKeys;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.exception.UserNotFoundException;
@@ -30,13 +31,15 @@ public class AccountServiceImpl implements AccountService {
     public String login(String email, String password) {
         User existingUser = userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found!"));
+        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
+            throw new BadCredentialsException("Invalid credentials");
+        }
+
         if(existingUser.isFirstLogin()) {
             existingUser.setFirstLogin(false);
             userRepos.save(existingUser);
         }
-        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Invalid credentials");
-        }
+
         return jwtTokenUtil.generateToken(existingUser);
     }
 
@@ -57,7 +60,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void resetPassword(String email, String newPassword) {
+    public String resetPassword(String email, String newPassword) {
         User user = userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         String encodedPassword = passwordEncoder.encode(newPassword);
@@ -67,6 +70,8 @@ public class AccountServiceImpl implements AccountService {
         Token token = tokenRepos.findByUser(user);
         token.setToken(null);
         tokenRepos.save(token);
+
+        return MessageKeys.REFRESH_PASSWORD_SUCCESSFUL;
     }
 
     @Override

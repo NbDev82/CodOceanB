@@ -88,8 +88,8 @@ public class JavaCompiler implements CompilerStrategy {
     public ResultDTO runWithCustomTestcase(String fileLink, String fileName, List<CustomTestCaseDTO> customTestCaseDTOs, String code, Problem problem) {
         try {
             List<String> correctAnswerWithCustomTestcase = getCorrectAnswerWithCustomTestcase(fileLink, fileName, customTestCaseDTOs, problem.getCorrectAnswer(), problem);
-            ResultDTO ActualAnswerWithCustomTestcase = getActualAnswerWithCustomTestcase(fileLink, fileName, customTestCaseDTOs, code, problem);
-            return compareResultWithCorrectAnswer(correctAnswerWithCustomTestcase, ActualAnswerWithCustomTestcase);
+            ResultDTO actualAnswerWithCustomTestcase = getActualAnswerWithCustomTestcase(fileLink, fileName, customTestCaseDTOs, code, problem);
+            return compareResultWithCorrectAnswer(correctAnswerWithCustomTestcase, actualAnswerWithCustomTestcase);
         } finally {
             deleteFileCompiled(fileLink, fileName);
         }

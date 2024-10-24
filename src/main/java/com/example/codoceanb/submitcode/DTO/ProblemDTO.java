@@ -14,10 +14,10 @@ import java.util.UUID;
 @Builder
 public class ProblemDTO {
     private UUID id;
-    private String name;
+    private String title;
     private String description;
     private double point;
-    private String difficultyLevel;
+    private String difficulty;
     private boolean isDeleted;
     private int acceptedCount;
     private int discussCount;

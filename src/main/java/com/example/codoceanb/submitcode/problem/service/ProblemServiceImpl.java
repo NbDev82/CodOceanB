@@ -101,6 +101,7 @@ public class ProblemServiceImpl implements ProblemService{
     public Boolean add(AddProblemRequest request) {
         try{
             Problem problem = createProblemFromRequest(request.getProblem());
+            problem = problemRepository.save(problem);
             createAndSaveTestCaseFromRequest(request, problem);
             createAndSaveLibraryFromRequest(request,problem);
             return problem != null;

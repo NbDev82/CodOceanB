@@ -48,7 +48,7 @@ public class AuthController {
                     .build());
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body(RegisterResponse.builder()
-                    .message(MessageKeys.EMAIL_ALREADY_EXISTS)
+                    .message(MessageKeys.AUTH_ALREADY_EXISTS)
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(RegisterResponse.builder()
@@ -164,10 +164,10 @@ public class AuthController {
         try {
             boolean isVerified = otpService.verify(request.getEmail(), request.getOtp(), OTP.EType.FORGOT_PASSWORD);
             if (isVerified) {
-                accountService.resetPassword(request.getEmail(), request.getNewPassword());
-                return ResponseEntity.ok().build();
+                String message = accountService.resetPassword(request.getEmail(), request.getNewPassword());
+                return ResponseEntity.ok(ForgotPasswordResponse.builder().message(message).build());
             }
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(ForgotPasswordResponse.builder().message(MessageKeys.REFRESH_PASSWORD_FAILED).build());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

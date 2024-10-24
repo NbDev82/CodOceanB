@@ -14,5 +14,6 @@ public interface ProfileMapper {
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "urlImage", source = "urlImage")
+    @Mapping(target = "VIPExpDate", source = "VIPExpDate")
     User toEntity(ProfileDTO userDTO);
 }

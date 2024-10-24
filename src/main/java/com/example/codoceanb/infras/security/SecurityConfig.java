@@ -53,8 +53,11 @@ public class SecurityConfig {
                                 "/api/discuss/**",
                                 "/api/topics/**",
                                 "/api/search/**",
-                                "/api/trending/**")
-                        .hasRole("USER")
+                                "/api/trending/**",
+                                "/v1/api/payment-paypal/**",
+                                "/v1/api/payment/**",
+                                "/v1/api/payment-info/**")
+                        .hasAnyRole("USER", "USER_VIP")
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated()

@@ -26,7 +26,6 @@ public class ProfileController {
     private final UserService userService;
     private final ProblemService problemService;
     private final DiscussService discussService;
-    private final JwtTokenUtils jwtTokenUtils;
 
     @GetMapping("/get-profile")
     public ResponseEntity<ProfileResponse> extractProfile(@RequestHeader(value = "Authorization") String authHeader) {
