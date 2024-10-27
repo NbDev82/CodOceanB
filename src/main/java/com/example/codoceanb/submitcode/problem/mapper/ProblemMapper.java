@@ -20,6 +20,7 @@ public interface ProblemMapper {
     @Mapping(target = "acceptedCount",
             expression = "java(countAccepted(problem))")
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "title", target = "title")
     ProblemDTO toDTO(Problem problem);
 
     List<ProblemDTO> toDTOs(List<Problem> problems);

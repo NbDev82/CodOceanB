@@ -1,5 +1,6 @@
 package com.example.codoceanb.submitcode.submission.service;
 
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.SubmissionDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
@@ -14,6 +15,6 @@ public interface SubmissionService {
     ResultDTO compile(String authHeader, String code, Submission.ELanguage eLanguage);
     ResultDTO runCode(String authHeader, String code, Problem problem, Submission.ELanguage eLanguage);
     List<SubmissionDTO> getByUserIdAndProblemId(String authHeader, UUID problemId);
-    <T> List<T> getByUserId(UUID userId, Class<T> returnType);
+    <T> List<T> getByUser(User user, Class<T> returnType);
     ResultDTO testWithCustomTestCases(String authHeader, TestCodeWithCustomTestcaseRequest request);
 }

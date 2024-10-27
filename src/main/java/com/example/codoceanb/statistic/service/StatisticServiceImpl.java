@@ -30,7 +30,7 @@ public class StatisticServiceImpl implements  StatisticService {
     @Override
     public StatisticDTO getStatistic(String authHeader) {
         User user = userService.getUserDetailsFromToken(authHeader);
-        List<Submission> acceptedSubmissions = submissionService.getByUserId(user.getId(), Submission.class)
+        List<Submission> acceptedSubmissions = submissionService.getByUser(user, Submission.class)
                 .stream()
                 .filter(submission -> submission.getStatus().equals(Submission.EStatus.ACCEPTED))
                 .toList();

@@ -26,7 +26,7 @@ public class SubmissionController {
         this.submissionService = submissionService;
     }
 
-    @GetMapping("/gets")
+    @GetMapping
     public ResponseEntity<List<SubmissionDTO>> getSubmissions(UUID problemId,
                                                               @RequestHeader(value = "Authorization") String authHeader) {
         List<SubmissionDTO> submissionDTOs = submissionService.getByUserIdAndProblemId(authHeader, problemId);

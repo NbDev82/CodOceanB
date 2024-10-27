@@ -12,7 +12,7 @@ public interface ProblemService {
     <T> T findById(UUID problemId, Class<T> returnType);
     List<Problem> getAll();
     List<ProblemDTO> getAllDTOs();
-    Boolean add(AddProblemRequest request);
+    Boolean add(AddProblemRequest request, String authHeader);
     Boolean delete(UUID problemId);
     Problem getRandomProblem();
     List<ProblemDTO> getTopProblemsByTopic(String topic, int limit);

@@ -73,6 +73,10 @@ public class JavaCompiler implements CompilerStrategy {
 
         long passedTestCases = testCaseResultDTOs.stream().filter(TestCaseResultDTO::isPassed).count();
         boolean isAccepted = testCases.size() == passedTestCases;
+        
+        testCaseResultDTOs = testCaseResultDTOs.stream()
+                .filter(TestCaseResultDTO::isPublic)
+                .collect(Collectors.toList());
 
         return builder
                 .message("That is your result of your code for this problem")
@@ -388,6 +392,7 @@ public class JavaCompiler implements CompilerStrategy {
                         .outputData(returnValueArray[i])
                         .outputDatatype(returnDataType.getName())
                         .isPassed(isPassed)
+                        .isPublic(testCase.isPublic())
                         .status(isPassed ? Submission.EStatus.ACCEPTED : Submission.EStatus.WRONG_ANSWER);
                 resultDTOs.add(testCaseResultDTO.build());
             }

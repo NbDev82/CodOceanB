@@ -22,34 +22,35 @@ public class ProblemController {
     @Autowired
     private ProblemService problemService;
 
-    @GetMapping("/find-by-id")
-    public ResponseEntity<ProblemDTO> fetchProblem(UUID problemId) {
-        ProblemDTO problemDTO = problemService.findById(problemId, ProblemDTO.class);
-        log.info("Fetching problem by id: {}", problemId);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProblemDTO> fetchProblem(@PathVariable UUID id) {
+        ProblemDTO problemDTO = problemService.findById(id, ProblemDTO.class);
+        log.info("Fetching problem by id: {}", id);
         return ResponseEntity.ok(problemDTO);
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<ProblemDTO>> fetchAll() {
         return ResponseEntity.ok(problemService.getAllDTOs());
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<Boolean> addProblem(@RequestBody @NonNull AddProblemRequest request) {
-        return ResponseEntity.ok(problemService.add(request));
+    @PostMapping
+    public ResponseEntity<Boolean> addProblem(@RequestBody @NonNull AddProblemRequest request,
+                                              @RequestHeader(name = "Authorization") String authHeader) {
+        return ResponseEntity.ok(problemService.add(request, authHeader));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Boolean> deleteProblem(@RequestParam UUID problemId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteProblem(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(problemService.delete(problemId));
+            return ResponseEntity.ok(problemService.delete(id));
         } catch (Exception e){
             log.info(e.getMessage());
             return ResponseEntity.ok(false);
         }
     }
 
-    @GetMapping("/pick-one")
+    @GetMapping("/random")
     public ResponseEntity<PickOneDTO> pickProblem() {
         Problem problem = problemService.getRandomProblem();
         PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getTitle());
