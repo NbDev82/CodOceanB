@@ -22,6 +22,8 @@ public class TestCaseResultDTO {
     private boolean isPassed;
     private Submission.EStatus status;
 
+    private boolean isPublic;
+
     public TestCaseResultDTO(Submission.EStatus status) {
         this.status = status;
     }

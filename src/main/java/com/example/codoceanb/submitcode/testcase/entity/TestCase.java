@@ -26,6 +26,9 @@ public class TestCase implements Serializable {
     @Column(name = "output_data")
     private String outputData;
 
+    @Column(name = "is_public")
+    private boolean isPublic = false;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "problem_id")
     private Problem problem;

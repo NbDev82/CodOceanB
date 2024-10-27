@@ -168,9 +168,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public <T> List<T> getByUserId(UUID userId, Class<T> returnType) {
-        User user = userMapper.toEntity(userService.getUserById(userId));
-
+    public <T> List<T> getByUser(User user, Class<T> returnType) {
         List<Submission> submissions = submissionRepos.findByUser(user);
 
         return returnType.equals(Submission.class)

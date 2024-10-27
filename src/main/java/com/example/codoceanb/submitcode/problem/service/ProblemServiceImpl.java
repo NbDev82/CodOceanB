@@ -69,7 +69,7 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Override
     public List<Problem> getAll() {
-        return problemRepository.findAll();
+        return problemRepository.getAll();
     }
 
     @Override
@@ -98,13 +98,13 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public Boolean add(AddProblemRequest request) {
+    public Boolean add(AddProblemRequest request, String authHeader) {
         try{
-            Problem problem = createProblemFromRequest(request.getProblem());
+            Problem problem = createProblemFromRequest(request.getProblem(), authHeader);
             problem = problemRepository.save(problem);
             createAndSaveTestCaseFromRequest(request, problem);
             createAndSaveLibraryFromRequest(request,problem);
-            return problem != null;
+            return true;
         } catch (Exception e) {
             log.info(e.getMessage());
             return false;
@@ -124,7 +124,6 @@ public class ProblemServiceImpl implements ProblemService{
         List<Problem> problems = problemRepository.findAllProblemAvailable();
         long count = problems.size();
         int randomIndex = new Random().nextInt((int) count);
-
         return problems.get(randomIndex);
     }
 
@@ -171,10 +170,10 @@ public class ProblemServiceImpl implements ProblemService{
         }
     }
 
-    private Problem createProblemFromRequest(AddProblemRequestDTO problemDTO) {
+    private Problem createProblemFromRequest(AddProblemRequestDTO problemDTO, String authHeader) {
         Problem.EDifficulty difficulty = Problem.EDifficulty.valueOf(problemDTO.getDifficulty());
 
-        User user = userService.getEntityUserById(problemDTO.getOwnerId());
+        User user = userService.getUserDetailsFromToken(authHeader);
         List<Problem.ETopic> topics = new ArrayList<>();
 
         return Problem.builder()

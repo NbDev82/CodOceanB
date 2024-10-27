@@ -61,4 +61,6 @@ Page<Problem> findByCriteria(Problem.EDifficulty difficulty, Problem.ETopic topi
     List<Problem> findSolvedProblemsByUser(@Param("email") String email);
 
 
+    @Query("SELECT p FROM Problem p WHERE p.isDeleted = false")
+    List<Problem> getAll();
 }

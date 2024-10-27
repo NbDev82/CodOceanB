@@ -16,15 +16,11 @@ public class ProblemDTO {
     private UUID id;
     private String title;
     private String description;
-    private double point;
     private String difficulty;
-    private boolean isDeleted;
     private int acceptedCount;
     private int discussCount;
     private int submissionCount;
     private String acceptanceRate = getAcceptanceRate();
-
-    private String type;
 
     public String getAcceptanceRate() {
         double acceptanceRate = ((double) acceptedCount /submissionCount)*100;

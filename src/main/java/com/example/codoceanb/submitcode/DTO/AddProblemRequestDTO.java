@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Data
 public class AddProblemRequestDTO {
-    private UUID ownerId;
     private String title;
     private String description;
     private String correctAnswer;
