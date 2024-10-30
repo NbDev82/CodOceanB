@@ -56,4 +56,7 @@ public class Discuss implements Serializable {
 
     @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
+    private List<Emoji> emojis;
 }

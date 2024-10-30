@@ -47,10 +47,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html")
                         .permitAll()
                         .requestMatchers(
-                                "/api/user",
-                                "/api/submit-code/v1",
+                                "/api/user/**",
+                                "/api/v1/code/**",
                                 "/api/profile/**",
-                                "/api/discuss/**",
+                                "/api/discusses/**",
+                                "/api/v1/discuss/categories/**",
+                                "/api/v1/react/discuss/**",
                                 "/api/topics/**",
                                 "/api/search/**",
                                 "/api/trending/**",

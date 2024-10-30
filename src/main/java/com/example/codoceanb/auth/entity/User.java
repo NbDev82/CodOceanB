@@ -3,6 +3,7 @@ package com.example.codoceanb.auth.entity;
 import com.example.codoceanb.comment.entity.Comment;
 import com.example.codoceanb.contest.entity.Contest;
 import com.example.codoceanb.contest.entity.ContestEnrollment;
+import com.example.codoceanb.discuss.entity.Emoji;
 import com.example.codoceanb.notification.entity.Notification;
 import com.example.codoceanb.payment.entity.Payment;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
@@ -41,8 +42,10 @@ public class User implements UserDetails {
     private LocalDateTime dateOfBirth;
 
     private String email;
-    @Column(length = 1000)
+
+    @Column(length = 1000, name = "url_img")
     private String urlImage;
+
     private String password;
 
     @Column(name = "address")
@@ -107,6 +110,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payment> payments;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<Emoji> emojis;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

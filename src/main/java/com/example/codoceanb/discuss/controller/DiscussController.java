@@ -13,34 +13,40 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/discuss")
+@RequestMapping("/api/discusses")
 @RequiredArgsConstructor
 public class DiscussController {
 
     private final DiscussService discussService;
 
-    @GetMapping("/get-discusses")
+    @GetMapping
     public ResponseEntity<DiscussResponse> getDiscusses(@RequestParam(defaultValue = "0") int pageNumber,
                                                         @RequestParam(defaultValue = "10") int limit,
-                                                        @RequestParam(required = false) String searchTerm,
+                                                        @RequestParam(defaultValue = "") String searchTerm,
                                                         @RequestParam(required = false) String category) {
         List<DiscussDTO> discussDTOs = discussService.getDiscusses(pageNumber, limit, searchTerm, category);
         return ResponseEntity.ok(new DiscussResponse(discussDTOs));
     }
 
-    @PostMapping("/add")
+    @GetMapping("/{id}")
+    public ResponseEntity<DiscussDTO> getDiscuss(@PathVariable UUID id) {
+        DiscussDTO discussDTO = discussService.getDiscussById(id);
+        return ResponseEntity.ok(discussDTO);
+    }
+
+    @PostMapping
     public ResponseEntity<DiscussDTO> addDiscuss(@RequestBody AddDiscussRequest request,
                                                  @RequestHeader(value = "Authorization") String authHeader) {
         return ResponseEntity.ok(discussService.addDiscuss(request, authHeader));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<DiscussDTO> updateDiscuss(@PathVariable UUID id,
                                                     @RequestBody UpdateDiscussRequest request) {
         return ResponseEntity.ok(discussService.updateDiscuss(id, request));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDiscuss(@PathVariable UUID id) {
         discussService.deleteDiscuss(id);
         return ResponseEntity.ok().build();

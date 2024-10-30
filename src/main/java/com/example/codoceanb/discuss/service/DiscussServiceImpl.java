@@ -149,6 +149,19 @@ public class DiscussServiceImpl implements DiscussService{
         }
     }
 
+    @Override
+    public DiscussDTO getDiscussById(UUID id) {
+        Discuss discuss = discussRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+        return convertDiscussToDTO(discuss);
+    }
+
+    @Override
+    public Discuss getDiscuss(UUID id) {
+        return  discussRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+    }
+
     private DiscussDTO convertDiscussToDTO(Discuss discuss) {
         return DiscussDTO.builder()
                 .id(discuss.getId())
@@ -158,7 +171,12 @@ public class DiscussServiceImpl implements DiscussService{
                 .updatedAt(discuss.getUpdatedAt())
                 .endAt(discuss.getUpdatedAt())
                 .image(discuss.getImage())
-                .commentCount(discuss.getComments().size())
+                .commentCount(discuss.getComments() == null ? 0 : discuss.getComments().size())
+                .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
+
+                .ownerId(discuss.getOwner().getId())
+                .ownerImageUrl(discuss.getOwner().getUrlImage())
+                .ownerName(discuss.getOwner().getFullName())
                 .build();
     }
 }
