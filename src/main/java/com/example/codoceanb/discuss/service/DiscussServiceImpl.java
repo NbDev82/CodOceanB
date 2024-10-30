@@ -44,10 +44,11 @@ public class DiscussServiceImpl implements DiscussService{
     @Override
     public List<DiscussDTO> getAllUploadedDiscussesByUser(String token) {
         try {
-            String email = jwtTokenUtils.extractEmailFromBearerToken(token);
+            User user = userService.getUserDetailsFromToken(token);
+            String email = user.getEmail();
             List<Discuss> discusses = discussRepository.findByOwnerEmail(email);
             return discusses.stream()
-                    .map(this::convertDiscussToDTO)
+                    .map(discuss -> convertDiscussToDTO(discuss, user.getId()))
                     .collect(Collectors.toList());
         } catch (io.jsonwebtoken.io.DecodingException e) {
             log.error("Error decoding token: ", e);
@@ -59,12 +60,18 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
-    public List<DiscussDTO> getDiscusses(int pageNumber, int limit, String searchTerm, String category) {
+    public List<DiscussDTO> getDiscusses(String authHeader,
+                                         int pageNumber,
+                                         int limit,
+                                         String searchTerm,
+                                         String category) {
         try {
+            UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
+
             Pageable pagination = PageRequest.of(pageNumber, limit, Sort.by(Sort.Direction.DESC, "comment_count"));
             Page<Discuss> discussPage = discussRepository.findAllWithCommentCount(searchTerm, category, pagination);
             return discussPage.stream()
-                    .map(this::convertDiscussToDTO)
+                    .map(discuss -> convertDiscussToDTO(discuss, userId))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error retrieving discusses: ", e);
@@ -93,7 +100,7 @@ public class DiscussServiceImpl implements DiscussService{
                     .build();
             
             Discuss savedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(savedDiscuss);
+            return convertDiscussToDTO(savedDiscuss, owner.getId());
         } catch (Exception e) {
             log.error("Error adding discuss: ", e);
             throw new RuntimeException("Unable to add discuss");
@@ -129,7 +136,7 @@ public class DiscussServiceImpl implements DiscussService{
             }
 
             Discuss updatedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(updatedDiscuss);
+            return convertDiscussToDTO(updatedDiscuss, discuss.getOwner().getId());
         } catch (Exception e) {
             log.error("Error updating discuss: ", e);
             throw new RuntimeException("Unable to update discuss");
@@ -150,10 +157,11 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
-    public DiscussDTO getDiscussById(UUID id) {
+    public DiscussDTO getDiscussById(UUID id, String authHeader) {
         Discuss discuss = discussRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
-        return convertDiscussToDTO(discuss);
+        UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
+        return convertDiscussToDTO(discuss, userId);
     }
 
     @Override
@@ -162,7 +170,7 @@ public class DiscussServiceImpl implements DiscussService{
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
     }
 
-    private DiscussDTO convertDiscussToDTO(Discuss discuss) {
+    private DiscussDTO convertDiscussToDTO(Discuss discuss, UUID userId) {
         return DiscussDTO.builder()
                 .id(discuss.getId())
                 .title(discuss.getTitle())
@@ -177,6 +185,7 @@ public class DiscussServiceImpl implements DiscussService{
                 .ownerId(discuss.getOwner().getId())
                 .ownerImageUrl(discuss.getOwner().getUrlImage())
                 .ownerName(discuss.getOwner().getFullName())
+                .isLiked(discuss.getEmojis().stream().anyMatch(emoji -> emoji.getOwner().getId().equals(userId)))
                 .build();
     }
 }

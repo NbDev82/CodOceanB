@@ -24,4 +24,5 @@ public class DiscussDTO {
     private UUID ownerId;
     private String ownerName;
     private String ownerImageUrl;
+    private boolean isLiked;
 }
