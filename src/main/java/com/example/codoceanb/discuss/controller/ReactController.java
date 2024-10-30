@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/react/discuss")
+@RequestMapping("/api/v1/react/discuss")
 @RequiredArgsConstructor
 public class ReactController {
 

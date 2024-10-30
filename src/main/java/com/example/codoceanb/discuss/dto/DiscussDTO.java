@@ -2,7 +2,6 @@ package com.example.codoceanb.discuss.dto;
 
 import lombok.*;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,4 +20,8 @@ public class DiscussDTO {
     private String image;
     private int commentCount;
     private int reactCount;
+
+    private UUID ownerId;
+    private String ownerName;
+    private String ownerImageUrl;
 }

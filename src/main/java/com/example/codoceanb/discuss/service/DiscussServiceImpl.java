@@ -173,6 +173,10 @@ public class DiscussServiceImpl implements DiscussService{
                 .image(discuss.getImage())
                 .commentCount(discuss.getComments() == null ? 0 : discuss.getComments().size())
                 .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
+
+                .ownerId(discuss.getOwner().getId())
+                .ownerImageUrl(discuss.getOwner().getUrlImage())
+                .ownerName(discuss.getOwner().getFullName())
                 .build();
     }
 }
