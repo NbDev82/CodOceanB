@@ -20,4 +20,5 @@ public class DiscussDTO {
     private LocalDateTime endAt;
     private String image;
     private int commentCount;
+    private int reactCount;
 }

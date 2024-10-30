@@ -1,6 +1,7 @@
 package com.example.codoceanb.discuss.service;
 
 import com.example.codoceanb.discuss.dto.DiscussDTO;
+import com.example.codoceanb.discuss.entity.Discuss;
 import com.example.codoceanb.discuss.request.AddDiscussRequest;
 import com.example.codoceanb.discuss.request.UpdateDiscussRequest;
 
@@ -17,4 +18,7 @@ public interface DiscussService {
     DiscussDTO updateDiscuss(UUID id, UpdateDiscussRequest request);
 
     void deleteDiscuss(UUID id);
+
+    DiscussDTO getDiscussById(UUID id);
+    Discuss getDiscuss(UUID id);
 }

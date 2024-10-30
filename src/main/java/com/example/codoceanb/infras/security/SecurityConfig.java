@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 "/api/user",
                                 "/api/submit-code/v1",
                                 "/api/profile/**",
-                                "/api/discuss/**",
+                                "/api/discusses/**",
                                 "/api/topics/**",
                                 "/api/search/**",
                                 "/api/trending/**",
