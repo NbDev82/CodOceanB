@@ -50,7 +50,8 @@ public class JwtTokenUtils {
     public boolean validateToken(String token, User userDetails) throws Exception {
         String email = extractEmail(token);
         boolean isActive = extractIsActive(token);
-        return isValidToken(token) &&
+        return !userDetails.isLocked() &&
+                isValidToken(token) &&
                 email.equals(userDetails.getEmail()) &&
                 isActive;
     }

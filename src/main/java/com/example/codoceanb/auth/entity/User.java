@@ -84,6 +84,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ERole role;
 
+    @Column(name = "is_locked")
+    private boolean isLocked;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Problem> ownedProblems;
 
