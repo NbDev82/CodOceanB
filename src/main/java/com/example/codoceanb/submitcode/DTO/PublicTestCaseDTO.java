@@ -1,17 +1,16 @@
 package com.example.codoceanb.submitcode.DTO;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class ParameterDTO {
-    private String name;
-    private String inputDataType;
-    private String inputData;
+public class PublicTestCaseDTO {
+    List<ParameterDTO> parameterDTOs;
 }

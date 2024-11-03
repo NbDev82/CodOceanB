@@ -1,13 +1,16 @@
 package com.example.codoceanb.submitcode.controller;
 import com.example.codoceanb.submitcode.DTO.PickOneDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemDTO;
+import com.example.codoceanb.submitcode.DTO.PublicTestCaseDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.service.ProblemService;
 import com.example.codoceanb.submitcode.request.AddProblemRequest;
+import com.example.codoceanb.submitcode.testcase.service.TestCaseService;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,39 +25,72 @@ public class ProblemController {
     @Autowired
     private ProblemService problemService;
 
+    @Autowired
+    private TestCaseService testCaseService;
+
     @GetMapping("/{id}")
     public ResponseEntity<ProblemDTO> fetchProblem(@PathVariable UUID id) {
-        ProblemDTO problemDTO = problemService.findById(id, ProblemDTO.class);
-        log.info("Fetching problem by id: {}", id);
-        return ResponseEntity.ok(problemDTO);
+        try {
+            ProblemDTO problemDTO = problemService.findById(id, ProblemDTO.class);
+            log.info("Fetching problem by id: {}", id);
+            return ResponseEntity.ok(problemDTO);
+        } catch (Exception e) {
+            log.error("Error fetching problem by id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<ProblemDTO>> fetchAll() {
-        return ResponseEntity.ok(problemService.getAllDTOs());
+        try {
+            return ResponseEntity.ok(problemService.getAllDTOs());
+        } catch (Exception e) {
+            log.error("Error fetching all problems", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping
     public ResponseEntity<Boolean> addProblem(@RequestBody @NonNull AddProblemRequest request,
                                               @RequestHeader(name = "Authorization") String authHeader) {
-        return ResponseEntity.ok(problemService.add(request, authHeader));
+        try {
+            return ResponseEntity.ok(problemService.add(request, authHeader));
+        } catch (Exception e) {
+            log.error("Error adding problem", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteProblem(@PathVariable UUID id) {
         try {
             return ResponseEntity.ok(problemService.delete(id));
-        } catch (Exception e){
-            log.info(e.getMessage());
-            return ResponseEntity.ok(false);
+        } catch (Exception e) {
+            log.error("Error deleting problem by id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 
     @GetMapping("/random")
     public ResponseEntity<PickOneDTO> pickProblem() {
-        Problem problem = problemService.getRandomProblem();
-        PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getTitle());
-        log.info("Fetching random problem");
-        return ResponseEntity.ok(dto);
+        try {
+            Problem problem = problemService.getRandomProblem();
+            PickOneDTO dto = new PickOneDTO(problem.getId(), problem.getTitle());
+            log.info("Fetching random problem");
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            log.error("Error fetching random problem", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/{id}/public-tc")
+    public ResponseEntity<List<PublicTestCaseDTO>> getPublicTestcases(@PathVariable(name = "id") UUID problemId) {
+        try {
+            return ResponseEntity.ok(testCaseService.getPublicTestCases(problemId));
+        } catch (Exception e) {
+            log.error("Error fetching public test cases for problem ID: {}", problemId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
