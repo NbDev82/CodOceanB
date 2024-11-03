@@ -10,6 +10,7 @@ import com.example.codoceanb.auth.repository.UserRepos;
 import com.example.codoceanb.profile.dto.ProfileDTO;
 import com.example.codoceanb.profile.mapper.ProfileMapper;
 import com.example.codoceanb.profile.response.ProfileResponse;
+import com.example.codoceanb.uploadfile.service.UploadFileService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,8 +21,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +40,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final JwtTokenUtils jwtTokenUtil;
 
     private final OTPService otpService;
+    private final UploadFileService uploadFileService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -56,6 +61,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         user.setFirstLogin(true);
+        user.setLocked(false);
         String password = userDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
@@ -78,11 +84,52 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    @Override
+    public ProfileResponse getProfile(UUID userId) {
+        try {
+            User user = userRepos.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User not found!"));
+            ProfileDTO profileDTO = profileMapper.toDTO(user);
+            return ProfileResponse.builder()
+                    .profile(profileDTO)
+                    .build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
     @Transactional
     @Override
     public ProfileResponse changeProfile(String token, ProfileDTO profileDTO) {
         try {
             User user = getUserDetailsFromToken(token);
+            if (profileDTO.getFullName() != null) {
+                user.setFullName(profileDTO.getFullName());
+            }
+            if (profileDTO.getPhoneNumber() != null) {
+                user.setPhoneNumber(profileDTO.getPhoneNumber());
+            }
+            if (profileDTO.getDateOfBirth() != null) {
+                user.setDateOfBirth(profileDTO.getDateOfBirth());
+            }
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepos.save(user);
+            ProfileDTO updatedProfileDTO = profileMapper.toDTO(user);
+            return ProfileResponse.builder()
+                    .profile(updatedProfileDTO)
+                    .build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse changeProfile(UUID userId, ProfileDTO profileDTO) {
+        try {
+            User user = userRepos.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User not found!"));
             if (profileDTO.getFullName() != null) {
                 user.setFullName(profileDTO.getFullName());
             }
@@ -134,10 +181,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public String changeAvatar(String authHeader, MultipartFile file) {
+        String imgUrl = uploadFileService.uploadImage(file);
+        User user = getUserDetailsFromToken(authHeader);
+        user.setUrlImage(imgUrl);
+        userRepos.save(user);
+        return imgUrl;
+    }
+
+    @Override
     public UserDTO getCurrentUser(String authHeader) {
         String email = jwtTokenUtil.extractEmailFromBearerToken(authHeader);
         return userMapper.toDTO(userRepos.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found")));
+    }
+
+    @Override
+    public List<ProfileResponse> getProfiles() {
+        try {
+            List<User> users = userRepos.findUnLockerUsers();
+            List<ProfileDTO> profileDTOs = profileMapper.toDTOs(users);
+            List<ProfileResponse> profileResponses = new ArrayList<>();
+            for(ProfileDTO profileDTO : profileDTOs) {
+                profileResponses.add(ProfileResponse.builder().profile(profileDTO).build());
+            }
+            return profileResponses;
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,6 +52,14 @@ public class ProfileController {
         ProfileResponse profileResponse = userService.changeEmail(authHeader, request.getOtp(), request.getNewEmail());
         return ResponseEntity.ok(profileResponse);
     }
+
+    @PostMapping("/change-avatar")
+    public ResponseEntity<String> changeAvatar(@RequestBody MultipartFile file,
+                                               @RequestHeader(value = "Authorization") String authHeader) {
+        String imgUrl = userService.changeAvatar(authHeader, file);
+        return ResponseEntity.ok(imgUrl);
+    }
+
     @GetMapping("/get-all-uploaded-problems")
     public ResponseEntity<List<ProblemDTO>> getProblemsByOwner(@RequestHeader(value = "Authorization") String authHeader) {
         log.info("Fetching problems by token: {}", authHeader);
