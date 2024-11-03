@@ -37,8 +37,6 @@ public class Discuss implements Serializable {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
-    private String image;
-
     @Column(name = "is_closed")
     private boolean isClosed;
 
@@ -59,4 +57,7 @@ public class Discuss implements Serializable {
 
     @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
     private List<Emoji> emojis;
+
+    @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
+    private List<Image> images;
 }

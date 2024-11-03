@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 public class TestCaseResultDTO {
-    private String input;
+    private List<ParameterDTO> input;
 
     private String outputData;
     private String outputDatatype;

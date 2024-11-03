@@ -23,14 +23,16 @@ public class DiscussController {
     public ResponseEntity<DiscussResponse> getDiscusses(@RequestParam(defaultValue = "0") int pageNumber,
                                                         @RequestParam(defaultValue = "10") int limit,
                                                         @RequestParam(defaultValue = "") String searchTerm,
-                                                        @RequestParam(required = false) String category) {
-        List<DiscussDTO> discussDTOs = discussService.getDiscusses(pageNumber, limit, searchTerm, category);
+                                                        @RequestParam(required = false) String category,
+                                                        @RequestHeader("Authorization") String authHeader) {
+        List<DiscussDTO> discussDTOs = discussService.getDiscusses(authHeader, pageNumber, limit, searchTerm, category);
         return ResponseEntity.ok(new DiscussResponse(discussDTOs));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DiscussDTO> getDiscuss(@PathVariable UUID id) {
-        DiscussDTO discussDTO = discussService.getDiscussById(id);
+    public ResponseEntity<DiscussDTO> getDiscuss(@PathVariable UUID id,
+                                                 @RequestHeader("Authorization") String authHeader) {
+        DiscussDTO discussDTO = discussService.getDiscussById(id, authHeader);
         return ResponseEntity.ok(discussDTO);
     }
 

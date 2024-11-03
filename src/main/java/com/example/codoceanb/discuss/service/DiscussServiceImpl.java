@@ -5,6 +5,7 @@ import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.discuss.dto.CategoryDTO;
 import com.example.codoceanb.discuss.entity.Category;
 import com.example.codoceanb.discuss.entity.Discuss;
+import com.example.codoceanb.discuss.entity.Image;
 import com.example.codoceanb.discuss.repository.CategoryRepository;
 import com.example.codoceanb.discuss.repository.DiscussRepository;
 import com.example.codoceanb.discuss.request.AddDiscussRequest;
@@ -12,6 +13,7 @@ import com.example.codoceanb.discuss.request.UpdateDiscussRequest;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.discuss.dto.DiscussDTO;
 import com.example.codoceanb.search.service.SearchServiceImpl;
+import com.example.codoceanb.uploadfile.service.UploadFileService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,15 +43,19 @@ public class DiscussServiceImpl implements DiscussService{
     private UserService userService;
 
     @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
     private JwtTokenUtils jwtTokenUtils;
 
     @Override
     public List<DiscussDTO> getAllUploadedDiscussesByUser(String token) {
         try {
-            String email = jwtTokenUtils.extractEmailFromBearerToken(token);
+            User user = userService.getUserDetailsFromToken(token);
+            String email = user.getEmail();
             List<Discuss> discusses = discussRepository.findByOwnerEmail(email);
             return discusses.stream()
-                    .map(this::convertDiscussToDTO)
+                    .map(discuss -> convertDiscussToDTO(discuss, user.getId()))
                     .collect(Collectors.toList());
         } catch (io.jsonwebtoken.io.DecodingException e) {
             log.error("Error decoding token: ", e);
@@ -59,12 +67,18 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
-    public List<DiscussDTO> getDiscusses(int pageNumber, int limit, String searchTerm, String category) {
+    public List<DiscussDTO> getDiscusses(String authHeader,
+                                         int pageNumber,
+                                         int limit,
+                                         String searchTerm,
+                                         String category) {
         try {
+            UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
+
             Pageable pagination = PageRequest.of(pageNumber, limit, Sort.by(Sort.Direction.DESC, "comment_count"));
             Page<Discuss> discussPage = discussRepository.findAllWithCommentCount(searchTerm, category, pagination);
             return discussPage.stream()
-                    .map(this::convertDiscussToDTO)
+                    .map(discuss -> convertDiscussToDTO(discuss, userId))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error retrieving discusses: ", e);
@@ -80,6 +94,17 @@ public class DiscussServiceImpl implements DiscussService{
             if (request.getCategories() != null) {
                 categories = categoryRepository.findAllByNames(request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
             }
+            List<Image> images = new ArrayList<>();
+
+            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+
+            for (MultipartFile file: multipartFiles) {
+                String imageUrl = uploadFileService.uploadImage(file);
+                Image image = Image.builder()
+                        .imageUrl(imageUrl)
+                        .build();
+                images.add(image);
+            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -88,12 +113,12 @@ public class DiscussServiceImpl implements DiscussService{
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .endAt(request.getEndAt())
-                    .image(request.getImage())
+                    .images(images)
                     .owner(owner)
                     .build();
             
             Discuss savedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(savedDiscuss);
+            return convertDiscussToDTO(savedDiscuss, owner.getId());
         } catch (Exception e) {
             log.error("Error adding discuss: ", e);
             throw new RuntimeException("Unable to add discuss");
@@ -124,12 +149,9 @@ public class DiscussServiceImpl implements DiscussService{
             if (request.getEndAt() != null) {
                 discuss.setEndAt(request.getEndAt());
             }
-            if (request.getImage() != null) {
-                discuss.setImage(request.getImage());
-            }
 
             Discuss updatedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(updatedDiscuss);
+            return convertDiscussToDTO(updatedDiscuss, discuss.getOwner().getId());
         } catch (Exception e) {
             log.error("Error updating discuss: ", e);
             throw new RuntimeException("Unable to update discuss");
@@ -150,10 +172,11 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
-    public DiscussDTO getDiscussById(UUID id) {
+    public DiscussDTO getDiscussById(UUID id, String authHeader) {
         Discuss discuss = discussRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
-        return convertDiscussToDTO(discuss);
+        UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
+        return convertDiscussToDTO(discuss, userId);
     }
 
     @Override
@@ -162,7 +185,7 @@ public class DiscussServiceImpl implements DiscussService{
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
     }
 
-    private DiscussDTO convertDiscussToDTO(Discuss discuss) {
+    private DiscussDTO convertDiscussToDTO(Discuss discuss, UUID userId) {
         return DiscussDTO.builder()
                 .id(discuss.getId())
                 .title(discuss.getTitle())
@@ -170,13 +193,14 @@ public class DiscussServiceImpl implements DiscussService{
                 .createdAt(discuss.getCreatedAt())
                 .updatedAt(discuss.getUpdatedAt())
                 .endAt(discuss.getUpdatedAt())
-                .image(discuss.getImage())
+                .imageUrls(discuss.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
                 .commentCount(discuss.getComments() == null ? 0 : discuss.getComments().size())
                 .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
 
                 .ownerId(discuss.getOwner().getId())
                 .ownerImageUrl(discuss.getOwner().getUrlImage())
                 .ownerName(discuss.getOwner().getFullName())
+                .isLiked(discuss.getEmojis().stream().anyMatch(emoji -> emoji.getOwner().getId().equals(userId)))
                 .build();
     }
 }

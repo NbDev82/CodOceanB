@@ -21,6 +21,8 @@ public class Parameter implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    private int index;
+
     private String name;
 
     @Column(name = "input_datatype")

@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/api/trending/**",
                                 "/v1/api/payment-paypal/**",
                                 "/v1/api/payment/**",
-                                "/v1/api/payment-info/**")
+                                "/v1/api/payment-info/**",
+                                "/api/v1/upload/**")
                         .hasAnyRole("USER", "USER_VIP")
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")

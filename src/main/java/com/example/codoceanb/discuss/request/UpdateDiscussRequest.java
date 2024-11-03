@@ -16,5 +16,4 @@ public class UpdateDiscussRequest {
     private String description;
     private List<CategoryDTO> categories;
     private LocalDateTime endAt;
-    private String image;
 }

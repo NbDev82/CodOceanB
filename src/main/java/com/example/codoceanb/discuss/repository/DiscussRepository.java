@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface DiscussRepository extends JpaRepository<Discuss, UUID> {
+    @Query(value = "SELECT d FROM Discuss d WHERE d.isClosed = FALSE AND d.owner.email = :email")
     List<Discuss> findByOwnerEmail(String email);
     @Query(value = "SELECT d.id, d.title, d.created_at, d.description, d.end_at, d.is_closed, d.image, d.user_id, d.updated_at, COUNT(c.id) AS comment_count, u.url_img AS user_url_img, u.full_name AS user_name, u.email AS user_email " +
             "FROM discusses d " +

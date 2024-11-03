@@ -1,7 +1,7 @@
 package com.example.codoceanb.submitcode.strategy;
 
-import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.DTO.CustomTestCaseDTO;
+import com.example.codoceanb.submitcode.DTO.ParameterDTO;
 import com.example.codoceanb.submitcode.DTO.ResultDTO;
 import com.example.codoceanb.submitcode.DTO.TestCaseResultDTO;
 import com.example.codoceanb.submitcode.ECompilerConstants;
@@ -24,10 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -139,7 +136,7 @@ public class JavaCompiler implements CompilerStrategy {
         List<TestCaseResultDTO> testCaseResultDTOs = new ArrayList<>();
         for (int i = 0; i < result.size(); i++) {
             String output = result.get(i);
-            String input = customTestCaseDTOs.get(i).getInputData();
+            List<ParameterDTO> input = customTestCaseDTOs.get(i).getParameterDTOs();
             TestCaseResultDTO testCaseResultDTO = TestCaseResultDTO.builder()
                     .outputDatatype(problem.getOutputDataType())
                     .outputData(output)
@@ -236,21 +233,22 @@ public class JavaCompiler implements CompilerStrategy {
         String body = code.substring(firstBraceIndex, lastBraceIndex);
         String footer = code.substring(lastBraceIndex);
         String parameterDeclarations = generateCustomTestCaseParameterDeclarations(testCases, customTestCaseDTOs);
-        String inputDataType = testCases.get(0).getParameters().get(0).getInputDataType();
         String parameterReferences = testCases.get(0).getParameters().stream()
                 .map(Parameter::getName)
                 .collect(Collectors.joining(", "));
+        String firstArrayName = parameterReferences.split(",\\s*")[0];
 
         String staticMethod = String.format(
                 "public static %s[] %s() {\n" +
                         "    %s[] result = new %s[%s.length];\n" +
                         "    int index = 0;\n" +
-                        "    for (%s inputData : %s) {\n" +
-                        "        result[index++] = %s(inputData);\n" +
+                        "    for (int i = 0; i < %s.length; i++) {\n" +
+                        "        result[index++] = %s(%s);\n" +
                         "    }\n" +
                         "    return result;\n" +
                         "}",
-                outputDataType, functionName, outputDataType, outputDataType, parameterReferences, inputDataType, parameterReferences, functionName
+                outputDataType, functionName, outputDataType, outputDataType, firstArrayName, firstArrayName,
+                functionName, parameterReferences.replaceAll(", ", "[i], ") + "[i]"
         );
 
         return String.join("\n", header, parameterDeclarations, body, staticMethod, footer);
@@ -264,50 +262,86 @@ public class JavaCompiler implements CompilerStrategy {
         String body = code.substring(firstBraceIndex, lastBraceIndex);
         String footer = code.substring(lastBraceIndex);
         String parameterDeclarations = generateTestCaseParameterDeclarations(testCases);
-        String inputDataType = testCases.get(0).getParameters().get(0).getInputDataType();
         String parameterReferences = testCases.get(0).getParameters().stream()
+                .sorted(Comparator.comparingInt(Parameter::getIndex))
                 .map(Parameter::getName)
                 .collect(Collectors.joining(", "));
+        String firstArrayName = parameterReferences.split(",\\s*")[0];
 
         String staticMethod = String.format(
                 "public static %s[] %s() {\n" +
                         "    %s[] result = new %s[%s.length];\n" +
                         "    int index = 0;\n" +
-                        "    for (%s inputData : %s) {\n" +
-                        "        result[index++] = %s(inputData);\n" +
+                        "    for (int i = 0; i < %s.length; i++) {\n" +
+                        "        result[index++] = %s(%s);\n" +
                         "    }\n" +
                         "    return result;\n" +
                         "}",
-                outputDataType, functionName, outputDataType, outputDataType, parameterReferences, inputDataType, parameterReferences, functionName
+                outputDataType, functionName, outputDataType, outputDataType, firstArrayName, firstArrayName,
+                functionName, parameterReferences.replaceAll(", ", "[i], ") + "[i]"
         );
 
         return String.join("\n", header, parameterDeclarations, body, staticMethod, footer);
     }
 
     private String generateCustomTestCaseParameterDeclarations(List<TestCase> testCases, List<CustomTestCaseDTO> customTestCaseDTOs) {
-        Parameter p = testCases.get(0).getParameters().get(0);
+        Map<String, StringBuilder> parameterDeclarationsMap = new HashMap<>();
+        List<Parameter> parameters1 = testCases.get(0).getParameters();
 
-        String parameterListDeclarations = String.format("public static %s[] %s = {$", p.getInputDataType(), p.getName());
-        String parameterDeclarations = customTestCaseDTOs.stream()
-                .map(dto -> String.format("%s", dto.getInputData()))
-                .collect(Collectors.joining(",\t"));
-        parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
-        return parameterListDeclarations.replace(",$", "};\n");
+        for (Parameter parameter : parameters1) {
+            StringBuilder parameterListDeclaration = new StringBuilder(String.format("public static %s[] %s = {",
+                    parameter.getInputDataType(),
+                    parameter.getName()));
+            parameterDeclarationsMap.put(parameter.getName(), parameterListDeclaration);
+        }
+
+        for (CustomTestCaseDTO customTestCaseDTO : customTestCaseDTOs) {
+            //            List<Parameter> ps = testCases.get(i).getParameters();
+
+            List<ParameterDTO> parameters = customTestCaseDTO.getParameterDTOs();
+            for (ParameterDTO parameter : parameters) {
+                StringBuilder parameterListDeclaration = parameterDeclarationsMap.get(parameter.getName());
+                parameterListDeclaration.append(String.format("\n\t%s", parameter.getInputData()));
+                parameterListDeclaration.append(",");
+            }
+        }
+
+        StringBuilder finalParameterDeclarations = new StringBuilder();
+        for (StringBuilder parameterListDeclaration : parameterDeclarationsMap.values()) {
+            parameterListDeclaration.deleteCharAt(parameterListDeclaration.length() - 1); // Remove the last comma
+            parameterListDeclaration.append("};\n");
+            finalParameterDeclarations.append(parameterListDeclaration);
+        }
+        return finalParameterDeclarations.toString();
     }
 
     private String generateTestCaseParameterDeclarations(List<TestCase> testCases) {
-        Parameter p = testCases.get(0).getParameters().get(0);
+        Map<String, StringBuilder> parameterDeclarationsMap = new HashMap<>();
+        List<Parameter> parameters1 = testCases.get(0).getParameters();
 
-        String parameterListDeclarations = String.format("public static %s[] %s = {$", p.getInputDataType(), p.getName());
+        for (Parameter parameter : parameters1) {
+            StringBuilder parameterListDeclaration = new StringBuilder(String.format("public static %s[] %s = {",
+                    parameter.getInputDataType(),
+                    parameter.getName()));
+            parameterDeclarationsMap.put(parameter.getName(), parameterListDeclaration);
+        }
 
         for (TestCase testCase : testCases) {
             List<Parameter> parameters = testCase.getParameters();
-            String parameterDeclarations = parameters.stream()
-                    .map(p1 -> String.format("%s", p1.getInputData()))
-                    .collect(Collectors.joining("\n\t"));
-            parameterListDeclarations = parameterListDeclarations.replace("$", parameterDeclarations + ",$");
+            for (Parameter parameter : parameters) {
+                StringBuilder parameterListDeclaration = parameterDeclarationsMap.get(parameter.getName());
+                parameterListDeclaration.append(String.format("\n\t%s", parameter.getInputData()));
+                parameterListDeclaration.append(",");
+            }
         }
-        return parameterListDeclarations.replace(",$", "};");
+
+        StringBuilder finalParameterDeclarations = new StringBuilder();
+        for (StringBuilder parameterListDeclaration : parameterDeclarationsMap.values()) {
+            parameterListDeclaration.deleteCharAt(parameterListDeclaration.length() - 1); // Remove the last comma
+            parameterListDeclaration.append("};\n");
+            finalParameterDeclarations.append(parameterListDeclaration);
+        }
+        return finalParameterDeclarations.toString();
     }
 
     private void validateTestCase(TestCase testCase) {
@@ -386,7 +420,7 @@ public class JavaCompiler implements CompilerStrategy {
                 TestCase testCase = testCases.get(i);
                 boolean isPassed = hasMatchingDataTypesAndOutput(returnDataType.getName(), outputDataType, returnValueArray[i], testCase.getOutputData());
                 TestCaseResultDTO.TestCaseResultDTOBuilder testCaseResultDTO = TestCaseResultDTO.builder()
-                        .input(generateParameterInput(testCase.getParameters()))
+                        .input(generateParametersDTO(testCase.getParameters()))
                         .expectedDatatype(outputDataType)
                         .expected(testCase.getOutputData())
                         .outputData(returnValueArray[i])
@@ -404,10 +438,10 @@ public class JavaCompiler implements CompilerStrategy {
         }
     }
 
-    private String generateParameterInput(List<Parameter> parameters) {
+    private List<ParameterDTO> generateParametersDTO(List<Parameter> parameters) {
         return parameters.stream()
-                .map(p -> String.format("%s = %s\n", p.getName(), p.getInputData()))
-                .collect(Collectors.joining("\n\t"));
+                .map(p -> new ParameterDTO(p.getName(), p.getInputDataType(), p.getInputData()))
+                .collect(Collectors.toList());
     }
 
     @Override
