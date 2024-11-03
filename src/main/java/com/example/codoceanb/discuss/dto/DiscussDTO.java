@@ -3,6 +3,7 @@ package com.example.codoceanb.discuss.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -17,7 +18,8 @@ public class DiscussDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime endAt;
-    private String image;
+
+    private List<String> imageUrls;
     private int commentCount;
     private int reactCount;
 

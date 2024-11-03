@@ -5,6 +5,7 @@ import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.discuss.dto.CategoryDTO;
 import com.example.codoceanb.discuss.entity.Category;
 import com.example.codoceanb.discuss.entity.Discuss;
+import com.example.codoceanb.discuss.entity.Image;
 import com.example.codoceanb.discuss.repository.CategoryRepository;
 import com.example.codoceanb.discuss.repository.DiscussRepository;
 import com.example.codoceanb.discuss.request.AddDiscussRequest;
@@ -12,6 +13,7 @@ import com.example.codoceanb.discuss.request.UpdateDiscussRequest;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.discuss.dto.DiscussDTO;
 import com.example.codoceanb.search.service.SearchServiceImpl;
+import com.example.codoceanb.uploadfile.service.UploadFileService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,6 +41,9 @@ public class DiscussServiceImpl implements DiscussService{
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Autowired
     private JwtTokenUtils jwtTokenUtils;
@@ -87,6 +94,17 @@ public class DiscussServiceImpl implements DiscussService{
             if (request.getCategories() != null) {
                 categories = categoryRepository.findAllByNames(request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
             }
+            List<Image> images = new ArrayList<>();
+
+            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+
+            for (MultipartFile file: multipartFiles) {
+                String imageUrl = uploadFileService.uploadImage(file);
+                Image image = Image.builder()
+                        .imageUrl(imageUrl)
+                        .build();
+                images.add(image);
+            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -95,7 +113,7 @@ public class DiscussServiceImpl implements DiscussService{
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .endAt(request.getEndAt())
-                    .image(request.getImage())
+                    .images(images)
                     .owner(owner)
                     .build();
             
@@ -130,9 +148,6 @@ public class DiscussServiceImpl implements DiscussService{
             discuss.setUpdatedAt(LocalDateTime.now());
             if (request.getEndAt() != null) {
                 discuss.setEndAt(request.getEndAt());
-            }
-            if (request.getImage() != null) {
-                discuss.setImage(request.getImage());
             }
 
             Discuss updatedDiscuss = discussRepository.save(discuss);
@@ -178,7 +193,7 @@ public class DiscussServiceImpl implements DiscussService{
                 .createdAt(discuss.getCreatedAt())
                 .updatedAt(discuss.getUpdatedAt())
                 .endAt(discuss.getUpdatedAt())
-                .image(discuss.getImage())
+                .imageUrls(discuss.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
                 .commentCount(discuss.getComments() == null ? 0 : discuss.getComments().size())
                 .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
 

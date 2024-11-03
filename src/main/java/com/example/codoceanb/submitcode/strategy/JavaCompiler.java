@@ -263,6 +263,7 @@ public class JavaCompiler implements CompilerStrategy {
         String footer = code.substring(lastBraceIndex);
         String parameterDeclarations = generateTestCaseParameterDeclarations(testCases);
         String parameterReferences = testCases.get(0).getParameters().stream()
+                .sorted(Comparator.comparingInt(Parameter::getIndex))
                 .map(Parameter::getName)
                 .collect(Collectors.joining(", "));
         String firstArrayName = parameterReferences.split(",\\s*")[0];
@@ -439,7 +440,7 @@ public class JavaCompiler implements CompilerStrategy {
 
     private List<ParameterDTO> generateParametersDTO(List<Parameter> parameters) {
         return parameters.stream()
-                .map(p -> new ParameterDTO(p.getName(), p.getInputData()))
+                .map(p -> new ParameterDTO(p.getName(), p.getInputDataType(), p.getInputData()))
                 .collect(Collectors.toList());
     }
 

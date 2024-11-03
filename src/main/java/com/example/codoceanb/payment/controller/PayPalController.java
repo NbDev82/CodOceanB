@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 
 @RestController
-@RequestMapping("/v1/api/payment-paypal")
+@RequestMapping("/api/v1/payment-paypal")
 @RequiredArgsConstructor
 public class PayPalController {
 

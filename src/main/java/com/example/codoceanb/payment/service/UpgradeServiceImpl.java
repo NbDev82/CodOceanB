@@ -62,7 +62,7 @@ public class UpgradeServiceImpl implements UpgradeService{
 
             if ("APPROVED".equals(order.status())) {
                 result = capturePayment(order.id());
-                if("COMPLETED".equals(result)) {
+                if(MessageKeys.CAPTURE_PAYPAL_SUCCESSFUL.equals(result)) {
                     String durationInMonths = order.purchaseUnits().get(0).description();
                     String email = jwtTokenUtils.extractEmailFromBearerToken(authHeader);
                     User user = userRepos.findByEmail(email)
@@ -117,6 +117,7 @@ public class UpgradeServiceImpl implements UpgradeService{
 
         if (user.getPayments().isEmpty()) {
             List<Payment> payments = new ArrayList<>();
+            payment.setUser(user);
             payments.add(payment);
             user.setPayments(payments);
         } else {

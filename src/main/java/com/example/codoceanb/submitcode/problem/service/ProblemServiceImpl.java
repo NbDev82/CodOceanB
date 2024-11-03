@@ -197,6 +197,7 @@ public class ProblemServiceImpl implements ProblemService{
                     .inputDataType(input.getDatatype())
                     .name(input.getParamName())
                     .inputData(input.getValue())
+                    .index(input.getIndex())
                     .testCase(testCase)
                     .build();
             parameterRepository.save(parameter);
