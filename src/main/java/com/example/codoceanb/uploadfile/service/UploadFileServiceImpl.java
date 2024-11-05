@@ -2,6 +2,7 @@ package com.example.codoceanb.uploadfile.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.codoceanb.auth.dto.UserDTO;
 import org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -24,12 +26,13 @@ public class UploadFileServiceImpl implements UploadFileService {
     private final Cloudinary cloudinary;
 
     @Override
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file, String folderName) {
         assert file.getOriginalFilename() != null;
         String publicValue = generatePublicValue(file.getOriginalFilename());
         log.info("publicValue is: {}", publicValue);
         String extension = getFileName(file.getOriginalFilename())[1];
         log.info("extension is: {}", extension);
+
         File fileUpload = null;
         try {
             fileUpload = convert(file);
@@ -37,13 +40,57 @@ public class UploadFileServiceImpl implements UploadFileService {
             throw new RuntimeException(e);
         }
         log.info("fileUpload is: {}", fileUpload);
+
         try {
-            cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue));
+            // Upload the file to Cloudinary with the specified folder
+            cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue, "folder", folderName));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         cleanDisk(fileUpload);
-        return  cloudinary.url().generate(StringUtils.join(publicValue, ".", extension));
+
+        // Generate the URL including the folder path
+        String fileUrl = cloudinary.url().generate(StringUtils.join(folderName, "/", publicValue, ".", extension));
+        log.info("Generated URL: {}", fileUrl);
+
+        return fileUrl;
+    }
+
+
+    @Override
+    public String deleteImage(String urlImage) {
+        // Extract public_id from the URL
+        String publicId = extractPublicId(urlImage);
+
+        if (publicId == null) {
+            return "Invalid URL format.";
+        }
+
+        try {
+            // Delete the image by publicId
+            Map<String, Object> result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            if ("ok".equals(result.get("result"))) {
+                return "Image deleted successfully.";
+            } else {
+                return "Image deletion failed.";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to delete image from Cloudinary";
+        }
+    }
+
+    private String extractPublicId(String urlImage) {
+        // Remove the base URL and version to get only the public_id with path
+        String[] parts = urlImage.split("/upload/");
+        if (parts.length > 1) {
+            String publicIdWithExtension = parts[1];
+            // Remove the file extension (e.g., .png, .jpg) from the public_id
+            return publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.'));
+        } else {
+            throw new IllegalArgumentException("Invalid Cloudinary URL format");
+        }
     }
 
     private File convert(MultipartFile file) throws IOException {

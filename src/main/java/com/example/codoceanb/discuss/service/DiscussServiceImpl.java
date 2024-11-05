@@ -99,7 +99,7 @@ public class DiscussServiceImpl implements DiscussService{
             List<MultipartFile> multipartFiles = request.getMultipartFiles();
 
             for (MultipartFile file: multipartFiles) {
-                String imageUrl = uploadFileService.uploadImage(file);
+                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
                 Image image = Image.builder()
                         .imageUrl(imageUrl)
                         .build();

@@ -182,11 +182,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public String changeAvatar(String authHeader, MultipartFile file) {
-        String imgUrl = uploadFileService.uploadImage(file);
         User user = getUserDetailsFromToken(authHeader);
-        user.setUrlImage(imgUrl);
+
+        String newImgUrl = uploadFileService.uploadImage(file, user.getId().toString());
+
+        user.setUrlImage(newImgUrl);
         userRepos.save(user);
-        return imgUrl;
+
+        return newImgUrl;
     }
 
     @Override
