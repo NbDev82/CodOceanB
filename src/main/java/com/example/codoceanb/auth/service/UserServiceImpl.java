@@ -213,6 +213,52 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public ProfileResponse getProfileByEmail(String email) {
+        try {
+            User user = userRepos.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("User not found!"));
+            ProfileDTO profileDTO = profileMapper.toDTO(user);
+            return ProfileResponse.builder()
+                    .profile(profileDTO)
+                    .build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse changeProfileByEmail(String email, ProfileDTO profileDTO) {
+        try {
+            User user = userRepos.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
+            if (profileDTO.getFullName() != null) {
+                user.setFullName(profileDTO.getFullName());
+            }
+            if (profileDTO.getPhoneNumber() != null) {
+                user.setPhoneNumber(profileDTO.getPhoneNumber());
+            }
+            if (profileDTO.getDateOfBirth() != null) {
+                user.setDateOfBirth(profileDTO.getDateOfBirth());
+            }
+            if (profileDTO.getVIPExpDate() != null) {
+                user.setVIPExpDate(profileDTO.getVIPExpDate());
+                user.setRole(User.ERole.USER_VIP);
+            }
+
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepos.save(user);
+            ProfileDTO updatedProfileDTO = profileMapper.toDTO(user);
+            return ProfileResponse.builder()
+                    .profile(updatedProfileDTO)
+                    .build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
     public User getEntityUserById(UUID userId) {
         return userRepos.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Could not find any user with id=" + userId));

@@ -22,27 +22,27 @@ public class AdminManageAccountController {
     @Autowired
     private AccountService accountService;
 
-    @PutMapping("/edit-role/{userId}")
-    public ResponseEntity<Boolean> editRole(@PathVariable UUID userId, @RequestParam User.ERole newRole) {
-        boolean isEdited = accountService.editRole(userId, newRole);
+    @PutMapping("/edit-role/{email}")
+    public ResponseEntity<Boolean> editRole(@PathVariable String email, @RequestParam User.ERole newRole) {
+        boolean isEdited = accountService.editRole(email, newRole);
         return ResponseEntity.ok().body(isEdited);
     }
 
-    @PostMapping("/lock-user/{userId}")
-    public ResponseEntity<Boolean> lockUser(@PathVariable UUID userId) {
-        boolean isLocked = accountService.lockUser(userId);
+    @PutMapping("/lock-user/{email}")
+    public ResponseEntity<Boolean> lockUser(@PathVariable String email) {
+        boolean isLocked = accountService.lockUser(email);
         return ResponseEntity.ok().body(isLocked);
     }
 
-    @PostMapping("/unlock-user/{userId}")
-    public ResponseEntity<Boolean> unlockUser(@PathVariable UUID userId) {
-        boolean isUnlocked = accountService.unlockAccount(userId);
+    @PutMapping("/unlock-user/{email}")
+    public ResponseEntity<Boolean> unlockUser(@PathVariable String email) {
+        boolean isUnlocked = accountService.unlockAccount(email);
         return ResponseEntity.ok().body(isUnlocked);
     }
 
-    @GetMapping("/view-user/{userId}")
-    public ResponseEntity<ProfileResponse> viewUser(@PathVariable UUID userId) {
-        return ResponseEntity.ok().body(userService.getProfile(userId));
+    @GetMapping("/view-user/{email}")
+    public ResponseEntity<ProfileResponse> viewUser(@PathVariable String email) {
+        return ResponseEntity.ok().body(userService.getProfileByEmail(email));
     }
 
     @GetMapping("/view-users")
@@ -50,9 +50,9 @@ public class AdminManageAccountController {
         return ResponseEntity.ok().body(userService.getProfiles());
     }
 
-    @GetMapping("/edit-user/{userId}")
+    @PutMapping ("/edit-user/{email}")
     public ResponseEntity<ProfileResponse> editUser(@RequestBody ProfileDTO profileDTO,
-                                                       @PathVariable(name = "userId") UUID userId) {
-        return ResponseEntity.ok().body(userService.changeProfile(userId, profileDTO));
+                                                       @PathVariable(name = "email") String email) {
+        return ResponseEntity.ok().body(userService.changeProfileByEmail(email, profileDTO));
     }
 }

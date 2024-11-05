@@ -18,7 +18,7 @@ public interface UserService {
     User getUserDetailsFromCleanToken(String token);
     ProfileResponse getProfile(String token);
     ProfileResponse getProfile(UUID userId);
-    ProfileResponse changeProfile(String token, ProfileDTO profileDTO);
+    ProfileResponse  changeProfile(String token, ProfileDTO profileDTO);
     ProfileResponse changeProfile(UUID userId, ProfileDTO profileDTO);
     User getEntityUserById(UUID userId);
     UserDTO getUserById(UUID userId);
@@ -27,4 +27,6 @@ public interface UserService {
     String changeAvatar(String authHeader, MultipartFile file);
     UserDTO getCurrentUser(String authHeader);
     List<ProfileResponse> getProfiles();
+    ProfileResponse getProfileByEmail(String email);
+    ProfileResponse changeProfileByEmail(String email, ProfileDTO profileDTO);
 }

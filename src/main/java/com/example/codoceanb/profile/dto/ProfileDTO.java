@@ -31,6 +31,8 @@ public class ProfileDTO {
 
     private LocalDateTime VIPExpDate;
 
+    private boolean isLocked;
+
     @NotNull(message = "Role ID is required")
     private User.ERole role;
 }
