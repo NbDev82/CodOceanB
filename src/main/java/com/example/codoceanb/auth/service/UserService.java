@@ -26,7 +26,4 @@ public interface UserService {
     ProfileResponse changeEmail(String token, String otp, String newEmail);
     String changeAvatar(String authHeader, MultipartFile file);
     UserDTO getCurrentUser(String authHeader);
-    List<ProfileResponse> getProfiles();
-    ProfileResponse getProfileByEmail(String email);
-    ProfileResponse changeProfileByEmail(String email, ProfileDTO profileDTO);
 }

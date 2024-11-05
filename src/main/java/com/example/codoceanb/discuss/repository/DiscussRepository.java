@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -30,4 +31,12 @@ public interface DiscussRepository extends JpaRepository<Discuss, UUID> {
     Page<Discuss> findAllWithCommentCount(@Param("searchTerm") String searchTerm,
                                           @Param("category") String category,
                                           Pageable pageable);
+
+    @Query(value = "SELECT EXTRACT(MONTH FROM d.created_at) AS month, COUNT(d.id) AS total " +
+                   "FROM discusses d " +
+                   "WHERE EXTRACT(YEAR FROM d.created_at) = :year " +
+                   "GROUP BY EXTRACT(MONTH FROM d.created_at) " +
+                   "ORDER BY month",
+           nativeQuery = true)
+    List<Map<String, Object>> getMonthlyPostsCount(@Param("year") int year);
 }

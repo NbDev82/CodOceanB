@@ -151,7 +151,9 @@ public class User implements UserDetails {
     public enum ERole {
         USER(0),
         USER_VIP(1),
-        ADMIN(2);
+        ADMIN(2),
+        MODERATOR(3);
+
         private final int value;
         ERole(int value) {
             this.value = value;

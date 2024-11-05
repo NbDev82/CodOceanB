@@ -41,18 +41,18 @@ public class AdminManageAccountController {
     }
 
     @GetMapping("/view-user/{email}")
-    public ResponseEntity<ProfileResponse> viewUser(@PathVariable String email) {
-        return ResponseEntity.ok().body(userService.getProfileByEmail(email));
+    public ResponseEntity<ProfileDTO> viewUser(@PathVariable String email) {
+        return ResponseEntity.ok().body(accountService.getProfileByEmail(email));
     }
 
     @GetMapping("/view-users")
-    public ResponseEntity<List<ProfileResponse>> viewUsers() {
-        return ResponseEntity.ok().body(userService.getProfiles());
+    public ResponseEntity<List<ProfileDTO>> viewUsers() {
+        return ResponseEntity.ok().body(accountService.getProfiles());
     }
 
     @PutMapping ("/edit-user/{email}")
-    public ResponseEntity<ProfileResponse> editUser(@RequestBody ProfileDTO profileDTO,
+    public ResponseEntity<ProfileDTO> editUser(@RequestBody ProfileDTO profileDTO,
                                                        @PathVariable(name = "email") String email) {
-        return ResponseEntity.ok().body(userService.changeProfileByEmail(email, profileDTO));
+        return ResponseEntity.ok().body(accountService.changeProfileByEmail(email, profileDTO));
     }
 }

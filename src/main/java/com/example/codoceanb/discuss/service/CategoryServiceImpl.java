@@ -26,9 +26,10 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public CategoryDTO add(AddCategoryRequest request) {
         Category category = Category.builder()
-                                    .name(request.getName())
-                                    .description(request.getDescription())
-                                    .build();
+                .name(request.getName())
+                .imageUrl(request.getImageUrl())
+                .description(request.getDescription())
+                .build();
         categoryRepository.save(category);
         return convertToCategoryDTO(category);
     }
