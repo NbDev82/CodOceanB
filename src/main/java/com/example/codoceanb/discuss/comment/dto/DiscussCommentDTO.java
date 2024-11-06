@@ -3,6 +3,7 @@ package com.example.codoceanb.discuss.comment.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter

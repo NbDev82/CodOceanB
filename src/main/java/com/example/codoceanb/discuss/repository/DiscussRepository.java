@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface DiscussRepository extends JpaRepository<Discuss, UUID> {
     @Query(value = "SELECT d FROM Discuss d WHERE d.isClosed = FALSE AND d.owner.email = :email")
     List<Discuss> findByOwnerEmail(String email);
-    @Query(value = "SELECT d.id, d.title, d.created_at, d.description, d.end_at, d.is_closed, d.image, d.user_id, d.updated_at, COUNT(c.id) AS comment_count, u.url_img AS user_url_img, u.full_name AS user_name, u.email AS user_email " +
+    @Query(value = "SELECT d.id, d.title, d.created_at, d.description, d.end_at, d.is_closed, d.user_id, d.updated_at, COUNT(c.id) AS comment_count, u.url_img AS user_url_img, u.full_name AS user_name, u.email AS user_email " +
             "FROM discusses d " +
             "LEFT JOIN comments c ON d.id = c.discuss_id " +
             "LEFT JOIN discuss_categories dc ON d.id = dc.discuss_id " +
@@ -25,7 +25,7 @@ public interface DiscussRepository extends JpaRepository<Discuss, UUID> {
             "WHERE d.is_closed IS FALSE " +
             "AND (:searchTerm IS NULL OR d.title LIKE %:searchTerm%) " +
             "AND (:category IS NULL OR cat.name = :category) " +
-            "GROUP BY d.id, d.title, d.created_at, d.description, d.end_at, d.is_closed, d.image, d.updated_at, u.id, u.url_img, u.full_name, u.email " +
+            "GROUP BY d.id, d.title, d.created_at, d.description, d.end_at, d.is_closed, d.updated_at, u.id, u.url_img, u.full_name, u.email " +
             "ORDER BY comment_count DESC",
             nativeQuery = true)
     Page<Discuss> findAllWithCommentCount(@Param("searchTerm") String searchTerm,

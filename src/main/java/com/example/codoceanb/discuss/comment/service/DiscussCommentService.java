@@ -2,6 +2,7 @@ package com.example.codoceanb.discuss.comment.service;
 
 import com.example.codoceanb.discuss.comment.dto.DiscussCommentDTO;
 import com.example.codoceanb.discuss.comment.request.AddCommentRequest;
+import com.example.codoceanb.discuss.comment.request.ReplyCommentRequest;
 import com.example.codoceanb.discuss.comment.request.UpdateCommentRequest;
 
 import java.util.List;
@@ -17,4 +18,8 @@ public interface DiscussCommentService {
     DiscussCommentDTO updateComment(UUID id, UpdateCommentRequest request);
 
     boolean deleteComment(UUID id);
+
+    DiscussCommentDTO reply(String authHeader, ReplyCommentRequest request);
+
+    List<DiscussCommentDTO> getReplies(UUID commentId);
 }

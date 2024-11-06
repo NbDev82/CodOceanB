@@ -96,15 +96,15 @@ public class DiscussServiceImpl implements DiscussService{
             }
             List<Image> images = new ArrayList<>();
 
-            List<MultipartFile> multipartFiles = request.getMultipartFiles();
-
-            for (MultipartFile file: multipartFiles) {
-                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
-                Image image = Image.builder()
-                        .imageUrl(imageUrl)
-                        .build();
-                images.add(image);
-            }
+//            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+//
+//            for (MultipartFile file: multipartFiles) {
+//                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
+//                Image image = Image.builder()
+//                        .imageUrl(imageUrl)
+//                        .build();
+//                images.add(image);
+//            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -198,9 +198,9 @@ public class DiscussServiceImpl implements DiscussService{
                 .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
 
                 .ownerId(discuss.getOwner().getId())
-                .ownerImageUrl(discuss.getOwner().getUrlImage())
-                .ownerName(discuss.getOwner().getFullName())
-                .isLiked(discuss.getEmojis().stream().anyMatch(emoji -> emoji.getOwner().getId().equals(userId)))
+                .ownerImageUrl(discuss.getOwner().getUrlImage() != null ? discuss.getOwner().getUrlImage() : "")
+                .ownerName(discuss.getOwner().getFullName() != null ? discuss.getOwner().getFullName() : "")
+                .isLiked(discuss.getEmojis() != null && discuss.getEmojis().stream().anyMatch(emoji -> emoji.getOwner().getId().equals(userId)))
                 .build();
     }
 }
