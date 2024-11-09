@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProblemServiceImpl implements ProblemService{
@@ -74,20 +75,20 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Override
     public List<ProblemDTO> getAllDTOs() {
-        return mapper.toDTOs(getAll());
+        return getAll().stream().map(Problem::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<ProblemDTO> getAllUploadedProblemsByUser(String token) {
         String email = jwtTokenUtils.extractEmailFromBearerToken(token);
-        return mapper.toDTOs(problemRepository.getProblemsByOwner(email));
+        return problemRepository.getProblemsByOwner(email).stream().map(Problem::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<ProblemDTO> getAllSolvedProblemsByUser(String token) {
         String email = jwtTokenUtils.extractEmailFromBearerToken(token);
         List<Problem> solvedProblems = problemRepository.findSolvedProblemsByUser(email);
-        return mapper.toDTOs(solvedProblems);
+        return solvedProblems.stream().map(Problem::toDTO).collect(Collectors.toList());
     }
 
     @Override

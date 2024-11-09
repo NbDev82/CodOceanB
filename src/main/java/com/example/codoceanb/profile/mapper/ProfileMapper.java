@@ -14,6 +14,7 @@ import java.util.List;
 public interface ProfileMapper {
     ProfileMapper INSTANCE = Mappers.getMapper(ProfileMapper.class);
 
+    @Mapping(target = "isLocked", source = "locked")
     ProfileDTO toDTO(User user);
 
     List<ProfileDTO> toDTOs(List<User> users);
@@ -21,6 +22,5 @@ public interface ProfileMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "urlImage", source = "urlImage")
     @Mapping(target = "VIPExpDate", source = "VIPExpDate")
-    @Mapping(target = "isLocked", source = "locked")
     User toEntity(ProfileDTO userDTO);
 }

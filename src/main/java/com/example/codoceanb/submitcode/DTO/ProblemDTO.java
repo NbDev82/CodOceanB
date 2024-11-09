@@ -20,12 +20,5 @@ public class ProblemDTO {
     private int acceptedCount;
     private int discussCount;
     private int submissionCount;
-    private String acceptanceRate = getAcceptanceRate();
-
-    public String getAcceptanceRate() {
-        double acceptanceRate = ((double) acceptedCount /submissionCount)*100;
-        double roundedNumber = Math.round(acceptanceRate * 10.0) / 10.0;
-        DecimalFormat df = new DecimalFormat("#.#");
-        return df.format(roundedNumber);
-    }
+    private String acceptanceRate;
 }
