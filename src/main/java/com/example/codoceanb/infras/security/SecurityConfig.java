@@ -51,7 +51,6 @@ public class SecurityConfig {
                                 "/api/v1/code/**",
                                 "/api/profile/**",
                                 "/api/discusses/**",
-                                "/api/v1/discuss/categories/**",
                                 "/api/v1/react/discuss/**",
                                 "/api/topics/**",
                                 "/api/search/**",
@@ -65,8 +64,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/admin/**")
                         .hasRole("ADMIN")
-
-                        .requestMatchers("/api/user/**")
+                        .requestMatchers(
+                                "/api/user/**",
+                                "/api/v1/discuss/categories/**")
                         .hasAnyRole("USER", "ADMIN", "USER_VIP", "MODERATOR")
                         .anyRequest().authenticated()
                 )
@@ -74,7 +74,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
