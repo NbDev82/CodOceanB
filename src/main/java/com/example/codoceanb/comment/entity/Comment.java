@@ -1,5 +1,6 @@
 package com.example.codoceanb.comment.entity;
 
+import com.example.codoceanb.comment.dto.CommentDTO;
 import com.example.codoceanb.discuss.entity.Discuss;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
@@ -50,4 +51,15 @@ public class Comment implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
+
+    public CommentDTO toDTO() {
+        return CommentDTO.builder()
+                .id(id)
+                .text(text)
+                .updatedAt(updatedAt)
+                .ownerId(user.getId())
+                .ownerName(user.getFullName())
+                .ownerImageUrl(user.getUrlImage())
+                .build();
+    }
 }

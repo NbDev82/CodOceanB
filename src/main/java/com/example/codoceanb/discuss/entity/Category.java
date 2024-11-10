@@ -19,6 +19,7 @@ public class Category {
 
     private String name;
     private String description;
+    private String imageUrl;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     private List<Discuss> discusses;

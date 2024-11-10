@@ -4,8 +4,10 @@ import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.comment.entity.Comment;
 import com.example.codoceanb.discuss.comment.dto.DiscussCommentDTO;
 import com.example.codoceanb.discuss.comment.exception.CommentNotFoundException;
+import com.example.codoceanb.discuss.comment.exception.InvalidCommentLengthException;
 import com.example.codoceanb.discuss.comment.repository.DiscussCommentRepository;
 import com.example.codoceanb.discuss.comment.request.AddCommentRequest;
+import com.example.codoceanb.discuss.comment.request.ReplyCommentRequest;
 import com.example.codoceanb.discuss.comment.request.UpdateCommentRequest;
 import com.example.codoceanb.discuss.service.DiscussService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
 
     @Autowired
     private DiscussService discussService;
+
+    @Autowired
+    private DiscussCommentRepository discussCommentRepository;
 
     @Override
     public DiscussCommentDTO createComment(AddCommentRequest request, String authHeader) {
@@ -75,6 +80,35 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
             return true;
         }
         return false;
+    }
+
+    @Override
+    public DiscussCommentDTO reply(String authHeader, ReplyCommentRequest request) {
+        int MINIMUM_LENGTH_OF_MESSAGE = 10;
+        if(request.getText().length() < MINIMUM_LENGTH_OF_MESSAGE)
+            throw new InvalidCommentLengthException("Comment must not less than 10 characters");
+        if (request.getCommentId() == null)
+            return null;
+
+        Comment comment = Comment.builder()
+                .text(request.getText())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .isDeleted(false)
+                .user(userService.getUserDetailsFromToken(authHeader))
+                .commentParent(discussCommentRepository.findById(request.getCommentId()).orElse(null))
+                .build();
+        Comment saved = commentRepository.save(comment);
+
+        return convertToDTO(saved);
+    }
+
+    @Override
+    public List<DiscussCommentDTO> getReplies(UUID commentId) {
+        List<Comment> comments = commentRepository.findByCommentParentId(commentId);
+        return comments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private DiscussCommentDTO convertToDTO(Comment comment) {

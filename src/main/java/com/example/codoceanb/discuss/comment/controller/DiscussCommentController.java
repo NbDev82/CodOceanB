@@ -1,6 +1,8 @@
 package com.example.codoceanb.discuss.comment.controller;
 
+import com.example.codoceanb.discuss.comment.exception.InvalidCommentLengthException;
 import com.example.codoceanb.discuss.comment.request.AddCommentRequest;
+import com.example.codoceanb.discuss.comment.request.ReplyCommentRequest;
 import com.example.codoceanb.discuss.comment.request.UpdateCommentRequest;
 import com.example.codoceanb.discuss.comment.service.DiscussCommentService;
 import com.example.codoceanb.discuss.comment.dto.DiscussCommentDTO;
@@ -53,5 +55,18 @@ public class DiscussCommentController {
         boolean isDeleted = commentService.deleteComment(id);
         return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                          : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/reply")
+    public ResponseEntity<DiscussCommentDTO> replyComment(@RequestBody ReplyCommentRequest request,
+                                                          @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(commentService.reply(authHeader, request));
+    }
+
+    @GetMapping("/replies")
+    public ResponseEntity<List<DiscussCommentDTO>> getReplyComments(@RequestParam UUID commentId) {
+        List<DiscussCommentDTO> commentDTOs = commentService.getReplies(commentId);
+        return ResponseEntity.ok(commentDTOs);
     }
 }

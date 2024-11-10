@@ -1,6 +1,7 @@
 package com.example.codoceanb.discuss.comment.repository;
 
 import com.example.codoceanb.comment.entity.Comment;
+import com.example.codoceanb.discuss.comment.dto.DiscussCommentDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,4 +18,10 @@ public interface DiscussCommentRepository extends JpaRepository<Comment, UUID> {
                     "WHERE d.id = :discussId " +
                     "ORDER BY c.createdAt ASC")
     List<Comment> findAllByDiscussId(UUID discussId);
+
+    @Query(value =  "SELECT c " +
+                    "FROM Comment c " +
+                    "WHERE c.commentParent.id = :commentId " +
+                    "ORDER BY c.createdAt ASC")
+    List<Comment> findByCommentParentId(UUID commentId);
 }

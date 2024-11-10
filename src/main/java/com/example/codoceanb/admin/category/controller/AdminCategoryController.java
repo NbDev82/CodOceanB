@@ -19,7 +19,7 @@ public class AdminCategoryController {
     private CategoryService categoryService;
 
     @PostMapping("/add")
-    public ResponseEntity<CategoryDTO> addCategory(@RequestBody AddCategoryRequest request) {
+    public ResponseEntity<CategoryDTO> addCategory(@ModelAttribute AddCategoryRequest request) {
         return ResponseEntity.ok(categoryService.add(request));
     }
 

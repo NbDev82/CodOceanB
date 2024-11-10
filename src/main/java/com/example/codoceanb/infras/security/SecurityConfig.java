@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -47,11 +48,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html")
                         .permitAll()
                         .requestMatchers(
-                                "/api/user/**",
                                 "/api/v1/code/**",
                                 "/api/profile/**",
                                 "/api/discusses/**",
-                                "/api/v1/discuss/categories/**",
                                 "/api/v1/react/discuss/**",
                                 "/api/topics/**",
                                 "/api/search/**",
@@ -59,17 +58,22 @@ public class SecurityConfig {
                                 "/v1/api/payment-paypal/**",
                                 "/v1/api/payment/**",
                                 "/v1/api/payment-info/**",
-                                "/api/v1/upload/**")
+                                "/api/v1/upload/**",
+                                "/api/v1/discuss/comments/**")
                         .hasAnyRole("USER", "USER_VIP")
-                        .requestMatchers("/api/admin/**")
+                        .requestMatchers(
+                                "/api/admin/**")
                         .hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/user/**",
+                                "/api/v1/discuss/categories/**")
+                        .hasAnyRole("USER", "ADMIN", "USER_VIP", "MODERATOR")
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

@@ -55,7 +55,7 @@ public class DiscussServiceImpl implements DiscussService{
             String email = user.getEmail();
             List<Discuss> discusses = discussRepository.findByOwnerEmail(email);
             return discusses.stream()
-                    .map(discuss -> convertDiscussToDTO(discuss, user.getId()))
+                    .map(discuss -> discuss.toDTO(user.getId()))
                     .collect(Collectors.toList());
         } catch (io.jsonwebtoken.io.DecodingException e) {
             log.error("Error decoding token: ", e);
@@ -78,7 +78,7 @@ public class DiscussServiceImpl implements DiscussService{
             Pageable pagination = PageRequest.of(pageNumber, limit, Sort.by(Sort.Direction.DESC, "comment_count"));
             Page<Discuss> discussPage = discussRepository.findAllWithCommentCount(searchTerm, category, pagination);
             return discussPage.stream()
-                    .map(discuss -> convertDiscussToDTO(discuss, userId))
+                    .map(discuss -> discuss.toDTO(userId))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error retrieving discusses: ", e);
@@ -96,15 +96,15 @@ public class DiscussServiceImpl implements DiscussService{
             }
             List<Image> images = new ArrayList<>();
 
-            List<MultipartFile> multipartFiles = request.getMultipartFiles();
-
-            for (MultipartFile file: multipartFiles) {
-                String imageUrl = uploadFileService.uploadImage(file);
-                Image image = Image.builder()
-                        .imageUrl(imageUrl)
-                        .build();
-                images.add(image);
-            }
+//            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+//
+//            for (MultipartFile file: multipartFiles) {
+//                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
+//                Image image = Image.builder()
+//                        .imageUrl(imageUrl)
+//                        .build();
+//                images.add(image);
+//            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -118,7 +118,7 @@ public class DiscussServiceImpl implements DiscussService{
                     .build();
             
             Discuss savedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(savedDiscuss, owner.getId());
+            return savedDiscuss.toDTO(owner.getId());
         } catch (Exception e) {
             log.error("Error adding discuss: ", e);
             throw new RuntimeException("Unable to add discuss");
@@ -151,7 +151,7 @@ public class DiscussServiceImpl implements DiscussService{
             }
 
             Discuss updatedDiscuss = discussRepository.save(discuss);
-            return convertDiscussToDTO(updatedDiscuss, discuss.getOwner().getId());
+            return updatedDiscuss.toDTO(discuss.getOwner().getId());
         } catch (Exception e) {
             log.error("Error updating discuss: ", e);
             throw new RuntimeException("Unable to update discuss");
@@ -176,31 +176,12 @@ public class DiscussServiceImpl implements DiscussService{
         Discuss discuss = discussRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
         UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
-        return convertDiscussToDTO(discuss, userId);
+        return discuss.toDTO(userId);
     }
 
     @Override
     public Discuss getDiscuss(UUID id) {
         return  discussRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
-    }
-
-    private DiscussDTO convertDiscussToDTO(Discuss discuss, UUID userId) {
-        return DiscussDTO.builder()
-                .id(discuss.getId())
-                .title(discuss.getTitle())
-                .description(discuss.getDescription())
-                .createdAt(discuss.getCreatedAt())
-                .updatedAt(discuss.getUpdatedAt())
-                .endAt(discuss.getUpdatedAt())
-                .imageUrls(discuss.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
-                .commentCount(discuss.getComments() == null ? 0 : discuss.getComments().size())
-                .reactCount(discuss.getEmojis() == null ? 0 : discuss.getEmojis().size())
-
-                .ownerId(discuss.getOwner().getId())
-                .ownerImageUrl(discuss.getOwner().getUrlImage())
-                .ownerName(discuss.getOwner().getFullName())
-                .isLiked(discuss.getEmojis().stream().anyMatch(emoji -> emoji.getOwner().getId().equals(userId)))
-                .build();
     }
 }
