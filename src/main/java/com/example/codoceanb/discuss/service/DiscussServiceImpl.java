@@ -96,15 +96,14 @@ public class DiscussServiceImpl implements DiscussService{
             }
             List<Image> images = new ArrayList<>();
 
-//            List<MultipartFile> multipartFiles = request.getMultipartFiles();
-//
-//            for (MultipartFile file: multipartFiles) {
-//                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
-//                Image image = Image.builder()
-//                        .imageUrl(imageUrl)
-//                        .build();
-//                images.add(image);
-//            }
+            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+            for (MultipartFile file: multipartFiles) {
+                String imageUrl = uploadFileService.uploadImage(file,owner.getId().toString());
+                Image image = Image.builder()
+                        .imageUrl(imageUrl)
+                        .build();
+                images.add(image);
+            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -116,7 +115,7 @@ public class DiscussServiceImpl implements DiscussService{
                     .images(images)
                     .owner(owner)
                     .build();
-            
+
             Discuss savedDiscuss = discussRepository.save(discuss);
             return savedDiscuss.toDTO(owner.getId());
         } catch (Exception e) {
