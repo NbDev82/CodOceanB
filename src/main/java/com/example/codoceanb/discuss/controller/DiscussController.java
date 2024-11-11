@@ -8,6 +8,7 @@ import com.example.codoceanb.discuss.service.DiscussService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,10 +38,13 @@ public class DiscussController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscussDTO> addDiscuss(@RequestBody AddDiscussRequest request,
-                                                 @RequestHeader(value = "Authorization") String authHeader) {
+    public ResponseEntity<DiscussDTO> addDiscuss(@RequestPart("request") AddDiscussRequest request,
+                                                 @RequestHeader(value = "Authorization") String authHeader,
+                                                 @RequestPart(value = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
+        request.setMultipartFiles(multipartFiles);
         return ResponseEntity.ok(discussService.addDiscuss(request, authHeader));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<DiscussDTO> updateDiscuss(@PathVariable UUID id,

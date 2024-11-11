@@ -77,9 +77,11 @@ public class DiscussServiceImpl implements DiscussService{
 
             Pageable pagination = PageRequest.of(pageNumber, limit, Sort.by(Sort.Direction.DESC, "comment_count"));
             Page<Discuss> discussPage = discussRepository.findAllWithCommentCount(searchTerm, category, pagination);
-            return discussPage.stream()
+            List<DiscussDTO> discusses = discussPage.stream()
+                    .peek(discuss -> log.info("Discuss ID: {}, Images: {}", discuss.getId(), discuss.getImages()))
                     .map(discuss -> discuss.toDTO(userId))
                     .collect(Collectors.toList());
+            return discusses;
         } catch (Exception e) {
             log.error("Error retrieving discusses: ", e);
             throw new RuntimeException("Unable to retrieve discusses");
@@ -96,15 +98,18 @@ public class DiscussServiceImpl implements DiscussService{
             }
             List<Image> images = new ArrayList<>();
 
-//            List<MultipartFile> multipartFiles = request.getMultipartFiles();
-//
-//            for (MultipartFile file: multipartFiles) {
-//                String imageUrl = uploadFileService.uploadImage(file,owner.getEmail());
-//                Image image = Image.builder()
-//                        .imageUrl(imageUrl)
-//                        .build();
-//                images.add(image);
-//            }
+            List<MultipartFile> multipartFiles = request.getMultipartFiles();
+            if (multipartFiles != null) {
+                for (MultipartFile file : multipartFiles) {
+
+                    String imageUrl = uploadFileService.uploadImage(file, owner.getId().toString());
+
+                    Image image = Image.builder()
+                            .imageUrl(imageUrl)
+                            .build();
+                    images.add(image);
+                }
+            }
 
             Discuss discuss = Discuss.builder()
                     .title(request.getTitle())
@@ -116,7 +121,11 @@ public class DiscussServiceImpl implements DiscussService{
                     .images(images)
                     .owner(owner)
                     .build();
-            
+
+            for (Image image : images) {
+                image.setDiscuss(discuss);
+            }
+
             Discuss savedDiscuss = discussRepository.save(discuss);
             return savedDiscuss.toDTO(owner.getId());
         } catch (Exception e) {
