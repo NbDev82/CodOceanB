@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,10 +61,13 @@ public class Discuss implements Serializable {
     @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
     private List<Emoji> emojis;
 
-    @OneToMany(mappedBy = "discuss", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "discuss", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Image> images;
 
     public DiscussDTO toDTO(UUID userId) {
+        List<String> imageUrls = this.images != null ?
+                this.images.stream().map(Image::getImageUrl).collect(Collectors.toList()) :
+                new ArrayList<>();
         return DiscussDTO.builder()
                 .id(this.getId())
                 .title(this.getTitle())
@@ -71,7 +75,7 @@ public class Discuss implements Serializable {
                 .createdAt(this.getCreatedAt())
                 .updatedAt(this.getUpdatedAt())
                 .endAt(this.getEndAt())
-                .imageUrls(this.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()))
+                .imageUrls(imageUrls)
                 .commentCount(this.getComments() == null ? 0 : this.getComments().size())
                 .reactCount(this.getEmojis() == null ? 0 : this.getEmojis().size())
                 .ownerId(this.getOwner().getId())
