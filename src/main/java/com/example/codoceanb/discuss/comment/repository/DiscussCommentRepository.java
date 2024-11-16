@@ -16,12 +16,14 @@ public interface DiscussCommentRepository extends JpaRepository<Comment, UUID> {
                     "FROM Comment c " +
                     "INNER JOIN Discuss d ON d.id = c.discuss.id " +
                     "WHERE d.id = :discussId " +
+                    "AND c.isDeleted = false " +
                     "ORDER BY c.createdAt ASC")
     List<Comment> findAllByDiscussId(UUID discussId);
 
     @Query(value =  "SELECT c " +
                     "FROM Comment c " +
                     "WHERE c.commentParent.id = :commentId " +
+                    "AND c.isDeleted = false " +
                     "ORDER BY c.createdAt ASC")
     List<Comment> findByCommentParentId(UUID commentId);
 }
