@@ -36,7 +36,7 @@ public class Report {
     @Required
     private UUID violationId;
 
-    @OneToMany
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ViolationType> violationTypes;
 
     @ManyToOne(cascade = CascadeType.ALL)
