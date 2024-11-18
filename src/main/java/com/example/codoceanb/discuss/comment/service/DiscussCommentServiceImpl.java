@@ -76,13 +76,13 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
     }
 
     @Override
-    public boolean deleteComment(UUID id) {
+    public DiscussCommentDTO deleteComment(UUID id) {
         try {
             Comment comment = commentRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
             comment.setDeleted(true);
             commentRepository.save(comment);
-            return true;
+            return convertToDTO(comment);
         } catch (Exception e) {
             log.error("Error deleting comment: ", e);
             throw new RuntimeException("Unable to delete comment", e);
@@ -91,11 +91,14 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
 
     @Override
     public DiscussCommentDTO reply(String authHeader, ReplyCommentRequest request) {
-        int MINIMUM_LENGTH_OF_MESSAGE = 10;
-        if(request.getText().length() < MINIMUM_LENGTH_OF_MESSAGE)
-            throw new InvalidCommentLengthException("Comment must not less than 10 characters");
         if (request.getCommentId() == null)
             return null;
+        Comment commentParent = discussCommentRepository.findById(request.getCommentId())
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found or had deleted!"));
+
+        if(commentParent.isDeleted()) {
+            throw new CommentNotFoundException("Comment not found or had deleted!");
+        }
 
         Comment comment = Comment.builder()
                 .text(request.getText())
@@ -103,7 +106,7 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
                 .user(userService.getUserDetailsFromToken(authHeader))
-                .commentParent(discussCommentRepository.findById(request.getCommentId()).orElse(null))
+                .commentParent(commentParent)
                 .build();
         Comment saved = commentRepository.save(comment);
 
@@ -113,19 +116,25 @@ public class DiscussCommentServiceImpl implements DiscussCommentService{
     @Override
     public List<DiscussCommentDTO> getReplies(UUID commentId) {
         List<Comment> comments = commentRepository.findByCommentParentId(commentId);
+
         return comments.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     private DiscussCommentDTO convertToDTO(Comment comment) {
-        return DiscussCommentDTO.builder()
-                .id(comment.getId())
-                .text(comment.getText())
-                .updatedAt(comment.getUpdatedAt())
-                .ownerId(comment.getUser().getId())
-                .ownerName(comment.getUser().getFullName())
-                .ownerImageUrl(comment.getUser().getUrlImage())
-                .build();
+        try{
+            return DiscussCommentDTO.builder()
+                    .id(comment.getId())
+                    .text(comment.getText())
+                    .updatedAt(comment.getUpdatedAt())
+                    .ownerId(comment.getUser().getId())
+                    .ownerName(comment.getUser().getFullName())
+                    .ownerImageUrl(comment.getUser().getUrlImage())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error in convertToDTO DiscussCommentDTO: " + e.getMessage());
+            return null;
+        }
     }
 }

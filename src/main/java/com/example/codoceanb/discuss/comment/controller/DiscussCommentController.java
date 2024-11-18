@@ -1,6 +1,5 @@
 package com.example.codoceanb.discuss.comment.controller;
 
-import com.example.codoceanb.discuss.comment.exception.InvalidCommentLengthException;
 import com.example.codoceanb.discuss.comment.request.AddCommentRequest;
 import com.example.codoceanb.discuss.comment.request.ReplyCommentRequest;
 import com.example.codoceanb.discuss.comment.request.UpdateCommentRequest;
@@ -10,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +22,21 @@ public class DiscussCommentController {
 
     @Autowired
     private DiscussCommentService commentService;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
-    public ResponseEntity<DiscussCommentDTO> createComment(@RequestBody AddCommentRequest request,
+    public ResponseEntity<Boolean> createComment(@RequestBody AddCommentRequest request,
                                                            @RequestHeader("Authorization") String authHeader) {
         DiscussCommentDTO commentDTO = commentService.createComment(request, authHeader);
-        return new ResponseEntity<>(commentDTO, HttpStatus.CREATED);
+        commentDTO.setType(DiscussCommentDTO.EType.COMMENT);
+
+        messagingTemplate.convertAndSend(
+                "/topic/discuss/" + request.getDiscussId(),
+                commentDTO
+        );
+
+        return new ResponseEntity<>(true, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -44,24 +53,37 @@ public class DiscussCommentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DiscussCommentDTO> updateComment(@PathVariable UUID id, @RequestBody UpdateCommentRequest request) {
+    public ResponseEntity<Boolean> updateComment(@PathVariable UUID id, @RequestBody UpdateCommentRequest request) {
         DiscussCommentDTO updatedComment = commentService.updateComment(id, request);
-        return updatedComment != null ? new ResponseEntity<>(updatedComment, HttpStatus.OK)
-                                      : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        updatedComment.setType(DiscussCommentDTO.EType.UPDATE);
+
+        messagingTemplate.convertAndSend(
+                "/topic/discuss-comment/" + request.getCommentId(),
+                updatedComment
+        );
+
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable UUID id) {
-        boolean isDeleted = commentService.deleteComment(id);
-        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                         : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<DiscussCommentDTO> deleteComment(@PathVariable UUID id) {
+        DiscussCommentDTO deletedComment = commentService.deleteComment(id);
+        return new ResponseEntity<>(deletedComment, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/reply")
-    public ResponseEntity<DiscussCommentDTO> replyComment(@RequestBody ReplyCommentRequest request,
+    public ResponseEntity<Boolean> replyComment(@RequestBody ReplyCommentRequest request,
                                                           @RequestHeader("Authorization") String authHeader) {
+        DiscussCommentDTO replyComment = commentService.reply(authHeader, request);
+        replyComment.setType(DiscussCommentDTO.EType.REPLY);
+
+        messagingTemplate.convertAndSend(
+                "/topic/discuss-comment/" + request.getCommentId(),
+                replyComment
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(commentService.reply(authHeader, request));
+                .body(true);
     }
 
     @GetMapping("/replies")

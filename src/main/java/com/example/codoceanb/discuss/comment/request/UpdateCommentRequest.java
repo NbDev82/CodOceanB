@@ -10,5 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class UpdateCommentRequest{
+    private UUID commentId;
     private String text;
 }
