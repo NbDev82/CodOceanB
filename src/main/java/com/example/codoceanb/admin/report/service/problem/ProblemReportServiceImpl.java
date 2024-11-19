@@ -57,7 +57,7 @@ public class ProblemReportServiceImpl implements ProblemReportService {
                 problem.setDeleted(true);
                 problemRepository.save(problem);
 
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 report.setReason(reason);
                 reportRepository.save(report);
                 List<Report> reports = reportRepository.findByViolationId(report.getViolationId()).stream()
@@ -76,7 +76,7 @@ public class ProblemReportServiceImpl implements ProblemReportService {
         synchronized (this) {
             Report report = reportRepository.findById(id).orElseThrow();
             if(report.getStatus().equals(Report.EStatus.WAITING)) {
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 report.setReason(reason);
                 reportRepository.save(report);
 
@@ -90,7 +90,7 @@ public class ProblemReportServiceImpl implements ProblemReportService {
         synchronized (this) {
             Report report = reportRepository.findById(id).orElseThrow();
             if(report.getStatus().equals(Report.EStatus.WAITING)) {
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 reportRepository.save(report);
             }
         }

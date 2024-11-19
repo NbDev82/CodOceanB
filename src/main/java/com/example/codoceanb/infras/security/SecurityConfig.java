@@ -59,7 +59,8 @@ public class SecurityConfig {
                                 "/v1/api/payment/**",
                                 "/v1/api/payment-info/**",
                                 "/api/v1/upload/**",
-                                "/api/v1/discuss/comments/**")
+                                "/api/v1/discuss/comments/**",
+                                "/api/v1/reports/**")
                         .hasAnyRole("USER", "USER_VIP")
                         .requestMatchers(
                                 "/api/admin/**")
