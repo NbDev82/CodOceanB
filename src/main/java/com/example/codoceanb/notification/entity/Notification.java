@@ -1,11 +1,9 @@
 package com.example.codoceanb.notification.entity;
 
 import com.example.codoceanb.auth.entity.User;
+import com.example.codoceanb.notification.dto.NotificationDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -24,8 +22,8 @@ public class Notification implements Serializable {
 
     private String content;
 
-    @Column(name = "receiving_time")
-    private LocalDateTime receivingTime;
+    @Column(name = "received_time")
+    private LocalDateTime receivedTime;
 
     @Column(name = "is_read")
     private boolean isRead;
@@ -33,7 +31,28 @@ public class Notification implements Serializable {
     @Column(name = "is_delete")
     private boolean isDelete;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Column(name="notification_type")
+    private EType type;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User recipient;
+
+    @Getter
+    public enum EType {
+        COMMON_USER,
+        COMMON_USER_VIP,
+        COMMON_MODERATOR,
+        COMMON_ADMIN,
+        PERSONAL
+    }
+
+    public NotificationDTO toDTO() {
+        return NotificationDTO.builder()
+                .id(this.id)
+                .content(this.content)
+                .receivedTime(this.receivedTime)
+                .isRead(this.isRead)
+                .build();
+    }
 }
