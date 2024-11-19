@@ -50,7 +50,6 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(
                                 "/api/v1/code/**",
-                                "/api/profile/**",
                                 "/api/discusses/**",
                                 "/api/v1/react/discuss/**",
                                 "/api/topics/**",
@@ -66,6 +65,7 @@ public class SecurityConfig {
                                 "/api/admin/**")
                         .hasRole("ADMIN")
                         .requestMatchers(
+                                "/api/profile/**",
                                 "/api/user/**",
                                 "/api/v1/discuss/categories/**")
                         .hasAnyRole("USER", "ADMIN", "USER_VIP", "MODERATOR")
