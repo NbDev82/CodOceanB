@@ -165,6 +165,7 @@ public class ProblemServiceImpl implements ProblemService{
         TestCase.TestCaseBuilder testCaseBuilder = TestCase.builder();
         for (AddTestCaseRequestDTO dto : testcaseDTOs) {
             testCase = testCaseBuilder
+                    .isPublic(dto.isPublic())
                     .outputData(dto.getOutput())
                     .problem(problem)
                     .build();

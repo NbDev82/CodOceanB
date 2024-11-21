@@ -15,9 +15,9 @@ import java.util.UUID;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-    @Query("SELECT n FROM Notification n WHERE (:recipient IS NULL AND n.type = :eType) OR (:recipient IS NOT NULL AND n.type = :personal AND n.recipient = :recipient) ORDER BY n.receivedTime DESC")
+    @Query("SELECT n FROM Notification n WHERE (n.recipient IS NULL AND n.type = :eType) OR (n.recipient IS NOT NULL AND n.type = :personal AND n.recipient = :recipient) ORDER BY n.receivedTime DESC")
     List<Notification> findAllByRecipientOrType(@Nullable User recipient, Notification.EType eType, Notification.EType personal);
 
-    @Query("SELECT n FROM Notification n WHERE (:recipient IS NULL AND n.type = :eType) OR (:recipient IS NOT NULL AND n.type = :personal AND n.recipient = :recipient) ORDER BY n.receivedTime DESC")
+    @Query("SELECT n FROM Notification n WHERE (n.recipient IS NULL AND n.type = :eType) OR (n.recipient IS NOT NULL AND n.type = :personal AND n.recipient = :recipient) ORDER BY n.receivedTime DESC")
     Page<Notification> findAllByRecipientOrType(Pageable pageable, @Nullable User recipient, Notification.EType eType, Notification.EType personal);
 }
