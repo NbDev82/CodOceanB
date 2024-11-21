@@ -3,6 +3,7 @@ package com.example.codoceanb.submitcode.problem.service;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.service.UserService;
+import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
 import com.example.codoceanb.submitcode.DTO.AddProblemRequestDTO;
 import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
 import com.example.codoceanb.submitcode.DTO.InputDTO;
@@ -129,16 +130,17 @@ public class ProblemServiceImpl implements ProblemService{
     }
 
     @Override
-    public List<ProblemDTO> getTopProblemsByTopic(String topic, int limit) {
+    public List<TrendingProblemDTO> getTopProblemsByTopic(String topic, int limit) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.valueOf(topic));
-        return mapper.toDTOs(problemRepository.findTopByTopicsOrderBySubmissionsDesc(topics, PageRequest.of(0, limit)));
+        List<Problem> problems = problemRepository.findTopByTopicsOrderBySubmissionsDesc(topics, PageRequest.of(0, limit));
+        return problems.stream().map(Problem::toTrendingDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<ProblemDTO> getTopProblems(int limit) {
+    public List<TrendingProblemDTO> getTopProblems(int limit) {
         List<Problem> topProblems = problemRepository.findTopByOrderBySubmissionsDesc(PageRequest.of(0, limit));
-        return mapper.toDTOs(topProblems);
+        return topProblems.stream().map(Problem::toTrendingDTO).collect(Collectors.toList());
     }
 
 
@@ -163,6 +165,7 @@ public class ProblemServiceImpl implements ProblemService{
         TestCase.TestCaseBuilder testCaseBuilder = TestCase.builder();
         for (AddTestCaseRequestDTO dto : testcaseDTOs) {
             testCase = testCaseBuilder
+                    .isPublic(dto.isPublic())
                     .outputData(dto.getOutput())
                     .problem(problem)
                     .build();

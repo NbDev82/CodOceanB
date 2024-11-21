@@ -37,12 +37,11 @@ public class JwtTokenUtils {
         claims.put("email", user.getEmail());
         claims.put("isActive", user.isActive());
 
-        int expiration = 1000 * 60 * 3;
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() +  Duration.ofMinutes(30).toMillis()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -104,7 +103,7 @@ public class JwtTokenUtils {
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
-                .setExpiration(new Date(Duration.ofDays(7).toMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofDays(7).toMillis()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -19,4 +19,14 @@ public class DiscussCommentDTO {
     private UUID ownerId;
     private String ownerName;
     private String ownerImageUrl;
+
+    private EType type;
+
+    @Getter
+    public enum EType {
+        COMMENT,
+        REPLY,
+        UPDATE,
+        DELETE
+    }
 }

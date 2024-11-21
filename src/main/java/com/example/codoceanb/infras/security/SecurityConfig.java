@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(
+                                "/ws/**",
                                 "/api/auth/v1/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -49,7 +50,6 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(
                                 "/api/v1/code/**",
-                                "/api/profile/**",
                                 "/api/discusses/**",
                                 "/api/v1/react/discuss/**",
                                 "/api/topics/**",
@@ -59,12 +59,14 @@ public class SecurityConfig {
                                 "/v1/api/payment/**",
                                 "/v1/api/payment-info/**",
                                 "/api/v1/upload/**",
-                                "/api/v1/discuss/comments/**")
+                                "/api/v1/discuss/comments/**",
+                                "/api/v1/reports/**")
                         .hasAnyRole("USER", "USER_VIP")
                         .requestMatchers(
                                 "/api/admin/**")
                         .hasRole("ADMIN")
                         .requestMatchers(
+                                "/api/profile/**",
                                 "/api/user/**",
                                 "/api/v1/discuss/categories/**")
                         .hasAnyRole("USER", "ADMIN", "USER_VIP", "MODERATOR")

@@ -28,7 +28,7 @@ public class Report {
     private String description;
 
     private EStatus status;
-    private String reason;
+    private String reason;//for admin or moderator
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -36,7 +36,7 @@ public class Report {
     @Required
     private UUID violationId;
 
-    @OneToMany
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ViolationType> violationTypes;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -53,9 +53,9 @@ public class Report {
     @Getter
     public enum EStatus {
         WAITING,
-        FINISH,
-        WARMING,
-        SERIOUS
+        FINISHED,
+        WARNING,
+        SERIOUSLY
     }
 
     public ReportDTO toDTO() {
@@ -64,6 +64,8 @@ public class Report {
                 .type(type)
                 .description(description)
                 .violationId(violationId)
+                .status(status)
+                .createdAt(createdAt)
                 .violationTypes(violationTypes.stream()
                         .map(v ->
                                 ViolationTypeDTO.builder()
@@ -71,10 +73,11 @@ public class Report {
                                         .id(v.getId())
                                         .build()
                         )
-                        .collect(Collectors.toList()
-                        )
+                        .collect(Collectors.toList())
                 )
                 .ownerId(owner.getId())
+                .ownerName(owner.getFullName())
+                .isClosed(status == EStatus.FINISHED)
                 .build();
     }
 }

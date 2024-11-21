@@ -12,5 +12,4 @@ import java.util.UUID;
 public class AddCommentRequest {
     private UUID discussId;
     private String text;
-
 }

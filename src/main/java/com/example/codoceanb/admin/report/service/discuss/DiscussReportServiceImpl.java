@@ -57,7 +57,7 @@ public class DiscussReportServiceImpl implements DiscussReportService {
                 discuss.setClosed(true);
                 discussRepository.save(discuss);
 
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 report.setReason(reason);
                 reportRepository.save(report);
                 reportRepository.deleteAll(reportRepository.findByViolationId(report.getViolationId()).stream()
@@ -74,7 +74,7 @@ public class DiscussReportServiceImpl implements DiscussReportService {
         synchronized (this) {
             Report report = reportRepository.findById(id).orElseThrow();
             if(report.getStatus().equals(Report.EStatus.WAITING)) {
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 report.setReason(reason);
                 reportRepository.save(report);
     
@@ -88,7 +88,7 @@ public class DiscussReportServiceImpl implements DiscussReportService {
         synchronized (this) {
             Report report = reportRepository.findById(id).orElseThrow();
             if(report.getStatus().equals(Report.EStatus.WAITING)) {
-                report.setStatus(Report.EStatus.FINISH);
+                report.setStatus(Report.EStatus.FINISHED);
                 reportRepository.save(report);
             }
         }

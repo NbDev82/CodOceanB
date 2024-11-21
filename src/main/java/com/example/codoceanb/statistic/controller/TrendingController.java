@@ -1,5 +1,6 @@
 package com.example.codoceanb.statistic.controller;
 
+import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
 import com.example.codoceanb.statistic.service.TrendingService;
 import com.example.codoceanb.submitcode.DTO.ProblemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class TrendingController {
     }
 
     @GetMapping("/{topic}/{limit}")
-    public ResponseEntity<List<ProblemDTO>> getTrendingProblemsWithTopic(@PathVariable String topic, @PathVariable int limit) {
+    public ResponseEntity<List<TrendingProblemDTO>> getTrendingProblemsWithTopic(@PathVariable String topic, @PathVariable int limit) {
         try {
             return ResponseEntity.ok(trendingService.getTrendingProblems(topic, limit));
         } catch (IllegalArgumentException e) {
@@ -32,7 +33,7 @@ public class TrendingController {
     }
 
     @GetMapping("/{limit}")
-    public ResponseEntity<List<ProblemDTO>> getTrendingProblems(@PathVariable int limit) {
+    public ResponseEntity<List<TrendingProblemDTO>> getTrendingProblems(@PathVariable int limit) {
         try {
             return ResponseEntity.ok(trendingService.getTrendingProblems(limit));
         } catch (IllegalArgumentException e) {

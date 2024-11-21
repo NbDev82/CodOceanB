@@ -17,7 +17,7 @@ public interface DiscussCommentService {
 
     DiscussCommentDTO updateComment(UUID id, UpdateCommentRequest request);
 
-    boolean deleteComment(UUID id);
+    DiscussCommentDTO deleteComment(UUID id);
 
     DiscussCommentDTO reply(String authHeader, ReplyCommentRequest request);
 

@@ -36,7 +36,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            if (isBypassToken(request)) {
+            if (isWebSocketRequest(request) || isBypassToken(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -63,13 +63,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
     }
 
+    private boolean isWebSocketRequest(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        String upgradeHeader = request.getHeader("Upgrade");
+        return "websocket".equalsIgnoreCase(upgradeHeader) && requestURI.equals("/ws");
+    }
+
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
                 Pair.of(String.format("%s/actuator/**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/auth/v1/**", apiPrefix), "POST"),
                 Pair.of(String.format("%s/auth/v1/**", apiPrefix), "GET"),
-                Pair.of(String.format("%s/auth/v1/**", apiPrefix), "GET"),
+                Pair.of("/ws/**", "GET"),
+                Pair.of("/ws/**", "POST"),
                 Pair.of("/api-docs", "GET"),
                 Pair.of("/api-docs/**", "GET"),
                 Pair.of("/swagger-resources", "GET"),

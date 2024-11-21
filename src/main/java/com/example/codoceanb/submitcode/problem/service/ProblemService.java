@@ -1,5 +1,6 @@
 package com.example.codoceanb.submitcode.problem.service;
 
+import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.request.AddProblemRequest;
@@ -15,8 +16,8 @@ public interface ProblemService {
     Boolean add(AddProblemRequest request, String authHeader);
     Boolean delete(UUID problemId);
     Problem getRandomProblem();
-    List<ProblemDTO> getTopProblemsByTopic(String topic, int limit);
+    List<TrendingProblemDTO> getTopProblemsByTopic(String topic, int limit);
     List<ProblemDTO> getAllUploadedProblemsByUser(String authHeader);
     List<ProblemDTO> getAllSolvedProblemsByUser(String authHeader);
-    List<ProblemDTO> getTopProblems(int limit);
+    List<TrendingProblemDTO> getTopProblems(int limit);
 }

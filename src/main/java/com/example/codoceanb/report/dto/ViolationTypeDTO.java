@@ -1,5 +1,6 @@
 package com.example.codoceanb.report.dto;
 
+import com.example.codoceanb.report.entity.Report;
 import com.example.codoceanb.report.entity.ViolationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,9 +17,10 @@ public class ViolationTypeDTO {
     private UUID id;
     private String description;
 
-    public ViolationType toEntity() {
+    public ViolationType toEntity(Report report) {
         return ViolationType.builder()
                 .description(description)
+                .report(report)
                 .build();
     }
 }
