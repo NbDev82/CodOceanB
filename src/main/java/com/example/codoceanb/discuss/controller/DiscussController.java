@@ -26,8 +26,8 @@ public class DiscussController {
                                                         @RequestParam(defaultValue = "") String searchTerm,
                                                         @RequestParam(required = false) String category,
                                                         @RequestHeader("Authorization") String authHeader) {
-        List<DiscussDTO> discussDTOs = discussService.getDiscusses(authHeader, pageNumber, limit, searchTerm, category);
-        return ResponseEntity.ok(new DiscussResponse(discussDTOs));
+        DiscussResponse response = discussService.getDiscusses(authHeader, pageNumber, limit, searchTerm, category);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

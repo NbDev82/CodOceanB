@@ -10,8 +10,10 @@ import com.example.codoceanb.discuss.repository.CategoryRepository;
 import com.example.codoceanb.discuss.repository.DiscussRepository;
 import com.example.codoceanb.discuss.request.AddDiscussRequest;
 import com.example.codoceanb.discuss.request.UpdateDiscussRequest;
+import com.example.codoceanb.discuss.response.DiscussResponse;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.discuss.dto.DiscussDTO;
+import com.example.codoceanb.search.dto.SearchResultDTO;
 import com.example.codoceanb.search.service.SearchServiceImpl;
 import com.example.codoceanb.uploadfile.service.UploadFileService;
 import org.apache.logging.log4j.LogManager;
@@ -67,11 +69,11 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
-    public List<DiscussDTO> getDiscusses(String authHeader,
-                                         int pageNumber,
-                                         int limit,
-                                         String searchTerm,
-                                         String category) {
+    public DiscussResponse getDiscusses(String authHeader,
+                                        int pageNumber,
+                                        int limit,
+                                        String searchTerm,
+                                        String category) {
         try {
             UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
 
@@ -81,7 +83,12 @@ public class DiscussServiceImpl implements DiscussService{
                     .peek(discuss -> log.info("Discuss ID: {}, Images: {}", discuss.getId(), discuss.getImages()))
                     .map(discuss -> discuss.toDTO(userId))
                     .collect(Collectors.toList());
-            return discusses;
+
+            return DiscussResponse.builder()
+                    .totalPage(discussPage.getTotalPages())
+                    .totalElement(discussPage.getTotalElements())
+                    .discussDTOs(discusses)
+                    .build();
         } catch (Exception e) {
             log.error("Error retrieving discusses: ", e);
             throw new RuntimeException("Unable to retrieve discusses");
