@@ -143,6 +143,13 @@ public class ProblemServiceImpl implements ProblemService{
         return topProblems.stream().map(Problem::toTrendingDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public String getCorrectAnswer(UUID problemId) {
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new ProblemNotFoundException("Problem not found"));
+        return problem.getCorrectAnswer();
+    }
+
 
     private void createAndSaveLibraryFromRequest(AddProblemRequest request, Problem problem) {
         List<String> libraries = request.getLibraries();
