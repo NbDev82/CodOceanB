@@ -37,8 +37,8 @@ public class AdminDashBoardController {
     }
 
     @GetMapping("/users/total")
-    public ResponseEntity<Double> getTotalUsersByRole(@RequestParam User.ERole role) {
-        Double totalUsersByRole = adminStatisticsService.fetchTotalUsersByRole(role);
+    public ResponseEntity<List<Map<String, Object>>> getTotalUsersByRole() {
+        List<Map<String, Object>> totalUsersByRole = adminStatisticsService.fetchTotalUsersByRole();
         return ResponseEntity.ok().body(totalUsersByRole);
     }
 

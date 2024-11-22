@@ -17,5 +17,5 @@ public interface AdminStatisticsService {
 
     Long fetchTotalRevenue(int year);
 
-    double fetchTotalUsersByRole(User.ERole role);
+    List<Map<String, Object>> fetchTotalUsersByRole();
 }

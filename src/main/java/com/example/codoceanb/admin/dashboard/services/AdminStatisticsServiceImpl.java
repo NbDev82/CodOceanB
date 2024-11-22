@@ -90,7 +90,7 @@ public class AdminStatisticsServiceImpl implements AdminStatisticsService{
     }
 
     @Override
-    public double fetchTotalUsersByRole(User.ERole role) {
-        return userRepos.getTotalUsersByRole(role);
+    public List<Map<String, Object>> fetchTotalUsersByRole() {
+        return userRepos.getTotalUsersByRole();
     }
 }

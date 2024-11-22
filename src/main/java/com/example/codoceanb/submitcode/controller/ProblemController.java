@@ -97,7 +97,8 @@ public class ProblemController {
     @GetMapping("/{id}/correct-answer")
     public ResponseEntity<String> getCorrectAnswer(@PathVariable(name = "id") UUID problemId) {
         try {
-            return ResponseEntity.ok(problemService.getCorrectAnswer(problemId));
+            String correctAnswer = problemService.getCorrectAnswer(problemId);
+            return ResponseEntity.ok(correctAnswer == null? "" : correctAnswer);
         } catch (Exception e) {
             log.error("Error fetching correct answer for problem ID: {}", problemId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
