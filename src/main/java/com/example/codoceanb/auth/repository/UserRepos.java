@@ -35,4 +35,9 @@ public interface UserRepos extends JpaRepository<User, UUID> {
                    "ORDER BY month",
            nativeQuery = true)
     List<Map<String, Object>> getMonthlyNewUsersCountByYear(int year);
+
+    @Query("SELECT COUNT(u.email) " +
+            "FROM User u " +
+            "WHERE u.isLocked = FALSE AND u.role = :role")
+    double getTotalUsersByRole(User.ERole role);
 }

@@ -1,10 +1,12 @@
 package com.example.codoceanb.admin.dashboard.services;
 
 import com.example.codoceanb.admin.account.services.AccountServiceImpl;
+import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.repository.UserRepos;
 import com.example.codoceanb.discuss.entity.Discuss;
 import com.example.codoceanb.discuss.repository.DiscussRepository;
 import com.example.codoceanb.discuss.service.DiscussService;
+import com.example.codoceanb.payment.repository.PaymentRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class AdminStatisticsServiceImpl implements AdminStatisticsService{
 
     @Autowired
     private DiscussRepository discussRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Override
     public List<Map<String, Object>> fetchMonthlyPosts(int year) {
@@ -58,5 +63,34 @@ public class AdminStatisticsServiceImpl implements AdminStatisticsService{
             log.error("Failed to fetch new users monthly for year {}: {}", year, e.getMessage());
         }
         return newUsersMonthly;
+    }
+
+    @Override
+    public List<Map<String, Object>> fetchMonthlyRevenue(int year) {
+        List<Map<String, Object>> monthlyRevenue = new ArrayList<>();
+        try {
+            monthlyRevenue = paymentRepository.getMonthlyRevenueCount(year);
+            log.info("Fetched monthly revenue for year {}: {}", year, monthlyRevenue);
+        } catch (Exception e) {
+            log.error("Failed to fetch monthly revenue for year {}: {}", year, e.getMessage());
+        }
+        return monthlyRevenue;
+    }
+
+    @Override
+    public Long fetchTotalRevenue(int year) {
+        Long totalRevenue = 0L;
+        try {
+            totalRevenue = paymentRepository.getTotalRevenueCountByYear(year);
+            log.info("Fetched total revenue for year {}: {}", year, totalRevenue);
+        } catch (Exception e) {
+            log.error("Failed to fetch total revenue for year {}: {}", year, e.getMessage());
+        }
+        return totalRevenue;
+    }
+
+    @Override
+    public double fetchTotalUsersByRole(User.ERole role) {
+        return userRepos.getTotalUsersByRole(role);
     }
 }
