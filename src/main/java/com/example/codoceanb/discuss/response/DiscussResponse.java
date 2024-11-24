@@ -13,5 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class DiscussResponse {
+    private int totalPage;
+    private long totalElement;
     List<DiscussDTO> discussDTOs;
 }

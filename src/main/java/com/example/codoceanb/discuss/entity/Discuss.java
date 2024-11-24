@@ -76,7 +76,7 @@ public class Discuss implements Serializable {
                 .updatedAt(this.getUpdatedAt())
                 .endAt(this.getEndAt())
                 .imageUrls(imageUrls)
-                .commentCount(this.getComments() == null ? 0 : this.getComments().size())
+                .commentCount(this.getComments() == null ? 0 : this.getComments().stream().filter(c -> !c.isDeleted()).toList().size())
                 .reactCount(this.getEmojis() == null ? 0 : this.getEmojis().size())
                 .ownerId(this.getOwner().getId())
                 .ownerImageUrl(this.getOwner().getUrlImage() != null ? this.getOwner().getUrlImage() : "")

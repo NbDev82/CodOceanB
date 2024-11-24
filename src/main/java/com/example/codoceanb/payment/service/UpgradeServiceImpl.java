@@ -125,6 +125,7 @@ public class UpgradeServiceImpl implements UpgradeService{
         }
 
         user.setVIPExpDate(VIPExpDate);
+        user.setRole(User.ERole.USER_VIP);
         user.setUpdatedAt(LocalDateTime.now());
         userRepos.save(user);
     }

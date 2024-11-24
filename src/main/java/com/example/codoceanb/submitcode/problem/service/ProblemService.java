@@ -20,4 +20,6 @@ public interface ProblemService {
     List<ProblemDTO> getAllUploadedProblemsByUser(String authHeader);
     List<ProblemDTO> getAllSolvedProblemsByUser(String authHeader);
     List<TrendingProblemDTO> getTopProblems(int limit);
+
+    String getCorrectAnswer(UUID problemId);
 }
