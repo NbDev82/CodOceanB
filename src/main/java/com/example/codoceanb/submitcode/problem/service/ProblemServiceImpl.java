@@ -4,17 +4,18 @@ import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
-import com.example.codoceanb.submitcode.DTO.AddProblemRequestDTO;
-import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
-import com.example.codoceanb.submitcode.DTO.InputDTO;
-import com.example.codoceanb.submitcode.DTO.ProblemDTO;
+import com.example.codoceanb.submitcode.DTO.*;
 import com.example.codoceanb.submitcode.exception.ProblemNotFoundException;
 import com.example.codoceanb.submitcode.library.entity.LibrariesSupport;
 import com.example.codoceanb.submitcode.library.repository.LibraryRepository;
 import com.example.codoceanb.submitcode.parameter.entity.Parameter;
 import com.example.codoceanb.submitcode.parameter.repository.ParameterRepository;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
+import com.example.codoceanb.submitcode.problem.entity.ProblemApproach;
+import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
 import com.example.codoceanb.submitcode.problem.mapper.ProblemMapper;
+import com.example.codoceanb.submitcode.problem.repository.ProblemApproachRepository;
+import com.example.codoceanb.submitcode.problem.repository.ProblemHintRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
 import com.example.codoceanb.submitcode.request.AddProblemRequest;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
@@ -37,6 +38,8 @@ public class ProblemServiceImpl implements ProblemService{
     private static final Logger log = LogManager.getLogger(ProblemServiceImpl.class);
 
     private final ProblemRepository problemRepository;
+    private final ProblemApproachRepository problemApproachRepository;
+    private final ProblemHintRepository problemHintRepository;
     private final TestCaseRepository testCaseRepository;
     private final ParameterRepository parameterRepository;
     private final LibraryRepository libraryRepository;
@@ -49,8 +52,10 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Autowired
     public ProblemServiceImpl(ProblemRepository problemRepository,
-                              TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, ProblemMapper mapper, UserService userService, JwtTokenUtils jwtTokenUtils) {
+                              ProblemApproachRepository problemApproach, ProblemHintRepository problemHintRepository, TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, ProblemMapper mapper, UserService userService, JwtTokenUtils jwtTokenUtils) {
         this.problemRepository = problemRepository;
+        this.problemApproachRepository = problemApproach;
+        this.problemHintRepository = problemHintRepository;
         this.testCaseRepository = testCaseRepository;
         this.parameterRepository = parameterRepository;
         this.libraryRepository = libraryRepository;
@@ -66,7 +71,7 @@ public class ProblemServiceImpl implements ProblemService{
 
         return returnType.equals(Problem.class)
                 ? returnType.cast(problem)
-                : returnType.cast(mapper.toDTO(problem));
+                : returnType.cast(problem.toDTO());
     }
 
     @Override
@@ -104,12 +109,49 @@ public class ProblemServiceImpl implements ProblemService{
         try{
             Problem problem = createProblemFromRequest(request.getProblem(), authHeader);
             problem = problemRepository.save(problem);
+            createAndSaveHintFromRequest(request, problem);
             createAndSaveTestCaseFromRequest(request, problem);
             createAndSaveLibraryFromRequest(request,problem);
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
             return false;
+        }
+    }
+
+    private void createAndSaveHintFromRequest(AddProblemRequest request, Problem problem) {
+        ProblemHintDTO problemHintDTO = request.getProblem().getProblemHintDTO();
+        ProblemHint hint = ProblemHint.builder()
+                .isLocked(problemHintDTO.isLocked())
+                .overView(problemHintDTO.getOverView())
+                .pseudoCode(problemHintDTO.getPseudoCode())
+                .build();
+        ProblemHint savedHint = problemHintRepository.save(hint);
+
+        problem.setProblemHint(hint);
+        problemRepository.save(problem);
+
+        createAndSaveProblemApproachFromHint(problemHintDTO, savedHint);
+    }
+
+    private void createAndSaveProblemApproachFromHint(ProblemHintDTO problemHintDTO, ProblemHint hint) {
+        for (ProblemApproachDTO approachDTO: problemHintDTO.getApproachDTOs()) {
+            ProblemApproach problemApproach = ProblemApproach.builder()
+                    .intuition(approachDTO.getIntuition())
+                    .algorithm(approachDTO.getAlgorithm())
+                    .implementation(approachDTO.getImplementation())
+                    .language(approachDTO.getLanguage())
+                    .problemHint(hint)
+                    .build();
+            problemApproachRepository.save(problemApproach);
+            
+            List<ProblemApproach> problemApproaches = hint.getApproaches();
+            if (problemApproaches == null) {
+                problemApproaches = new ArrayList<>();
+            }
+            problemApproaches.add(problemApproach);
+            hint.setApproaches(problemApproaches);
+            problemHintRepository.save(hint);
         }
     }
 
