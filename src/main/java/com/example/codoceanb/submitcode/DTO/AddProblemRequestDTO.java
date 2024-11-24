@@ -15,4 +15,5 @@ public class AddProblemRequestDTO {
     private boolean deleted;
     private String functionName;
     private String outputDataType;
+    private ProblemHintDTO problemHintDTO;
 }
