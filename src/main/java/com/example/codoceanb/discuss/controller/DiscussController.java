@@ -6,6 +6,7 @@ import com.example.codoceanb.discuss.request.UpdateDiscussRequest;
 import com.example.codoceanb.discuss.response.DiscussResponse;
 import com.example.codoceanb.discuss.service.DiscussService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +44,13 @@ public class DiscussController {
                                                  @RequestPart(value = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
         request.setMultipartFiles(multipartFiles);
         return ResponseEntity.ok(discussService.addDiscuss(request, authHeader));
+    }
+
+    @PostMapping("/without-images")
+    public ResponseEntity<DiscussDTO> addDiscussWithoutImages(@RequestBody AddDiscussRequest request,
+                                                            @RequestHeader(value = "Authorization") String authHeader) {
+        request.setMultipartFiles(null);
+        return ResponseEntity.ok(discussService.addDiscussWithoutImages(request, authHeader));
     }
 
 

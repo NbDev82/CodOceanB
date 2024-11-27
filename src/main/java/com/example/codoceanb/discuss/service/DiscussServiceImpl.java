@@ -33,7 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class DiscussServiceImpl implements DiscussService{
+public class DiscussServiceImpl implements DiscussService {
     private static final Logger log = LogManager.getLogger(SearchServiceImpl.class);
 
     @Autowired
@@ -70,10 +70,10 @@ public class DiscussServiceImpl implements DiscussService{
 
     @Override
     public DiscussResponse getDiscusses(String authHeader,
-                                        int pageNumber,
-                                        int limit,
-                                        String searchTerm,
-                                        String category) {
+            int pageNumber,
+            int limit,
+            String searchTerm,
+            String category) {
         try {
             UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
 
@@ -101,7 +101,8 @@ public class DiscussServiceImpl implements DiscussService{
             User owner = userService.getUserDetailsFromToken(authHeader);
             List<Category> categories = null;
             if (request.getCategories() != null) {
-                categories = categoryRepository.findAllByNames(request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
+                categories = categoryRepository.findAllByNames(
+                        request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
             }
             List<Image> images = new ArrayList<>();
 
@@ -142,6 +143,35 @@ public class DiscussServiceImpl implements DiscussService{
     }
 
     @Override
+    public DiscussDTO addDiscussWithoutImages(AddDiscussRequest request, String authHeader) {
+        try {
+            User owner = userService.getUserDetailsFromToken(authHeader);
+            List<Category> categories = null;
+            if (request.getCategories() != null) {
+                categories = categoryRepository.findAllByNames(
+                        request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
+            }
+
+            Discuss discuss = Discuss.builder()
+                    .title(request.getTitle())
+                    .description(request.getDescription())
+                    .categories(categories)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .endAt(request.getEndAt())
+                    .images(new ArrayList<>())
+                    .owner(owner)
+                    .build();
+
+            Discuss savedDiscuss = discussRepository.save(discuss);
+            return savedDiscuss.toDTO(owner.getId());
+        } catch (Exception e) {
+            log.error("Error adding discuss without images: ", e);
+            throw new RuntimeException("Unable to add discuss");
+        }
+    }
+
+    @Override
     public DiscussDTO updateDiscuss(UUID id, UpdateDiscussRequest request) {
         try {
             Discuss discuss = discussRepository.findById(id)
@@ -149,7 +179,8 @@ public class DiscussServiceImpl implements DiscussService{
 
             List<Category> categories = null;
             if (request.getCategories() != null) {
-                categories = categoryRepository.findAllByNames(request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
+                categories = categoryRepository.findAllByNames(
+                        request.getCategories().stream().map(CategoryDTO::getName).collect(Collectors.toList()));
             }
 
             if (request.getTitle() != null) {
@@ -178,7 +209,7 @@ public class DiscussServiceImpl implements DiscussService{
     public void deleteDiscuss(UUID id) {
         try {
             Discuss discuss = discussRepository.findById(id)
-                    .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Discuss not found"));
             discuss.setClosed(true);
             discussRepository.save(discuss);
         } catch (Exception e) {
@@ -190,14 +221,14 @@ public class DiscussServiceImpl implements DiscussService{
     @Override
     public DiscussDTO getDiscussById(UUID id, String authHeader) {
         Discuss discuss = discussRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Discuss not found"));
         UUID userId = userService.getUserDetailsFromToken(authHeader).getId();
         return discuss.toDTO(userId);
     }
 
     @Override
     public Discuss getDiscuss(UUID id) {
-        return  discussRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Discuss not found"));
+        return discussRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Discuss not found"));
     }
 }
