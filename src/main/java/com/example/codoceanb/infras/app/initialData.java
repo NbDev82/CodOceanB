@@ -1,12 +1,19 @@
-package com.example.codoceanb.infras.app;
+package com.example.codoceanb.infras.testdata;
 
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.repository.UserRepos;
+import com.example.codoceanb.comment.repository.CommentRepository;
+import com.example.codoceanb.discuss.repository.DiscussRepository;
+import com.example.codoceanb.notification.entity.Notification;
+import com.example.codoceanb.notification.repository.NotificationRepository;
+import com.example.codoceanb.report.respository.ReportRepository;
+import com.example.codoceanb.report.respository.ViolationTypeRepository;
 import com.example.codoceanb.submitcode.library.entity.LibrariesSupport;
 import com.example.codoceanb.submitcode.library.repository.LibraryRepository;
 import com.example.codoceanb.submitcode.parameter.entity.Parameter;
 import com.example.codoceanb.submitcode.parameter.repository.ParameterRepository;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
+//import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
 import com.example.codoceanb.submitcode.testcase.repository.TestCaseRepository;
@@ -20,11 +27,12 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Component
 @Transactional
-public class initData {
+public class initialData {
     @Autowired
     private ProblemRepository problemRepository;
     @Autowired
@@ -35,7 +43,16 @@ public class initData {
     private TestCaseRepository testCaseRepository;
     @Autowired
     private UserRepos userRepos;
-
+    @Autowired
+    private DiscussRepository discussRepository;
+    @Autowired
+    private ReportRepository reportRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private ViolationTypeRepository violationTypeRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -73,11 +90,28 @@ public class initData {
     }
 
     private void deleteAll() {
+        notificationRepository.deleteAll();
+        commentRepository.deleteAll();
+        violationTypeRepository.deleteAll();
+        reportRepository.deleteAll();
+        discussRepository.deleteAll();
         userRepos.deleteAll();
         libraryRepository.deleteAll();
         testCaseRepository.deleteAll();
         parameterRepository.deleteAll();
         problemRepository.deleteAll();
+    }
+
+    private void createNotification(User user, String content) {
+        Notification notification = Notification.builder()
+                .content(content)
+                .receivedTime(LocalDateTime.now())
+                .isRead(false)
+                .isDelete(false)
+                .type(Notification.EType.PERSONAL)
+                .recipient(user)
+                .build();
+        notificationRepository.save(notification);
     }
 
     private List<User> initUsers() {
@@ -96,6 +130,12 @@ public class initData {
                 .role(User.ERole.USER)
                 .urlImage( "https://res.cloudinary.com/du5medjhm/image/upload/v1730996001/avatar-40_d7hhex.png")
                 .build();
+
+        createNotification(user, "Welcome to the platform 1!");
+        createNotification(user, "Welcome to the platform 2!");
+        createNotification(user, "Welcome to the platform 3!");
+        createNotification(user, "Welcome to the platform 4!");
+        createNotification(user, "Welcome to the platform 5!");
 
         User user1=User.builder()
                 .fullName("Nguyễn Văn Hoàng")
@@ -181,7 +221,6 @@ public class initData {
                 .role(User.ERole.USER)
                 .build();
 
-
         User user7 = User.builder()
                 .fullName("James Brown")
                 .phoneNumber("555789123")
@@ -200,14 +239,14 @@ public class initData {
                 .fullName("Olivia Martinez")
                 .phoneNumber("555654321")
                 .dateOfBirth(LocalDateTime.of(1997, 7, 30, 0, 0))
-                .email("21110117@student.hcmute.edu.vn")
-                .password(passwordEncoder.encode("123456An@"))
+                .email("olivia@example.com")
+                .password(passwordEncoder.encode("password202"))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isFirstLogin(true)
                 .isActive(true)
                 .urlImage("https://res.cloudinary.com/du5medjhm/image/upload/v1730996001/avatar-40_d7hhex.png")
-                .role(User.ERole.USER_VIP)
+                .role(User.ERole.USER)
                 .build();
 
         savedUsers.add(userRepos.save(user));
@@ -1000,8 +1039,6 @@ public class initData {
                 .build();
         parameterRepository.save(parameter);
     }
-
-    //FAILED
     public Problem buildProblem7(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.ARRAY);
@@ -1151,7 +1188,16 @@ public class initData {
                 .build();
 
         buildTestCase8(problem);
+        buildLibrary8(problem);
         return problemRepository.save(problem);
+    }
+
+    private void buildLibrary8(Problem problem) {
+        LibrariesSupport librariesSupport = LibrariesSupport.builder()
+                .name("None")
+                .problem(problem)
+                .build();
+        libraryRepository.save(librariesSupport);
     }
 
     private void buildTestCase8(Problem problem) {
@@ -1389,8 +1435,6 @@ public class initData {
                 .build();
         parameterRepository.save(parameter);
     }
-
-    // FAILED
     public Problem buildProblem11(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.STRING);
@@ -1480,8 +1524,6 @@ public class initData {
                 .build();
         parameterRepository.save(parameter);
     }
-
-    //FAILED
     public Problem buildProblem12(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.SORTING);
@@ -1577,8 +1619,6 @@ public class initData {
                 .build();
         parameterRepository.save(parameter);
     }
-
-    //FAILED
     public Problem buildProblem13(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.GRAPH);
@@ -2004,8 +2044,6 @@ public class initData {
                 .build();
         parameterRepository.save(parameter);
     }
-
-    //FAILED
     public Problem buildProblem19(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.ARRAY);
@@ -2140,8 +2178,6 @@ public class initData {
         parameterRepository.save(parameter1);
         parameterRepository.save(parameter2);
     }
-
-    //FAILED
     public Problem buildProblem20(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.GRAPH);
@@ -2708,7 +2744,7 @@ public class initData {
     }
 
     private void buildLibrary25(Problem problem) {
-
+        // No external libraries are required for this problem
     }
 
     private void buildTestCase25(Problem problem) {
@@ -2746,8 +2782,6 @@ public class initData {
 
         parameterRepository.save(parameter1);
     }
-
-    //FAILED
     public Problem buildProblem26(User user) {
         List<Problem.ETopic> topics = new ArrayList<>();
         topics.add(Problem.ETopic.MATH);
