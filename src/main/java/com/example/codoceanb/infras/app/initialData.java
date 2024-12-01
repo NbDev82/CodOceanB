@@ -1,4 +1,4 @@
-package com.example.codoceanb.infras.testdata;
+package com.example.codoceanb.infras.app;
 
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.repository.UserRepos;
@@ -13,8 +13,12 @@ import com.example.codoceanb.submitcode.library.repository.LibraryRepository;
 import com.example.codoceanb.submitcode.parameter.entity.Parameter;
 import com.example.codoceanb.submitcode.parameter.repository.ParameterRepository;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
-//import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
+import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
+import com.example.codoceanb.submitcode.problem.entity.ProblemApproach;
+import com.example.codoceanb.submitcode.problem.repository.ProblemApproachRepository;
+import com.example.codoceanb.submitcode.problem.repository.ProblemHintRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
+import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
 import com.example.codoceanb.submitcode.testcase.repository.TestCaseRepository;
 import jakarta.transaction.Transactional;
@@ -35,6 +39,10 @@ import java.util.UUID;
 public class initialData {
     @Autowired
     private ProblemRepository problemRepository;
+    @Autowired
+    private ProblemHintRepository problemHintRepository;
+    @Autowired
+    private ProblemApproachRepository problemApproachRepository;
     @Autowired
     private LibraryRepository libraryRepository;
     @Autowired
@@ -90,6 +98,8 @@ public class initialData {
     }
 
     private void deleteAll() {
+        problemApproachRepository.deleteAll();
+        problemHintRepository.deleteAll();
         notificationRepository.deleteAll();
         commentRepository.deleteAll();
         violationTypeRepository.deleteAll();
@@ -355,9 +365,116 @@ public class initialData {
                         "}")
                 .build();
 
+        // Build and save hint
+        ProblemHint hint = ProblemHint.builder()
+                .isLocked(false)
+                .overView("To determine if a number is a palindrome, we need to check if it reads the same forwards and backwards")
+                .pseudoCode("function isPalindrome(x):\n" +
+                          "    if x < 0 or (x mod 10 = 0 and x ≠ 0) then\n" +
+                          "        return false\n" +
+                          "    end if\n" +
+                          "    \n" +
+                          "    reversedHalf = 0\n" +
+                          "    while x > reversedHalf do\n" +
+                          "        reversedHalf = reversedHalf * 10 + x mod 10\n" +
+                          "        x = x div 10\n" +
+                          "    end while\n" +
+                          "    \n" +
+                          "    return x = reversedHalf or x = reversedHalf div 10")
+                .build();
+        ProblemHint savedHint = problemHintRepository.save(hint);
+
+        problem.setProblemHint(hint);
+        problem = problemRepository.save(problem);
+
+        // Build and save approach
+        ProblemApproach approach1 = ProblemApproach.builder()
+                .intuition("Để kiểm tra một số có phải là palindrome hay không, ta có thể so sánh nửa đầu với nửa sau của số đó. Thay vì đảo ngược toàn bộ số và so sánh, ta chỉ cần đảo ngược nửa sau và so sánh với nửa đầu, giúp giảm một nửa thời gian xử lý.")
+                .algorithm("1. Xử lý các trường hợp đặc biệt:\n" +
+                         "   - Số âm không thể là palindrome\n" +
+                         "   - Số kết thúc bằng 0 (trừ số 0) không thể là palindrome\n" +
+                         "2. Lặp qua từng chữ số của nửa sau:\n" +
+                         "   - Trích xuất chữ số cuối bằng phép chia dư cho 10\n" +
+                         "   - Thêm chữ số vào số đảo ngược\n" +
+                         "   - Loại bỏ chữ số cuối của số ban đầu\n" +
+                         "3. So sánh nửa đầu với số đảo ngược:\n" +
+                         "   - Xử lý trường hợp số chữ số lẻ bằng cách chia số đảo ngược cho 10")
+                .implementation("public boolean isPalindrome(int x) {\n" +
+                              "    if (x < 0 || (x % 10 == 0 && x != 0)) {\n" +
+                              "        return false;\n" +
+                              "    }\n" +
+                              "    int reversedHalf = 0;\n" +
+                              "    while (x > reversedHalf) {\n" +
+                              "        reversedHalf = reversedHalf * 10 + x % 10;\n" +
+                              "        x /= 10;\n" +
+                              "    }\n" +
+                              "    return x == reversedHalf || x == reversedHalf / 10;\n" +
+                              "}")
+                .language(Submission.ELanguage.JAVA)
+                .problemHint(savedHint)
+                .build();
+
+        ProblemApproach approach2 = ProblemApproach.builder()
+                .intuition("Chuyển số thành chuỗi và kiểm tra xem chuỗi có đối xứng hay không. Cách này dễ hiểu và dễ triển khai nhưng tốn thêm bộ nhớ để lưu chuỗi.")
+                .algorithm("1. Chuyển số nguyên thành chuỗi\n" +
+                         "2. Sử dụng hai con trỏ (đầu và cuối):\n" +
+                         "   - Con trỏ đầu chạy từ trái sang phải\n" +
+                         "   - Con trỏ cuối chạy từ phải sang trái\n" +
+                         "3. So sánh các ký tự tại vị trí hai con trỏ\n" +
+                         "4. Nếu tất cả các cặp ký tự đều giống nhau, đó là palindrome")
+                .implementation("public boolean isPalindrome(int x) {\n" +
+                              "    String str = String.valueOf(x);\n" +
+                              "    int left = 0;\n" +
+                              "    int right = str.length() - 1;\n" +
+                              "    while (left < right) {\n" +
+                              "        if (str.charAt(left) != str.charAt(right)) {\n" +
+                              "            return false;\n" +
+                              "        }\n" +
+                              "        left++;\n" +
+                              "        right--;\n" +
+                              "    }\n" +
+                              "    return true;\n" +
+                              "}")
+                .language(Submission.ELanguage.JAVA)
+                .problemHint(savedHint)
+                .build();
+
+        ProblemApproach approach3 = ProblemApproach.builder()
+                .intuition("Đảo ngược toàn bộ số và so sánh với số ban đầu. Cách này đơn giản nhưng có thể gặp vấn đề tràn số với các số lớn.")
+                .algorithm("1. Lưu số ban đầu vào một biến tạm\n" +
+                         "2. Tạo một biến để lưu số đảo ngược\n" +
+                         "3. Lặp qua từng chữ số của số ban đầu:\n" +
+                         "   - Trích xuất chữ số cuối\n" +
+                         "   - Thêm vào số đảo ngược\n" +
+                         "4. So sánh số đảo ngược với số ban đầu")
+                .implementation("public boolean isPalindrome(int x) {\n" +
+                              "    if (x < 0) return false;\n" +
+                              "    int temp = x;\n" +
+                              "    int reversed = 0;\n" +
+                              "    while (temp > 0) {\n" +
+                              "        int digit = temp % 10;\n" +
+                              "        reversed = reversed * 10 + digit;\n" +
+                              "        temp /= 10;\n" +
+                              "    }\n" +
+                              "    return x == reversed;\n" +
+                              "}")
+                .language(Submission.ELanguage.JAVA)
+                .problemHint(savedHint)
+                .build();
+        problemApproachRepository.save(approach1);
+        problemApproachRepository.save(approach2); 
+        problemApproachRepository.save(approach3);
+
+        List<ProblemApproach> approaches = new ArrayList<>();
+        approaches.add(approach1);
+        approaches.add(approach2);
+        approaches.add(approach3);
+        savedHint.setApproaches(approaches);
+        problemHintRepository.save(savedHint);
+
         buildTestCase(problem);
         buildLibrary(problem);
-        return problemRepository.save(problem);
+        return problem;
     }
 
     private void buildLibrary(Problem problem) {
