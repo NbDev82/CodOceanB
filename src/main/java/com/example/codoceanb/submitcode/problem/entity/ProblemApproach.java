@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "problem_approachs")
+@Table(name = "problem_approaches")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

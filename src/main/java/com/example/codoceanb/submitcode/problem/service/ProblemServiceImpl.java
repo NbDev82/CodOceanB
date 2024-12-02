@@ -1,5 +1,8 @@
 package com.example.codoceanb.submitcode.problem.service;
 
+import com.example.codoceanb.comment.dto.CommentDTO;
+import com.example.codoceanb.comment.entity.Comment;
+import com.example.codoceanb.comment.repository.CommentRepository;
 import com.example.codoceanb.infras.security.JwtTokenUtils;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.auth.service.UserService;
@@ -17,6 +20,7 @@ import com.example.codoceanb.submitcode.problem.mapper.ProblemMapper;
 import com.example.codoceanb.submitcode.problem.repository.ProblemApproachRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemHintRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
+import com.example.codoceanb.submitcode.request.AddProblemCommentRequest;
 import com.example.codoceanb.submitcode.request.AddProblemRequest;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
 import com.example.codoceanb.submitcode.testcase.repository.TestCaseRepository;
@@ -43,6 +47,7 @@ public class ProblemServiceImpl implements ProblemService{
     private final TestCaseRepository testCaseRepository;
     private final ParameterRepository parameterRepository;
     private final LibraryRepository libraryRepository;
+    private final CommentRepository commentRepository;
 
     private final ProblemMapper mapper;
 
@@ -52,13 +57,14 @@ public class ProblemServiceImpl implements ProblemService{
 
     @Autowired
     public ProblemServiceImpl(ProblemRepository problemRepository,
-                              ProblemApproachRepository problemApproach, ProblemHintRepository problemHintRepository, TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, ProblemMapper mapper, UserService userService, JwtTokenUtils jwtTokenUtils) {
+                              ProblemApproachRepository problemApproach, ProblemHintRepository problemHintRepository, TestCaseRepository testCaseRepository, ParameterRepository parameterRepository, LibraryRepository libraryRepository, CommentRepository commentRepository, ProblemMapper mapper, UserService userService, JwtTokenUtils jwtTokenUtils) {
         this.problemRepository = problemRepository;
         this.problemApproachRepository = problemApproach;
         this.problemHintRepository = problemHintRepository;
         this.testCaseRepository = testCaseRepository;
         this.parameterRepository = parameterRepository;
         this.libraryRepository = libraryRepository;
+        this.commentRepository = commentRepository;
         this.mapper = mapper;
         this.userService = userService;
         this.jwtTokenUtils = jwtTokenUtils;
@@ -109,7 +115,9 @@ public class ProblemServiceImpl implements ProblemService{
         try{
             Problem problem = createProblemFromRequest(request.getProblem(), authHeader);
             problem = problemRepository.save(problem);
-            createAndSaveHintFromRequest(request, problem);
+            if(request.getProblem().getProblemHintDTO() != null) {
+                createAndSaveHintFromRequest(request, problem);
+            }
             createAndSaveTestCaseFromRequest(request, problem);
             createAndSaveLibraryFromRequest(request,problem);
             return true;
@@ -255,5 +263,26 @@ public class ProblemServiceImpl implements ProblemService{
                     .build();
             parameterRepository.save(parameter);
         }
+    }
+
+    @Override
+    public List<CommentDTO> getCommentsByProblem(UUID problemId) {
+        List<Comment> comments = commentRepository.findCommentsByProblemId(problemId);
+        return comments.stream().
+                map(Comment::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDTO createComment(AddProblemCommentRequest request, String authHeader) {
+        Comment comment = Comment.builder()
+                .text(request.getText())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .isDeleted(false)
+                .user(userService.getUserDetailsFromToken(authHeader))
+                .problem(getEntityByProblemId(request.getProblemId()))
+                .build();
+        Comment savedComment = commentRepository.save(comment);
+        return savedComment.toDTO();
     }
 }
