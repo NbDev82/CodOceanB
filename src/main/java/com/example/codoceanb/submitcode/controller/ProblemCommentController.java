@@ -22,7 +22,7 @@ public class ProblemCommentController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    @GetMapping("{problemId}")
+    @GetMapping("/{problemId}")
     public ResponseEntity<List<CommentDTO>> getCommentsByProblemIdId(@PathVariable("problemId") UUID problemId) {
         return ResponseEntity.ok(problemService.getCommentsByProblem(problemId));
     }

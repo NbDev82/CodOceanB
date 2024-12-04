@@ -200,7 +200,7 @@ public class initialData {
                                 .isFirstLogin(true)
                                 .isActive(true)
                                 .urlImage("https://res.cloudinary.com/du5medjhm/image/upload/v1730996001/avatar-40_d7hhex.png")
-                                .role(User.ERole.USER) // Đã sửa lại role là user
+                                .role(User.ERole.USER_VIP) // Đã sửa lại role là user
                                 .build();
 
                 User user5 = User.builder()
@@ -325,7 +325,7 @@ public class initialData {
 
                 savedProblems.add(buildProblem26(owner));
                 savedProblems.add(buildProblem27(owner));
-//                savedProblems.add(buildProblem29(owner));
+                // savedProblems.add(buildProblem29(owner));
 
                 return savedProblems;
         }
@@ -333,7 +333,7 @@ public class initialData {
         private List<Problem> initProblems7(@NotNull User owner) {
                 List<Problem> savedProblems = new ArrayList<>();
 
-//                savedProblems.add(buildProblem31(owner));
+                // savedProblems.add(buildProblem31(owner));
                 savedProblems.add(buildProblem32(owner));
                 savedProblems.add(buildProblem33(owner));
                 savedProblems.add(buildProblem34(owner));
@@ -439,19 +439,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To determine if a number is a palindrome, we need to check if it reads the same forwards and backwards")
-                                .pseudoCode("function isPalindrome(x):\n" +
-                                                "    if x < 0 or (x mod 10 = 0 and x ≠ 0) then\n" +
-                                                "        return false\n" +
-                                                "    end if\n" +
-                                                "    \n" +
-                                                "    reversedHalf = 0\n" +
-                                                "    while x > reversedHalf do\n" +
-                                                "        reversedHalf = reversedHalf * 10 + x mod 10\n" +
-                                                "        x = x div 10\n" +
-                                                "    end while\n" +
-                                                "    \n" +
-                                                "    return x = reversedHalf or x = reversedHalf div 10")
+                                .overView("## Overview\n\nTo determine if a number is a palindrome, we need to check if it reads the same forwards and backwards.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPalindrome(x):\n    if x < 0 or (x mod 10 = 0 and x ≠ 0) then\n        return false\n    end if\n    \n    reversedHalf = 0\n    while x > reversedHalf do\n        reversedHalf = reversedHalf * 10 + x mod 10\n        x = x div 10\n    end while\n    \n    return x = reversedHalf or x = reversedHalf div 10\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -460,41 +449,22 @@ public class initialData {
 
                 // Build and save approach
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("To check if a number is a palindrome, we can compare the first half with the second half of the number. Instead of reversing the entire number and comparing, we only need to reverse the second half and compare it with the first half, which reduces the processing time by half.")
-                                .algorithm("1. Handle special cases:\n" +
-                                                "   - Negative numbers cannot be palindromes\n" +
-                                                "   - Numbers ending with 0 (except for the number 0 itself) cannot be palindromes\n"
-                                                +
-                                                "2. Iterate through each digit of the second half:\n" +
-                                                "   - Extract the last digit using modulo 10\n" +
-                                                "   - Add the digit to the reversed number\n" +
-                                                "   - Remove the last digit from the original number\n" +
-                                                "3. Compare the first half with the reversed number:\n" +
-                                                "   - Handle the case of odd number of digits by dividing the reversed number by 10")
-                                .implementation("public boolean isPalindrome(int x) {\n" +
-                                                "    if (x < 0 || (x % 10 == 0 && x != 0)) {\n" +
-                                                "        return false;\n" +
-                                                "    }\n" +
-                                                "    int reversedHalf = 0;\n" +
-                                                "    while (x > reversedHalf) {\n" +
-                                                "        reversedHalf = reversedHalf * 10 + x % 10;\n" +
-                                                "        x /= 10;\n" +
-                                                "    }\n" +
-                                                "    return x == reversedHalf || x == reversedHalf / 10;\n" +
-                                                "}")
+                                .intuition("## Intuition\n\nTo check if a number is a palindrome, we can compare the first half with the second half of the number. Instead of reversing the entire number and comparing, we only need to reverse the second half and compare it with the first half, which reduces the processing time by half.")
+                                .algorithm("## Algorithm\n\n1. **Handle special cases:**\n   - Negative numbers cannot be palindromes\n   - Numbers ending with 0 (except for the number 0 itself) cannot be palindromes\n\n2. **Iterate through each digit of the second half:**\n   - Extract the last digit using modulo 10\n   - Add the digit to the reversed number\n   - Remove the last digit from the original number\n\n3. **Compare the first half with the reversed number:**\n   - Handle the case of odd number of digits by dividing the reversed number by 10")
+                                .implementation("## Implementation\n\n```java\npublic boolean isPalindrome(int x) {\n    if (x < 0 || (x % 10 == 0 && x != 0)) {\n        return false;\n    }\n    int reversedHalf = 0;\n    while (x > reversedHalf) {\n        reversedHalf = reversedHalf * 10 + x % 10;\n        x /= 10;\n    }\n    return x == reversedHalf || x == reversedHalf / 10;\n}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
 
                 ProblemApproach approach2 = ProblemApproach.builder()
-                                .intuition("Convert the number to a string and check if the string is symmetrical. This method is easy to understand and implement but requires additional memory to store the string.")
-                                .algorithm("1. Convert the integer to a string\n" +
-                                                "2. Use two pointers (start and end):\n" +
-                                                "   - The start pointer moves from left to right\n" +
-                                                "   - The end pointer moves from right to left\n" +
-                                                "3. Compare the characters at the positions of the two pointers\n" +
-                                                "4. If all pairs of characters are the same, it is a palindrome")
-                                .implementation("public boolean isPalindrome(int x) {\n" +
+                                .intuition("## Intuition\n\nConvert the number to a string and check if the string is symmetrical. This method is easy to understand and implement but requires additional memory to store the string.")
+                                .algorithm("## Algorithm\n\n1. **Convert** the integer to a string.\n" +
+                                                "2. **Use** two pointers (start and end):\n" +
+                                                "   - The start pointer moves from left to right.\n" +
+                                                "   - The end pointer moves from right to left.\n" +
+                                                "3. **Compare** the characters at the positions of the two pointers.\n" +
+                                                "4. If all pairs of characters are the same, it is a palindrome.")
+                                .implementation("## Implementation\n\n```java\npublic boolean isPalindrome(int x) {\n" +
                                                 "    String str = String.valueOf(x);\n" +
                                                 "    int left = 0;\n" +
                                                 "    int right = str.length() - 1;\n" +
@@ -506,20 +476,20 @@ public class initialData {
                                                 "        right--;\n" +
                                                 "    }\n" +
                                                 "    return true;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
 
                 ProblemApproach approach3 = ProblemApproach.builder()
-                                .intuition("Reverse the entire number and compare it with the original number. This method is simple but may encounter overflow issues with large numbers.")
-                                .algorithm("1. Store the original number in a temporary variable\n" +
-                                                "2. Create a variable to store the reversed number\n" +
-                                                "3. Iterate through each digit of the original number:\n" +
-                                                "   - Extract the last digit\n" +
-                                                "   - Add it to the reversed number\n" +
-                                                "4. Compare the reversed number with the original number")
-                                .implementation("public boolean isPalindrome(int x) {\n" +
+                                .intuition("## Intuition\n\nReverse the entire number and compare it with the original number. This method is simple but may encounter overflow issues with large numbers.")
+                                .algorithm("## Algorithm\n\n1. **Store** the original number in a temporary variable.\n" +
+                                           "2. **Create** a variable to store the reversed number.\n" +
+                                           "3. **Iterate** through each digit of the original number:\n" +
+                                           "   - **Extract** the last digit.\n" +
+                                           "   - **Add** it to the reversed number.\n" +
+                                           "4. **Compare** the reversed number with the original number.")
+                                .implementation("## Implementation\n\n```java\npublic boolean isPalindrome(int x) {\n" +
                                                 "    if (x < 0) return false;\n" +
                                                 "    int temp = x;\n" +
                                                 "    int reversed = 0;\n" +
@@ -529,7 +499,7 @@ public class initialData {
                                                 "        temp /= 10;\n" +
                                                 "    }\n" +
                                                 "    return x == reversed;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -677,15 +647,52 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the missing number, calculate the expected sum of numbers from 0 to n and subtract the actual sum of the array.")
-                                .pseudoCode("function missingNumber(nums):\n" +
-                                                "    n = length of nums\n" +
-                                                "    expectedSum = n * (n + 1) / 2\n" +
-                                                "    actualSum = 0\n" +
-                                                "    for num in nums do\n" +
-                                                "        actualSum += num\n" +
-                                                "    end for\n" +
-                                                "    return expectedSum - actualSum")
+                                .overView("<h1 style=\"font-size: 2em; margin: 0.67em 0; font-weight: bold;text-align: center;\">Overview</h1>\r\n"
+                                                + //
+                                                "\r\n" + //
+                                                "---\r\n" + //
+                                                "\r\n" + //
+                                                "## 1. Problem Understanding\r\n" + //
+                                                "<!-- Provide a brief overview of the problem. \r\n" + //
+                                                "    - What is the problem about?\r\n" + //
+                                                "    - What are the key points to understand?\r\n" + //
+                                                "-->\r\n" + //
+                                                "To find the missing number in an array containing numbers from 0 to n, calculate the expected sum of numbers from 0 to n and subtract the actual sum of the array.\r\n"
+                                                + //
+                                                "\r\n" + //
+                                                "---\r\n" + //
+                                                "\r\n" + //
+                                                "## 2. Key Concepts\r\n" + //
+                                                "<!-- List and explain the key concepts or algorithms needed to solve the problem. \r\n"
+                                                + //
+                                                "    - What data structures are involved?\r\n" + //
+                                                "    - What algorithms or techniques are required?\r\n" + //
+                                                "-->\r\n" + //
+                                                "The key concept involves using arithmetic to determine the missing number by leveraging the formula for the sum of the first n natural numbers.")
+                                .pseudoCode("~~~plaintext\r\n" + //
+                                                "// Default Pseudo Code Template\r\n" + //
+                                                "// Problem Title: Missing Number\r\n" + //
+                                                "\r\n" + //
+                                                "// Steps to Solve the Problem:\r\n" + //
+                                                "// 1. Calculate the length of the array, n\r\n" + //
+                                                "// 2. Calculate the expected sum of numbers from 0 to n using the formula: n * (n + 1) / 2\r\n"
+                                                + //
+                                                "// 3. Initialize actualSum to 0\r\n" + //
+                                                "// 4. Iterate over each number in the array and add it to actualSum\r\n"
+                                                + //
+                                                "// 5. Subtract actualSum from expectedSum to find the missing number\r\n"
+                                                + //
+                                                "// 6. Return the result\r\n" + //
+                                                "\r\n" + //
+                                                "function missingNumber(nums):\r\n" + //
+                                                "    n = length of nums\r\n" + //
+                                                "    expectedSum = n * (n + 1) / 2\r\n" + //
+                                                "    actualSum = 0\r\n" + //
+                                                "    for num in nums do\r\n" + //
+                                                "        actualSum += num\r\n" + //
+                                                "    end for\r\n" + //
+                                                "    return expectedSum - actualSum\r\n" + //
+                                                "~~~")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -693,19 +700,23 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The missing number can be found by calculating the difference between the expected sum of numbers from 0 to n and the actual sum of the array.")
-                                .algorithm("1. Calculate the expected sum of numbers from 0 to n using the formula: n * (n + 1) / 2.\n"
-                                                +
-                                                "2. Calculate the actual sum of the numbers in the array.\n" +
+                                .intuition("## Intuition\r\n" + //
+                                                "The missing number can be found by calculating the difference between the expected sum of numbers from 0 to n and the actual sum of the array.")
+                                .algorithm("## Algorithm\r\n" + //
+                                                "1. Calculate the expected sum of numbers from 0 to n using the formula: n * (n + 1) / 2.\r\n"
+                                                + //
+                                                "2. Calculate the actual sum of the numbers in the array.\r\n" + //
                                                 "3. The missing number is the difference between the expected sum and the actual sum.")
-                                .implementation("public static int missingNumber(int[] nums) {\n" +
-                                                "    int n = nums.length;\n" +
-                                                "    int expectedSum = n * (n + 1) / 2;\n" +
-                                                "    int actualSum = 0;\n" +
-                                                "    for (int num : nums) {\n" +
-                                                "        actualSum += num;\n" +
-                                                "    }\n" +
-                                                "    return expectedSum - actualSum;\n" +
+                                .implementation("## Implementation\r\n" + //
+                                                "~~~java\r\n" + //
+                                                "public static int missingNumber(int[] nums) {\r\n" + //
+                                                "    int n = nums.length;\r\n" + //
+                                                "    int expectedSum = n * (n + 1) / 2;\r\n" + //
+                                                "    int actualSum = 0;\r\n" + //
+                                                "    for (int num : nums) {\r\n" + //
+                                                "        actualSum += num;\r\n" + //
+                                                "    }\r\n" + //
+                                                "    return expectedSum - actualSum;\r\n" + //
                                                 "}")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
@@ -839,13 +850,16 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To calculate the sum of an array, iterate through each element and accumulate the total sum.")
-                                .pseudoCode("function arraySum(arr):\n" +
-                                                "    sum = 0\n" +
+                                .overView("## Overview\r\n" + //
+                                                "To calculate the sum of an array, iterate through each element and accumulate the total sum.")
+                                .pseudoCode("~~~plaintext\r\n" + //
+                                                "function arraySum(arr):\r\n" + //
+                                                "    sum = 0\r\n" + //
                                                 "    for num in arr do\n" +
-                                                "        sum += num\n" +
-                                                "    end for\n" +
-                                                "    return sum")
+                                                "        sum += num\r\n" + //
+                                                "    end for\r\n" + //
+                                                "    return sum\r\n" + //
+                                                "~~~")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -853,18 +867,23 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The sum of an array can be found by iterating through each element and adding it to a running total.")
-                                .algorithm("1. Initialize a variable `sum` to 0.\n" +
-                                                "2. Iterate through each element in the array.\n" +
-                                                "3. Add each element to `sum`.\n" +
+                                .intuition("## Intuition\r\n" + //
+                                                "The sum of an array can be found by iterating through each element and adding it to a running total.")
+                                .algorithm("## Algorithm\r\n" + //
+                                                "1. Initialize a variable `sum` to 0.\r\n" + //
+                                                "2. Iterate through each element in the array.\r\n" + //
+                                                "3. Add each element to `sum`.\r\n" + //
                                                 "4. Return the value of `sum`.")
-                                .implementation("public static int arraySum(int[] arr) {\n" +
-                                                "    int sum = 0;\n" +
-                                                "    for (int num : arr) {\n" +
-                                                "        sum += num;\n" +
-                                                "    }\n" +
-                                                "    return sum;\n" +
-                                                "}")
+                                .implementation("## Implementation\r\n" + //
+                                                "~~~java\r\n" + //
+                                                "public static int arraySum(int[] arr) {\r\n" + //
+                                                "    int sum = 0;\r\n" + //
+                                                "    for (int num : arr) {\r\n" + //
+                                                "        sum += num;\r\n" + //
+                                                "    }\r\n" + //
+                                                "    return sum;\r\n" + //
+                                                "}\r\n" + //
+                                                "~~~")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -1013,25 +1032,28 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the target in a rotated sorted array, use a modified binary search to determine which side of the array is sorted.")
-                                .pseudoCode("function search(nums, target):\n" +
-                                                "    left = 0\n" +
-                                                "    right = length of nums - 1\n" +
-                                                "    while left <= right do\n" +
-                                                "        mid = left + (right - left) / 2\n" +
-                                                "        if nums[mid] == target then\n" +
-                                                "            return mid\n" +
-                                                "        if nums[left] <= nums[mid] then\n" +
-                                                "            if nums[left] <= target < nums[mid] then\n" +
-                                                "                right = mid - 1\n" +
-                                                "            else\n" +
-                                                "                left = mid + 1\n" +
-                                                "        else\n" +
-                                                "            if nums[mid] < target <= nums[right] then\n" +
-                                                "                left = mid + 1\n" +
-                                                "            else\n" +
-                                                "                right = mid - 1\n" +
-                                                "    return -1")
+                                .overView("## Overview\r\n" + //
+                                                "To find the target in a rotated sorted array, use a modified binary search to determine which side of the array is sorted.")
+                                .pseudoCode("~~~plaintext\r\n" + //
+                                                "function search(nums, target):\r\n" + //
+                                                "    left = 0\r\n" + //
+                                                "    right = length of nums - 1\r\n" + //
+                                                "    while left <= right do\r\n" + //
+                                                "        mid = left + (right - left) / 2\r\n" + //
+                                                "        if nums[mid] == target then\r\n" + //
+                                                "            return mid\r\n" + //
+                                                "        if nums[left] <= nums[mid] then\r\n" + //
+                                                "            if nums[left] <= target < nums[mid] then\r\n" + //
+                                                "                right = mid - 1\r\n" + //
+                                                "            else\r\n" + //
+                                                "                left = mid + 1\r\n" + //
+                                                "        else\r\n" + //
+                                                "            if nums[mid] < target <= nums[right] then\r\n" + //
+                                                "                left = mid + 1\r\n" + //
+                                                "            else\r\n" + //
+                                                "                right = mid - 1\r\n" + //
+                                                "    return -1\r\n" + //
+                                                "~~~")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -1039,43 +1061,47 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("Use binary search to efficiently find the target by determining which half of the array is sorted.")
-                                .algorithm("1. Initialize two pointers, left and right, to the start and end of the array.\n"
-                                                +
-                                                "2. While left is less than or equal to right:\n" +
-                                                "   - Calculate the mid index.\n" +
-                                                "   - If the mid element is the target, return mid.\n" +
-                                                "   - Determine which side of the array is sorted:\n" +
-                                                "     - If the left side is sorted, check if the target is within this range.\n"
-                                                +
-                                                "     - If the right side is sorted, check if the target is within this range.\n"
-                                                +
-                                                "3. Adjust the left or right pointer based on the sorted side.\n" +
+                                .intuition("## Intuition\r\n" + //
+                                                "Use binary search to efficiently find the target by determining which half of the array is sorted.")
+                                .algorithm("## Algorithm\r\n" + //
+                                                "1. Initialize two pointers, left and right, to the start and end of the array.\r\n"
+                                                + //
+                                                "2. While left is less than or equal to right:\r\n" + //
+                                                "   - Calculate the mid index.\r\n" + //
+                                                "   - If the mid element is the target, return mid.\r\n" + //
+                                                "   - Determine which side of the array is sorted:\r\n" + //
+                                                "     - If the left side is sorted, check if the target is within this range.\r\n"
+                                                + //
+                                                "     - If the right side is sorted, check if the target is within this range.\r\n"
+                                                + //
+                                                "3. Adjust the left or right pointer based on the sorted side.\r\n" + //
                                                 "4. If the target is not found, return -1.")
-                                .implementation("public static int search(int[] nums, int target) {\n" +
-                                                "    int left = 0;\n" +
-                                                "    int right = nums.length - 1;\n" +
-                                                "    while (left <= right) {\n" +
-                                                "        int mid = left + (right - left) / 2;\n" +
-                                                "        if (nums[mid] == target) {\n" +
-                                                "            return mid;\n" +
-                                                "        }\n" +
-                                                "        if (nums[left] <= nums[mid]) {\n" +
-                                                "            if (nums[left] <= target && target < nums[mid]) {\n" +
-                                                "                right = mid - 1;\n" +
-                                                "            } else {\n" +
-                                                "                left = mid + 1;\n" +
-                                                "            }\n" +
-                                                "        } else {\n" +
-                                                "            if (nums[mid] < target && target <= nums[right]) {\n" +
-                                                "                left = mid + 1;\n" +
-                                                "            } else {\n" +
-                                                "                right = mid - 1;\n" +
-                                                "            }\n" +
-                                                "        }\n" +
-                                                "    }\n" +
-                                                "    return -1;\n" +
-                                                "}")
+                                .implementation("~~~java\r\n" + //
+                                                "public static int search(int[] nums, int target) {\r\n" + //
+                                                "    int left = 0;\r\n" + //
+                                                "    int right = nums.length - 1;\r\n" + //
+                                                "    while (left <= right) {\r\n" + //
+                                                "        int mid = left + (right - left) / 2;\r\n" + //
+                                                "        if (nums[mid] == target) {\r\n" + //
+                                                "            return mid;\r\n" + //
+                                                "        }\r\n" + //
+                                                "        if (nums[left] <= nums[mid]) {\r\n" + //
+                                                "            if (nums[left] <= target && target < nums[mid]) {\r\n" + //
+                                                "                right = mid - 1;\r\n" + //
+                                                "            } else {\r\n" + //
+                                                "                left = mid + 1;\r\n" + //
+                                                "            }\r\n" + //
+                                                "        } else {\r\n" + //
+                                                "            if (nums[mid] < target && target <= nums[right]) {\r\n" + //
+                                                "                left = mid + 1;\r\n" + //
+                                                "            } else {\r\n" + //
+                                                "                right = mid - 1;\r\n" + //
+                                                "            }\r\n" + //
+                                                "        }\r\n" + //
+                                                "    }\r\n" + //
+                                                "    return -1;\r\n" + //
+                                                "}\r\n" + //
+                                                "~~~")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -1245,20 +1271,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the longest palindromic subsequence, use dynamic programming to build a table that stores the length of the longest palindromic subsequence for each substring.")
-                                .pseudoCode("function longestPalindromeSubseq(s):\n" +
-                                                "    n = length of s\n" +
-                                                "    dp = 2D array of size n x n\n" +
-                                                "    for i from 0 to n-1 do\n" +
-                                                "        dp[i][i] = 1\n" +
-                                                "    for length from 2 to n do\n" +
-                                                "        for i from 0 to n-length do\n" +
-                                                "            j = i + length - 1\n" +
-                                                "            if s[i] == s[j] then\n" +
-                                                "                dp[i][j] = dp[i+1][j-1] + 2\n" +
-                                                "            else\n" +
-                                                "                dp[i][j] = max(dp[i+1][j], dp[i][j-1])\n" +
-                                                "    return dp[0][n-1]")
+                                .overView("## Overview\n\nTo find the longest palindromic subsequence, use dynamic programming to build a table that stores the length of the longest palindromic subsequence for each substring.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction longestPalindromeSubseq(s):\n    n = length of s\n    dp = 2D array of size n x n\n    for i from 0 to n-1 do\n        dp[i][i] = 1\n    for length from 2 to n do\n        for i from 0 to n-length do\n            j = i + length - 1\n            if s[i] == s[j] then\n                dp[i][j] = dp[i+1][j-1] + 2\n            else\n                dp[i][j] = max(dp[i+1][j], dp[i][j-1])\n    return dp[0][n-1]\n```\n")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -1266,19 +1280,20 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The longest palindromic subsequence can be found by using dynamic programming to compare characters from both ends of the string and building up the solution.")
-                                .algorithm("1. Initialize a 2D array `dp` where `dp[i][j]` represents the length of the longest palindromic subsequence in the substring `s[i...j]`.\n"
+                                .intuition("## Intuition\n\nThe longest palindromic subsequence can be found by using dynamic programming to compare characters from both ends of the string and building up the solution.")
+                                .algorithm("## Algorithm\n\n1. Initialize a 2D array `dp` where `dp[i][j]` represents the length of the longest palindromic subsequence in the substring `s[i...j]`.\n\n"
                                                 +
-                                                "2. Set `dp[i][i]` to 1 for all `i` since each character is a palindrome of length 1.\n"
+                                                "2. Set `dp[i][i]` to 1 for all `i` since each character is a palindrome of length 1.\n\n"
                                                 +
-                                                "3. For each substring length from 2 to n, iterate over all possible starting indices `i`:\n"
+                                                "3. For each substring length from 2 to n, iterate over all possible starting indices `i`:\n\n"
                                                 +
-                                                "   - Calculate the ending index `j` as `i + length - 1`.\n" +
-                                                "   - If `s[i]` equals `s[j]`, set `dp[i][j]` to `dp[i+1][j-1] + 2`.\n"
+                                                "   - Calculate the ending index `j` as `i + length - 1`.\n\n" +
+                                                "   - If `s[i]` equals `s[j]`, set `dp[i][j]` to `dp[i+1][j-1] + 2`.\n\n"
                                                 +
-                                                "   - Otherwise, set `dp[i][j]` to `max(dp[i+1][j], dp[i][j-1])`.\n" +
+                                                "   - Otherwise, set `dp[i][j]` to `max(dp[i+1][j], dp[i][j-1])`.\n\n" +
                                                 "4. The result is stored in `dp[0][n-1]`.")
-                                .implementation("public static int longestPalindromeSubseq(String s) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static int longestPalindromeSubseq(String s) {\n"
+                                                +
                                                 "    int n = s.length();\n" +
                                                 "    int[][] dp = new int[n][n];\n" +
                                                 "    for (int i = 0; i < n; i++) {\n" +
@@ -1295,7 +1310,7 @@ public class initialData {
                                                 "        }\n" +
                                                 "    }\n" +
                                                 "    return dp[0][n - 1];\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -1452,17 +1467,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the number of unique paths, use dynamic programming to build a table that stores the number of ways to reach each cell.")
-                                .pseudoCode("function uniquePaths(m, n):\n" +
-                                                "    dp = 2D array of size m x n\n" +
-                                                "    for i from 0 to m-1 do\n" +
-                                                "        dp[i][0] = 1\n" +
-                                                "    for j from 0 to n-1 do\n" +
-                                                "        dp[0][j] = 1\n" +
-                                                "    for i from 1 to m-1 do\n" +
-                                                "        for j from 1 to n-1 do\n" +
-                                                "            dp[i][j] = dp[i-1][j] + dp[i][j-1]\n" +
-                                                "    return dp[m-1][n-1]")
+                                .overView("## Overview\n\nTo find the number of unique paths, use dynamic programming to build a table that stores the number of ways to reach each cell.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction uniquePaths(m, n):\n    dp = 2D array of size m x n\n    for i from 0 to m-1 do\n        dp[i][0] = 1\n    for j from 0 to n-1 do\n        dp[0][j] = 1\n    for i from 1 to m-1 do\n        for j from 1 to n-1 do\n            dp[i][j] = dp[i-1][j] + dp[i][j-1]\n    return dp[m-1][n-1]\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -1470,15 +1476,16 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The number of unique paths to reach a cell is the sum of the unique paths to reach the cell directly above and the cell directly to the left.")
-                                .algorithm("1. Initialize a 2D array `dp` where `dp[i][j]` represents the number of unique paths to reach cell (i, j).\n"
+                                .intuition("## Intuition\n\nThe number of unique paths to reach a cell is the sum of the unique paths to reach the cell directly above and the cell directly to the left.")
+                                .algorithm("## Algorithm\n\n1. Initialize a 2D array `dp` where `dp[i][j]` represents the number of unique paths to reach cell (i, j).\n\n"
                                                 +
-                                                "2. Set `dp[i][0]` to 1 for all `i` and `dp[0][j]` to 1 for all `j` since there's only one way to reach any cell in the first row or column.\n"
+                                                "2. Set `dp[i][0]` to 1 for all `i` and `dp[0][j]` to 1 for all `j` since there's only one way to reach any cell in the first row or column.\n\n"
                                                 +
-                                                "3. For each cell (i, j) from (1, 1) to (m-1, n-1), set `dp[i][j]` to `dp[i-1][j] + dp[i][j-1]`.\n"
+                                                "3. For each cell (i, j) from (1, 1) to (m-1, n-1), set `dp[i][j]` to `dp[i-1][j] + dp[i][j-1]`.\n\n"
                                                 +
                                                 "4. The result is stored in `dp[m-1][n-1]`.")
-                                .implementation("public static int uniquePaths(int m, int n) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static int uniquePaths(int m, int n) {\n"
+                                                +
                                                 "    int[][] dp = new int[m][n];\n" +
                                                 "    for (int i = 0; i < m; i++) {\n" +
                                                 "        dp[i][0] = 1;\n" +
@@ -1492,7 +1499,7 @@ public class initialData {
                                                 "        }\n" +
                                                 "    }\n" +
                                                 "    return dp[m - 1][n - 1];\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -1625,15 +1632,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the number of distinct ways to climb to the top, use dynamic programming to store the number of ways to reach each step.")
-                                .pseudoCode("function climbStairs(n):\n" +
-                                                "    if n <= 2 then return n\n" +
-                                                "    first = 1, second = 2\n" +
-                                                "    for i from 3 to n do\n" +
-                                                "        third = first + second\n" +
-                                                "        first = second\n" +
-                                                "        second = third\n" +
-                                                "    return second")
+                                .overView("## Overview\n\nTo find the number of distinct ways to climb to the top, use dynamic programming to store the number of ways to reach each step.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction climbStairs(n):\n    if n <= 2 then return n\n    first = 1, second = 2\n    for i from 3 to n do\n        third = first + second\n        first = second\n        second = third\n    return second\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -1641,8 +1641,8 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The number of ways to reach the nth step is the sum of the ways to reach the (n-1)th and (n-2)th steps.")
-                                .algorithm("1. If n is less than or equal to 2, return n.\n" +
+                                .intuition("## Intuition\n\nThe number of ways to reach the nth step is the sum of the ways to reach the (n-1)th and (n-2)th steps.")
+                                .algorithm("## Algorithm\n\n1. If n is less than or equal to 2, return n.\n" +
                                                 "2. Initialize two variables, first and second, to represent the number of ways to reach the first and second steps.\n"
                                                 +
                                                 "3. Iterate from the third step to the nth step:\n" +
@@ -1650,7 +1650,8 @@ public class initialData {
                                                 +
                                                 "   - Update the first and second variables.\n" +
                                                 "4. Return the value of the second variable, which represents the number of ways to reach the nth step.")
-                                .implementation("public static int climbStairs(int n) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static int climbStairs(int n) {\n"
+                                                +
                                                 "    if (n <= 2) return n;\n" +
                                                 "    int first = 1, second = 2;\n" +
                                                 "    for (int i = 3; i <= n; i++) {\n" +
@@ -1659,7 +1660,7 @@ public class initialData {
                                                 "        second = third;\n" +
                                                 "    }\n" +
                                                 "    return second;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -1816,18 +1817,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To determine if the parentheses are valid, use a stack to track open brackets and ensure they are closed in the correct order.")
-                                .pseudoCode("function isValid(s):\n" +
-                                                "    stack = empty stack\n" +
-                                                "    for each character c in s do\n" +
-                                                "        if c is an opening bracket then\n" +
-                                                "            push c onto stack\n" +
-                                                "        else if stack is empty or top of stack does not match c then\n"
-                                                +
-                                                "            return false\n" +
-                                                "        else\n" +
-                                                "            pop from stack\n" +
-                                                "    return stack is empty")
+                                .overView("## Overview\n\nTo determine if the parentheses are valid, use a stack to track open brackets and ensure they are closed in the correct order.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isValid(s):\n    stack = empty stack\n    for each character c in s do\n        if c is an opening bracket then\n            push c onto stack\n        else if stack is empty or top of stack does not match c then\n            return false\n        else\n            pop from stack\n    return stack is empty\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -1835,8 +1826,8 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("Use a stack to keep track of opening brackets and ensure each closing bracket matches the most recent opening bracket.")
-                                .algorithm("1. Initialize an empty stack.\n" +
+                                .intuition("## Intuition\n\nUse a stack to keep track of opening brackets and ensure each closing bracket matches the most recent opening bracket.")
+                                .algorithm("## Algorithm\n\n1. Initialize an empty stack.\n" +
                                                 "2. Iterate over each character in the string:\n" +
                                                 "   - If the character is an opening bracket, push it onto the stack.\n"
                                                 +
@@ -1845,7 +1836,8 @@ public class initialData {
                                                 "   - If it does not match, return false.\n" +
                                                 "   - Otherwise, pop the top of the stack.\n" +
                                                 "3. After processing all characters, if the stack is empty, return true; otherwise, return false.")
-                                .implementation("public static boolean isValid(String s) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static boolean isValid(String s) {\n"
+                                                +
                                                 "    Stack<Character> stack = new Stack<>();\n" +
                                                 "    for (char c : s.toCharArray()) {\n" +
                                                 "        if (c == '(' || c == '[' || c == '{') {\n" +
@@ -1861,7 +1853,7 @@ public class initialData {
                                                 "        }\n" +
                                                 "    }\n" +
                                                 "    return stack.isEmpty();\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2012,14 +2004,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To determine if one string is a subsequence of another, iterate through both strings and check if all characters of the first string appear in the second string in order.")
-                                .pseudoCode("function isSubsequence(s, t):\n" +
-                                                "    i = 0, j = 0\n" +
-                                                "    while i < length of s and j < length of t do\n" +
-                                                "        if s[i] == t[j] then\n" +
-                                                "            increment i\n" +
-                                                "        increment j\n" +
-                                                "    return i == length of s")
+                                .overView("## Overview\n\nTo determine if one string is a subsequence of another, iterate through both strings and check if all characters of the first string appear in the second string in order.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isSubsequence(s, t):\n    i = 0, j = 0\n    while i < length of s and j < length of t do\n        if s[i] == t[j] then\n            increment i\n        increment j\n    return i == length of s\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2027,14 +2013,15 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The problem can be solved by using two pointers to iterate through both strings and checking if all characters of the first string appear in the second string in order.")
-                                .algorithm("1. Initialize two pointers, i and j, to 0.\n" +
+                                .intuition("## Intuition\n\nThe problem can be solved by using two pointers to iterate through both strings and checking if all characters of the first string appear in the second string in order.")
+                                .algorithm("## Algorithm\n\n1. Initialize two pointers, i and j, to 0.\n" +
                                                 "2. Iterate through both strings:\n" +
                                                 "   - If the characters at the current positions of both strings match, increment the pointer for the first string.\n"
                                                 +
                                                 "   - Always increment the pointer for the second string.\n" +
                                                 "3. If the pointer for the first string reaches its length, return true; otherwise, return false.")
-                                .implementation("public static boolean isSubsequence(String s, String t) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static boolean isSubsequence(String s, String t) {\n"
+                                                +
                                                 "    int i = 0, j = 0;\n" +
                                                 "    while (i < s.length() && j < t.length()) {\n" +
                                                 "        if (s.charAt(i) == t.charAt(j)) {\n" +
@@ -2043,7 +2030,7 @@ public class initialData {
                                                 "        j++;\n" +
                                                 "    }\n" +
                                                 "    return i == s.length();\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2185,11 +2172,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the maximum product of three numbers, consider both the largest three numbers and the two smallest numbers with the largest number.")
-                                .pseudoCode("function maximumProduct(nums):\n" +
-                                                "    sort nums\n" +
-                                                "    n = length of nums\n" +
-                                                "    return max(nums[0] * nums[1] * nums[n-1], nums[n-1] * nums[n-2] * nums[n-3])")
+                                .overView("## Overview\n\nTo find the maximum product of three numbers, consider both the largest three numbers and the two smallest numbers with the largest number.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction maximumProduct(nums):\n    sort nums\n    n = length of nums\n    return max(nums[0] * nums[1] * nums[n-1], nums[n-1] * nums[n-2] * nums[n-3])\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2197,18 +2181,19 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The maximum product of three numbers can be obtained by either the product of the three largest numbers or the product of the two smallest numbers and the largest number.")
-                                .algorithm("1. Sort the array.\n" +
+                                .intuition("## Intuition\n\nThe maximum product of three numbers can be obtained by either the product of the three largest numbers or the product of the two smallest numbers and the largest number.")
+                                .algorithm("## Algorithm\n\n1. Sort the array.\n" +
                                                 "2. Calculate the product of the three largest numbers.\n" +
                                                 "3. Calculate the product of the two smallest numbers and the largest number.\n"
                                                 +
                                                 "4. Return the maximum of the two products.")
-                                .implementation("public static int maximumProduct(int[] nums) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static int maximumProduct(int[] nums) {\n"
+                                                +
                                                 "    Arrays.sort(nums);\n" +
                                                 "    int n = nums.length;\n" +
                                                 "    return Math.max(nums[0] * nums[1] * nums[n - 1], nums[n - 1] * nums[n - 2] * nums[n - 3]);\n"
                                                 +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2361,19 +2346,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To count the number of primes below n, use the Sieve of Eratosthenes algorithm to mark non-prime numbers.")
-                                .pseudoCode("function countPrimes(n):\n" +
-                                                "    if n <= 2 then return 0\n" +
-                                                "    isPrime = array of boolean of size n, initialized to true\n" +
-                                                "    isPrime[0] = isPrime[1] = false\n" +
-                                                "    for i from 2 to sqrt(n) do\n" +
-                                                "        if isPrime[i] then\n" +
-                                                "            for j from i*i to n, step i do\n" +
-                                                "                isPrime[j] = false\n" +
-                                                "    count = 0\n" +
-                                                "    for each prime in isPrime do\n" +
-                                                "        if prime then count++\n" +
-                                                "    return count")
+                                .overView("## Overview\n\nTo count the number of primes below n, use the Sieve of Eratosthenes algorithm to mark non-prime numbers.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countPrimes(n):\n    if n <= 2 then return 0\n    isPrime = array of boolean of size n, initialized to true\n    isPrime[0] = isPrime[1] = false\n    for i from 2 to sqrt(n) do\n        if isPrime[i] then\n            for j from i*i to n, step i do\n                isPrime[j] = false\n    count = 0\n    for each prime in isPrime do\n        if prime then count++\n    return count\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2381,8 +2355,8 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The Sieve of Eratosthenes efficiently finds all prime numbers up to a given limit by iteratively marking the multiples of each prime starting from 2.")
-                                .algorithm("1. Initialize a boolean array `isPrime` of size n, set all entries to true.\n"
+                                .intuition("## Intuition\n\nThe Sieve of Eratosthenes efficiently finds all prime numbers up to a given limit by iteratively marking the multiples of each prime starting from 2.")
+                                .algorithm("## Algorithm\n\n1. Initialize a boolean array `isPrime` of size n, set all entries to true.\n"
                                                 +
                                                 "2. Set `isPrime[0]` and `isPrime[1]` to false since 0 and 1 are not prime.\n"
                                                 +
@@ -2390,7 +2364,8 @@ public class initialData {
                                                 "   - If `isPrime[i]` is true, mark all multiples of i as false starting from i*i.\n"
                                                 +
                                                 "4. Count the number of true values in `isPrime` array, which represents the number of primes less than n.")
-                                .implementation("public static int countPrimes(int n) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic static int countPrimes(int n) {\n"
+                                                +
                                                 "    if (n <= 2) return 0;\n" +
                                                 "    boolean[] isPrime = new boolean[n];\n" +
                                                 "    Arrays.fill(isPrime, true);\n" +
@@ -2407,7 +2382,7 @@ public class initialData {
                                                 "        if (prime) count++;\n" +
                                                 "    }\n" +
                                                 "    return count;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2538,13 +2513,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the maximum number in an array, iterate through the array and keep track of the largest number encountered.")
-                                .pseudoCode("function findMax(nums):\n" +
-                                                "    max = -infinity\n" +
-                                                "    for num in nums do\n" +
-                                                "        if num > max then\n" +
-                                                "            max = num\n" +
-                                                "    return max")
+                                .overView("## Overview\n\nTo find the maximum number in an array, iterate through the array and keep track of the largest number encountered.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findMax(nums):\n    max = -infinity\n    for num in nums do\n        if num > max then\n            max = num\n    return max\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2552,19 +2522,19 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The maximum number in an array can be found by iterating through the array and updating the maximum value whenever a larger number is found.")
-                                .algorithm("1. Initialize a variable `max` to a very small number (e.g., Integer.MIN_VALUE).\n"
+                                .intuition("## Intuition\n\nThe maximum number in an array can be found by iterating through the array and updating the maximum value whenever a larger number is found.")
+                                .algorithm("## Algorithm\n\n1. Initialize a variable `max` to a very small number (e.g., Integer.MIN_VALUE).\n"
                                                 +
                                                 "2. Iterate through each number in the array:\n" +
                                                 "   - If the current number is greater than `max`, update `max`.\n" +
                                                 "3. After the loop, `max` will contain the largest number in the array.")
-                                .implementation("public int findMax(int[] nums) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic int findMax(int[] nums) {\n" +
                                                 "    int max = Integer.MIN_VALUE;\n" +
                                                 "    for (int num : nums) {\n" +
                                                 "        max = Math.max(max, num);\n" +
                                                 "    }\n" +
                                                 "    return max;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2680,12 +2650,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the sum of elements in an array, iterate through the array and accumulate the sum of all elements.")
-                                .pseudoCode("function findSum(nums):\n" +
-                                                "    sum = 0\n" +
-                                                "    for num in nums do\n" +
-                                                "        sum += num\n" +
-                                                "    return sum")
+                                .overView("## Overview\n\nTo find the sum of elements in an array, iterate through the array and accumulate the sum of all elements.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findSum(nums):\n    sum = 0\n    for num in nums do\n        sum += num\n    return sum\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2693,18 +2659,18 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The sum of elements in an array can be found by iterating through the array and adding each element to a running total.")
-                                .algorithm("1. Initialize a variable `sum` to 0.\n" +
+                                .intuition("## Intuition\n\nThe sum of elements in an array can be found by iterating through the array and adding each element to a running total.")
+                                .algorithm("## Algorithm\n\n1. Initialize a variable `sum` to 0.\n" +
                                                 "2. Iterate through each number in the array:\n" +
                                                 "   - Add the current number to `sum`.\n" +
                                                 "3. After the loop, `sum` will contain the total sum of the array elements.")
-                                .implementation("public int findSum(int[] nums) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic int findSum(int[] nums) {\n" +
                                                 "    int sum = 0;\n" +
                                                 "    for (int num : nums) {\n" +
                                                 "        sum += num;\n" +
                                                 "    }\n" +
                                                 "    return sum;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2825,15 +2791,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To check if a string is a palindrome, use two pointers to compare characters from the start and end of the string moving towards the center.")
-                                .pseudoCode("function isPalindrome(s):\n" +
-                                                "    left = 0, right = length of s - 1\n" +
-                                                "    while left < right do\n" +
-                                                "        if s[left] != s[right] then\n" +
-                                                "            return false\n" +
-                                                "        increment left\n" +
-                                                "        decrement right\n" +
-                                                "    return true")
+                                .overView("## Overview\n\nTo check if a string is a palindrome, use two pointers to compare characters from the start and end of the string moving towards the center.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPalindrome(s):\n    left = 0, right = length of s - 1\n    while left < right do\n        if s[left] != s[right] then\n            return false\n        increment left\n        decrement right\n    return true\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -2841,14 +2800,15 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("A palindrome reads the same forwards and backwards, so we can use two pointers to check characters from both ends.")
-                                .algorithm("1. Initialize two pointers, one at the start and one at the end of the string.\n"
+                                .intuition("## Intuition\n\nA palindrome reads the same forwards and backwards, so we can use two pointers to check characters from both ends.")
+                                .algorithm("## Algorithm\n\n1. Initialize two pointers, one at the start and one at the end of the string.\n"
                                                 +
                                                 "2. Compare the characters at these pointers.\n" +
                                                 "3. If they are the same, move the pointers towards the center.\n" +
                                                 "4. If any characters differ, the string is not a palindrome.\n" +
                                                 "5. If all characters match, the string is a palindrome.")
-                                .implementation("public boolean isPalindrome(String s) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic boolean isPalindrome(String s) {\n"
+                                                +
                                                 "    int left = 0, right = s.length() - 1;\n" +
                                                 "    while (left < right) {\n" +
                                                 "        if (s.charAt(left) != s.charAt(right)) {\n" +
@@ -2858,7 +2818,7 @@ public class initialData {
                                                 "        right--;\n" +
                                                 "    }\n" +
                                                 "    return true;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -2994,16 +2954,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To find the minimum in a rotated sorted array, use binary search to efficiently locate the pivot point where the rotation occurs.")
-                                .pseudoCode("function findMin(nums):\n" +
-                                                "    left = 0, right = length of nums - 1\n" +
-                                                "    while left < right do\n" +
-                                                "        mid = left + (right - left) / 2\n" +
-                                                "        if nums[mid] > nums[right] then\n" +
-                                                "            left = mid + 1\n" +
-                                                "        else\n" +
-                                                "            right = mid\n" +
-                                                "    return nums[left]")
+                                .overView("## Overview\n\nTo find the minimum in a rotated sorted array, use binary search to efficiently locate the pivot point where the rotation occurs.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findMin(nums):\n    left = 0, right = length of nums - 1\n    while left < right do\n        mid = left + (right - left) / 2\n        if nums[mid] > nums[right] then\n            left = mid + 1\n        else\n            right = mid\n    return nums[left]\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3011,8 +2963,8 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The minimum element in a rotated sorted array can be found by identifying the point of rotation using binary search.")
-                                .algorithm("1. Initialize two pointers, `left` and `right`, at the start and end of the array.\n"
+                                .intuition("## Intuition\n\nThe minimum element in a rotated sorted array can be found by identifying the point of rotation using binary search.")
+                                .algorithm("## Algorithm\n\n1. Initialize two pointers, `left` and `right`, at the start and end of the array.\n"
                                                 +
                                                 "2. Use binary search to find the pivot point where the array is rotated.\n"
                                                 +
@@ -3020,7 +2972,7 @@ public class initialData {
                                                 +
                                                 "4. Otherwise, the minimum is in the left half.\n" +
                                                 "5. Continue until `left` meets `right`, which will be the index of the minimum element.")
-                                .implementation("public int findMin(int[] nums) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic int findMin(int[] nums) {\n" +
                                                 "    int left = 0, right = nums.length - 1;\n" +
                                                 "    while (left < right) {\n" +
                                                 "        int mid = left + (right - left) / 2;\n" +
@@ -3031,7 +2983,7 @@ public class initialData {
                                                 "        }\n" +
                                                 "    }\n" +
                                                 "    return nums[left];\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -3173,15 +3125,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To calculate the Fibonacci number, use an iterative approach to sum the two preceding numbers.")
-                                .pseudoCode("function fib(n):\n" +
-                                                "    if n <= 1 then return n\n" +
-                                                "    a = 0, b = 1\n" +
-                                                "    for i from 2 to n do\n" +
-                                                "        temp = a + b\n" +
-                                                "        a = b\n" +
-                                                "        b = temp\n" +
-                                                "    return b")
+                                .overView("## Overview\n\nTo calculate the Fibonacci number, use an iterative approach to sum the two preceding numbers.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction fib(n):\n    if n <= 1 then return n\n    a = 0, b = 1\n    for i from 2 to n do\n        temp = a + b\n        a = b\n        b = temp\n    return b\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3189,13 +3134,13 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The Fibonacci sequence can be efficiently calculated using an iterative approach to avoid the overhead of recursion.")
-                                .algorithm("1. Initialize two variables, `a` and `b`, to represent the first two Fibonacci numbers.\n"
+                                .intuition("## Intuition\n\nThe Fibonacci sequence can be efficiently calculated using an iterative approach to avoid the overhead of recursion.")
+                                .algorithm("## Algorithm\n\n1. Initialize two variables, `a` and `b`, to represent the first two Fibonacci numbers.\n"
                                                 +
                                                 "2. Iterate from 2 to n, updating `a` and `b` to the next Fibonacci numbers.\n"
                                                 +
                                                 "3. Return `b`, which will be the nth Fibonacci number.")
-                                .implementation("public int fib(int n) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic int fib(int n) {\n" +
                                                 "    if (n <= 1) return n;\n" +
                                                 "    int a = 0, b = 1;\n" +
                                                 "    for (int i = 2; i <= n; i++) {\n" +
@@ -3204,7 +3149,7 @@ public class initialData {
                                                 "        b = temp;\n" +
                                                 "    }\n" +
                                                 "    return b;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -3336,13 +3281,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To count the even numbers in an array, iterate through the array and increment a counter each time an even number is found.")
-                                .pseudoCode("function countEven(nums):\n" +
-                                                "    count = 0\n" +
-                                                "    for num in nums do\n" +
-                                                "        if num % 2 == 0 then\n" +
-                                                "            count++\n" +
-                                                "    return count")
+                                .overView("## Overview\n\nTo count the even numbers in an array, iterate through the array and increment a counter each time an even number is found.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countEven(nums):\n    count = 0\n    for num in nums do\n        if num % 2 == 0 then\n            count++\n    return count\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3350,21 +3290,9 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The number of even numbers in an array can be found by iterating through the array and checking each number for evenness.")
-                                .algorithm("1. Initialize a counter to zero.\n" +
-                                                "2. Iterate through each number in the array:\n" +
-                                                "   - If the number is even (i.e., divisible by 2), increment the counter.\n"
-                                                +
-                                                "3. Return the counter as the result.")
-                                .implementation("public int countEven(int[] nums) {\n" +
-                                                "    int count = 0;\n" +
-                                                "    for (int num : nums) {\n" +
-                                                "        if (num % 2 == 0) {\n" +
-                                                "            count++;\n" +
-                                                "        }\n" +
-                                                "    }\n" +
-                                                "    return count;\n" +
-                                                "}")
+                                .intuition("## Intuition\n\nThe number of even numbers in an array can be found by iterating through the array and checking each number for evenness.")
+                                .algorithm("## Algorithm\n\n1. Initialize a counter to zero.\n2. Iterate through each number in the array:\n   - If the number is even (i.e., divisible by 2), increment the counter.\n3. Return the counter as the result.")
+                                .implementation("## Implementation\n\n```java\npublic int countEven(int[] nums) {\n    int count = 0;\n    for (int num : nums) {\n        if (num % 2 == 0) {\n            count++;\n        }\n    }\n    return count;\n}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -3497,13 +3425,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To check if a number is prime, iterate from 2 to the square root of the number and check for divisibility.")
-                                .pseudoCode("function isPrime(n):\n" +
-                                                "    if n <= 1 then return false\n" +
-                                                "    for i from 2 to sqrt(n) do\n" +
-                                                "        if n % i == 0 then\n" +
-                                                "            return false\n" +
-                                                "    return true")
+                                .overView("## Overview\n\nTo check if a number is prime, iterate from 2 to the square root of the number and check for divisibility.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPrime(n):\n    if n <= 1 then return false\n    for i from 2 to sqrt(n) do\n        if n % i == 0 then\n            return false\n    return true\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3511,20 +3434,9 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("A number is prime if it is not divisible by any number other than 1 and itself. We only need to check divisibility up to the square root of the number.")
-                                .algorithm("1. If the number is less than or equal to 1, it is not prime.\n" +
-                                                "2. Iterate from 2 to the square root of the number.\n" +
-                                                "3. If the number is divisible by any of these, it is not prime.\n" +
-                                                "4. If no divisors are found, the number is prime.")
-                                .implementation("public boolean isPrime(int n) {\n" +
-                                                "    if (n <= 1) return false;\n" +
-                                                "    for (int i = 2; i * i <= n; i++) {\n" +
-                                                "        if (n % i == 0) {\n" +
-                                                "            return false;\n" +
-                                                "        }\n" +
-                                                "    }\n" +
-                                                "    return true;\n" +
-                                                "}")
+                                .intuition("## Intuition\n\nA number is prime if it is not divisible by any number other than 1 and itself. We only need to check divisibility up to the square root of the number.")
+                                .algorithm("## Algorithm\n\n1. If the number is less than or equal to 1, it is not prime.\n2. Iterate from 2 to the square root of the number.\n3. If the number is divisible by any of these, it is not prime.\n4. If no divisors are found, the number is prime.")
+                                .implementation("## Implementation\n\n```java\npublic boolean isPrime(int n) {\n    if (n <= 1) return false;\n    for (int i = 2; i * i <= n; i++) {\n        if (n % i == 0) {\n            return false;\n        }\n    }\n    return true;\n}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -3659,19 +3571,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To count the number of prime numbers less than or equal to n, use the Sieve of Eratosthenes algorithm to efficiently mark non-prime numbers.")
-                                .pseudoCode("function countPrimes(n):\n" +
-                                                "    if n <= 2 then return 0\n" +
-                                                "    create a boolean array isPrime of size n, initialized to true\n" +
-                                                "    set isPrime[0] and isPrime[1] to false\n" +
-                                                "    for i from 2 to sqrt(n) do\n" +
-                                                "        if isPrime[i] then\n" +
-                                                "            for j from i*i to n, incrementing by i do\n" +
-                                                "                set isPrime[j] to false\n" +
-                                                "    count = 0\n" +
-                                                "    for each value in isPrime do\n" +
-                                                "        if value is true then increment count\n" +
-                                                "    return count")
+                                .overView("## Overview\n\nTo count the number of prime numbers less than or equal to n, use the Sieve of Eratosthenes algorithm to efficiently mark non-prime numbers.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countPrimes(n):\n    if n <= 2 then return 0\n    create a boolean array isPrime of size n, initialized to true\n    set isPrime[0] and isPrime[1] to false\n    for i from 2 to sqrt(n) do\n        if isPrime[i] then\n            for j from i*i to n, incrementing by i do\n                set isPrime[j] to false\n    count = 0\n    for each value in isPrime do\n        if value is true then increment count\n    return count\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3679,17 +3580,17 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("The Sieve of Eratosthenes is an efficient algorithm to find all prime numbers up to a given limit by iteratively marking the multiples of each prime number starting from 2.")
-                                .algorithm("1. Initialize a boolean array isPrime of size n, with all values set to true.\n"
+                                .intuition("### Intuition\n\nThe Sieve of Eratosthenes is an efficient algorithm to find all prime numbers up to a given limit by iteratively marking the multiples of each prime number starting from 2.")
+                                .algorithm("### Algorithm\n\n1. **Initialize** a boolean array `isPrime` of size `n`, with all values set to `true`.\n"
                                                 +
-                                                "2. Set isPrime[0] and isPrime[1] to false, as 0 and 1 are not prime numbers.\n"
+                                                "2. **Set** `isPrime[0]` and `isPrime[1]` to `false`, as 0 and 1 are not prime numbers.\n"
                                                 +
-                                                "3. For each number i starting from 2, if isPrime[i] is true, mark all multiples of i as false.\n"
+                                                "3. **For each** number `i` starting from 2, if `isPrime[i]` is `true`, mark all multiples of `i` as `false`.\n"
                                                 +
-                                                "4. Count the number of true values in isPrime, which represent prime numbers.\n"
+                                                "4. **Count** the number of `true` values in `isPrime`, which represent prime numbers.\n"
                                                 +
-                                                "5. Return the count.")
-                                .implementation("public int countPrimes(int n) {\n" +
+                                                "5. **Return** the count.")
+                                .implementation("### Implementation\n\n```java\npublic int countPrimes(int n) {\n" +
                                                 "    if (n <= 2) return 0;\n" +
                                                 "    boolean[] isPrime = new boolean[n];\n" +
                                                 "    Arrays.fill(isPrime, true);\n" +
@@ -3706,7 +3607,7 @@ public class initialData {
                                                 "        if (prime) count++;\n" +
                                                 "    }\n" +
                                                 "    return count;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -3845,16 +3746,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To check if a number is perfect, calculate the sum of its divisors and compare it to the number itself.")
-                                .pseudoCode("function isPerfectNumber(n):\n" +
-                                                "    if n <= 1 then return false\n" +
-                                                "    sum = 1\n" +
-                                                "    for i from 2 to sqrt(n) do\n" +
-                                                "        if n % i == 0 then\n" +
-                                                "            sum += i\n" +
-                                                "            if i != n / i then\n" +
-                                                "                sum += n / i\n" +
-                                                "    return sum == n")
+                                .overView("## Overview\n\nTo check if a number is perfect, calculate the sum of its divisors and compare it to the number itself.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPerfectNumber(n):\n    if n <= 1 then return false\n    sum = 1\n    for i from 2 to sqrt(n) do\n        if n % i == 0 then\n            sum += i\n            if i != n / i then\n                sum += n / i\n    return sum == n\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3862,12 +3755,14 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("A perfect number is equal to the sum of its proper divisors. We can find these divisors by iterating up to the square root of the number.")
-                                .algorithm("1. Initialize sum to 1 (since 1 is a divisor of every number).\n" +
-                                                "2. Iterate from 2 to the square root of n:\n" +
-                                                "   - If i is a divisor of n, add i and n/i to the sum.\n" +
-                                                "3. If the sum equals n, then n is a perfect number.")
-                                .implementation("public boolean isPerfectNumber(int n) {\n" +
+                                .intuition("## Intuition\n\nA perfect number is equal to the sum of its proper divisors. We can find these divisors by iterating up to the square root of the number.")
+                                .algorithm("## Algorithm\n\n1. **Initialize** sum to 1 (since 1 is a divisor of every number).\n"
+                                                +
+                                                "2. **Iterate** from 2 to the square root of n:\n" +
+                                                "   - If i is a divisor of n, **add** i and n/i to the sum.\n" +
+                                                "3. If the sum **equals** n, then n is a perfect number.")
+                                .implementation("## Implementation\n\n```java\npublic boolean isPerfectNumber(int n) {\n"
+                                                +
                                                 "    if (n <= 1) return false;\n" +
                                                 "    int sum = 1;\n" +
                                                 "    for (int i = 2; i * i <= n; i++) {\n" +
@@ -3877,7 +3772,7 @@ public class initialData {
                                                 "        }\n" +
                                                 "    }\n" +
                                                 "    return sum == n;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -4007,19 +3902,8 @@ public class initialData {
                                 .build();
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To add two large numbers represented as strings, process each digit from right to left, keeping track of the carry.")
-                                .pseudoCode("function addLargeNumbers(num1, num2):\n" +
-                                                "    initialize result as an empty string\n" +
-                                                "    initialize carry as 0\n" +
-                                                "    set i to the last index of num1, j to the last index of num2\n" +
-                                                "    while i >= 0 or j >= 0 or carry != 0 do\n" +
-                                                "        x = digit at index i of num1 if i >= 0 else 0\n" +
-                                                "        y = digit at index j of num2 if j >= 0 else 0\n" +
-                                                "        sum = x + y + carry\n" +
-                                                "        append sum % 10 to result\n" +
-                                                "        carry = sum / 10\n" +
-                                                "        decrement i and j\n" +
-                                                "    return reverse of result")
+                                .overView("## Overview\n\nTo add two large numbers represented as strings, process each digit from right to left, keeping track of the carry.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction addLargeNumbers(num1, num2):\n    initialize result as an empty string\n    initialize carry as 0\n    set i to the last index of num1, j to the last index of num2\n    while i >= 0 or j >= 0 or carry != 0 do\n        x = digit at index i of num1 if i >= 0 else 0\n        y = digit at index j of num2 if j >= 0 else 0\n        sum = x + y + carry\n        append sum % 10 to result\n        carry = sum / 10\n        decrement i and j\n    return reverse of result\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -4027,29 +3911,9 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("Adding two numbers digit by digit from the least significant to the most significant digit allows us to handle the carry easily.")
-                                .algorithm("1. Initialize a StringBuilder for the result and a carry variable.\n" +
-                                                "2. Iterate over the digits of both numbers from right to left.\n" +
-                                                "3. For each pair of digits, calculate the sum and update the carry.\n"
-                                                +
-                                                "4. Append the last digit of the sum to the result.\n" +
-                                                "5. After the loop, if there's a carry left, append it to the result.\n"
-                                                +
-                                                "6. Reverse the result and return it as a string.")
-                                .implementation("public String addLargeNumbers(String num1, String num2) {\n" +
-                                                "    StringBuilder result = new StringBuilder();\n" +
-                                                "    int carry = 0, i = num1.length() - 1, j = num2.length() - 1;\n" +
-                                                "    while (i >= 0 || j >= 0 || carry != 0) {\n" +
-                                                "        int x = (i >= 0) ? num1.charAt(i) - '0' : 0;\n" +
-                                                "        int y = (j >= 0) ? num2.charAt(j) - '0' : 0;\n" +
-                                                "        int sum = x + y + carry;\n" +
-                                                "        result.append(sum % 10);\n" +
-                                                "        carry = sum / 10;\n" +
-                                                "        i--;\n" +
-                                                "        j--;\n" +
-                                                "    }\n" +
-                                                "    return result.reverse().toString();\n" +
-                                                "}")
+                                .intuition("## Intuition\n\nAdding two numbers digit by digit from the least significant to the most significant digit allows us to handle the carry easily.")
+                                .algorithm("## Algorithm\n\n1. Initialize a `StringBuilder` for the result and a `carry` variable.\n2. Iterate over the digits of both numbers from right to left.\n3. For each pair of digits, calculate the sum and update the carry.\n4. Append the last digit of the sum to the result.\n5. After the loop, if there's a carry left, append it to the result.\n6. Reverse the result and return it as a string.")
+                                .implementation("## Implementation\n\n```java\npublic String addLargeNumbers(String num1, String num2) {\n    StringBuilder result = new StringBuilder();\n    int carry = 0, i = num1.length() - 1, j = num2.length() - 1;\n    while (i >= 0 || j >= 0 || carry != 0) {\n        int x = (i >= 0) ? num1.charAt(i) - '0' : 0;\n        int y = (j >= 0) ? num2.charAt(j) - '0' : 0;\n        int sum = x + y + carry;\n        result.append(sum % 10);\n        carry = sum / 10;\n        i--;\n        j--;\n    }\n    return result.reverse().toString();\n}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -4103,419 +3967,6 @@ public class initialData {
                 parameterRepository.save(parameter1);
                 parameterRepository.save(parameter2);
         }
-
-//        public Problem buildProblem29(User user) {
-//                List<Problem.ETopic> topics = new ArrayList<>();
-//                topics.add(Problem.ETopic.GRAPH);
-//
-//                Problem problem = Problem.builder()
-//                                .owner(user)
-//                                .title("Shortest Path in Weighted Graph")
-//                                .createdAt(LocalDateTime.now())
-//                                .updatedAt(LocalDateTime.now())
-//                                .description(
-//                                                "<h1 style=\"font-size: 2em; margin: 0.67em 0; font-weight: bold;text-align: center;\">Shortest Path in Weighted Graph</h1>\r\n"
-//                                                                + //
-//                                                                "\r\n" + //
-//                                                                "---\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "## 1. Description\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "<!-- Provide a clear and concise description of the problem. \r\n"
-//                                                                + //
-//                                                                "    - What is the problem about?\r\n" + //
-//                                                                "    - What are the constraints?\r\n" + //
-//                                                                "    - What is the expected input and output?\r\n" + //
-//                                                                "    - Any special conditions or edge cases to consider?\r\n"
-//                                                                + //
-//                                                                "-->\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "Given a weighted graph represented as an adjacency list, find the shortest path from a given source vertex to all other vertices using Dijkstra's algorithm.\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "Constraints:\n" +
-//                                                                "- `1 <= number of vertices <= 1000`\n" +
-//                                                                "- `1 <= weight of edges <= 1000`\n" +
-//                                                                "---\n" +
-//                                                                "## 2. Examples\n" +
-//                                                                "---\n" +
-//                                                                "### Example 1: Basic Usage\n" +
-//                                                                "| Input          | Output          |\n" +
-//                                                                "| -------------- | --------------- |\n" +
-//                                                                "| graph = [[(1, 2), (2, 4)], [(2, 1)], []], source = 0 | [0, 2, 3] |\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "> **Explanation:** The shortest path from vertex 0 to 1 is 2, and to 2 is 3.\n"
-//                                                                +
-//                                                                "---\n" +
-//                                                                "### Example 2: Advanced Scenario\n" +
-//                                                                "| Input          | Output          |\n" +
-//                                                                "| -------------- | --------------- |\n" +
-//                                                                "| graph = [[(1, 1)], [(2, 2)], [(0, 1)]], source = 0 | [0, 1, 3] |\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "> **Explanation:** The shortest path from vertex 0 to 1 is 1, and to 2 is 3.\n")
-//                                .difficulty(Problem.EDifficulty.HARD)
-//                                .topics(topics)
-//                                .functionName("dijkstra")
-//                                .isDeleted(false)
-//                                .outputDataType("int[]")
-//                                .correctAnswer("import java.util.*;\n" +
-//                                                "\n" +
-//                                                "public class Solution {\n" +
-//                                                "    public int[] dijkstra(List<List<int[]>> graph, int source) {\n" +
-//                                                "        int n = graph.size();\n" +
-//                                                "        int[] dist = new int[n];\n" +
-//                                                "        Arrays.fill(dist, Integer.MAX_VALUE);\n" +
-//                                                "        dist[source] = 0;\n" +
-//                                                "        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));\n"
-//                                                +
-//                                                "        pq.offer(new int[]{source, 0});\n" +
-//                                                "\n" +
-//                                                "        while (!pq.isEmpty()) {\n" +
-//                                                "            int[] current = pq.poll();\n" +
-//                                                "            int u = current[0];\n" +
-//                                                "            int d = current[1];\n" +
-//                                                "            if (d > dist[u]) continue;\n" +
-//                                                "            for (int[] neighbor : graph.get(u)) {\n" +
-//                                                "                int v = neighbor[0];\n" +
-//                                                "                int weight = neighbor[1];\n" +
-//                                                "                if (dist[u] + weight < dist[v]) {\n" +
-//                                                "                    dist[v] = dist[u] + weight;\n" +
-//                                                "                    pq.offer(new int[]{v, dist[v]});\n" +
-//                                                "                }\n" +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "        return dist;\n" +
-//                                                "    }\n" +
-//                                                "}")
-//                                .build();
-//
-//                ProblemHint hint = ProblemHint.builder()
-//                                .isLocked(false)
-//                                .overView("To find the shortest path in a weighted graph, use Dijkstra's algorithm which efficiently finds the shortest path from a source vertex to all other vertices.")
-//                                .pseudoCode("function dijkstra(graph, source):\n" +
-//                                                "    initialize distance array with infinity\n" +
-//                                                "    set distance[source] = 0\n" +
-//                                                "    create a priority queue and add source with distance 0\n" +
-//                                                "    while queue is not empty do\n" +
-//                                                "        extract vertex u with smallest distance from queue\n" +
-//                                                "        for each neighbor v of u do\n" +
-//                                                "            if distance[u] + weight(u, v) < distance[v] then\n" +
-//                                                "                update distance[v]\n" +
-//                                                "                add v to queue\n" +
-//                                                "    return distance array")
-//                                .build();
-//                ProblemHint savedHint = problemHintRepository.save(hint);
-//
-//                problem.setProblemHint(hint);
-//                problem = problemRepository.save(problem);
-//
-//                ProblemApproach approach1 = ProblemApproach.builder()
-//                                .intuition("Dijkstra's algorithm is used to find the shortest path in a graph with non-negative weights by iteratively selecting the vertex with the smallest tentative distance.")
-//                                .algorithm("1. Initialize distances from the source to all vertices as infinity, except the source itself which is 0.\n"
-//                                                +
-//                                                "2. Use a priority queue to repeatedly extract the vertex with the smallest distance.\n"
-//                                                +
-//                                                "3. For each neighbor of the extracted vertex, update the distance if a shorter path is found.\n"
-//                                                +
-//                                                "4. Continue until all vertices are processed.")
-//                                .implementation("public int[] dijkstra(List<List<int[]>> graph, int source) {\n" +
-//                                                "    int n = graph.size();\n" +
-//                                                "    int[] dist = new int[n];\n" +
-//                                                "    Arrays.fill(dist, Integer.MAX_VALUE);\n" +
-//                                                "    dist[source] = 0;\n" +
-//                                                "    PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));\n"
-//                                                +
-//                                                "    pq.offer(new int[]{source, 0});\n" +
-//                                                "    while (!pq.isEmpty()) {\n" +
-//                                                "        int[] current = pq.poll();\n" +
-//                                                "        int u = current[0];\n" +
-//                                                "        int d = current[1];\n" +
-//                                                "        if (d > dist[u]) continue;\n" +
-//                                                "        for (int[] neighbor : graph.get(u)) {\n" +
-//                                                "            int v = neighbor[0];\n" +
-//                                                "            int weight = neighbor[1];\n" +
-//                                                "            if (dist[u] + weight < dist[v]) {\n" +
-//                                                "                dist[v] = dist[u] + weight;\n" +
-//                                                "                pq.offer(new int[]{v, dist[v]});\n" +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "    }\n" +
-//                                                "    return dist;\n" +
-//                                                "}")
-//                                .language(Submission.ELanguage.JAVA)
-//                                .problemHint(savedHint)
-//                                .build();
-//
-//                problemApproachRepository.save(approach1);
-//
-//                List<ProblemApproach> approaches = new ArrayList<>();
-//                approaches.add(approach1);
-//                savedHint.setApproaches(approaches);
-//                problemHintRepository.save(savedHint);
-//                problemApproachRepository.save(approach1);
-//
-//                buildTestCase29(problem);
-//                return problemRepository.save(problem);
-//        }
-//
-//        private void buildTestCase29(Problem problem) {
-//                TestCase testCase1 = TestCase.builder()
-//                                .outputData("{0, 2, 3}")
-//                                .isPublic(true)
-//                                .problem(problem)
-//                                .build();
-//                buildParameters29(testCase1, "{{(1, 2), (2, 4)}, {(2, 1)}, {}}", "0");
-//                testCaseRepository.save(testCase1);
-//
-//                TestCase testCase2 = TestCase.builder()
-//                                .outputData("{0, 1, 3}")
-//                                .problem(problem)
-//                                .build();
-//                buildParameters29(testCase2, "{{(1, 1)}, {(2, 2)}, {(0, 1)}}", "0");
-//                testCaseRepository.save(testCase2);
-//        }
-//
-//        private void buildParameters29(TestCase testCase, String graph, String source) {
-//                Parameter parameter1 = Parameter.builder()
-//                                .inputDataType("List<List<int[]>>")
-//                                .name("graph")
-//                                .inputData(graph)
-//                                .index(1)
-//                                .testCase(testCase)
-//                                .build();
-//
-//                Parameter parameter2 = Parameter.builder()
-//                                .inputDataType("int")
-//                                .name("source")
-//                                .inputData(source)
-//                                .index(2)
-//                                .testCase(testCase)
-//                                .build();
-//
-//                parameterRepository.save(parameter1);
-//                parameterRepository.save(parameter2);
-//        }
-//
-//        public Problem buildProblem31(User user) {
-//                List<Problem.ETopic> topics = new ArrayList<>();
-//                topics.add(Problem.ETopic.GRAPH);
-//
-//                Problem problem = Problem.builder()
-//                                .owner(user)
-//                                .title("Longest Path in Weighted Graph")
-//                                .createdAt(LocalDateTime.now())
-//                                .updatedAt(LocalDateTime.now())
-//                                .description(
-//                                                "<h1 style=\"font-size: 2em; margin: 0.67em 0; font-weight: bold;text-align: center;\">Longest Path in Weighted Graph</h1>\r\n"
-//                                                                + //
-//                                                                "\r\n" + //
-//                                                                "---\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "## 1. Description\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "<!-- Provide a clear and concise description of the problem. \r\n"
-//                                                                + //
-//                                                                "    - What is the problem about?\r\n" + //
-//                                                                "    - What are the constraints?\r\n" + //
-//                                                                "    - What is the expected input and output?\r\n" + //
-//                                                                "    - Any special conditions or edge cases to consider?\r\n"
-//                                                                + //
-//                                                                "-->\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "\r\n" + //
-//                                                                "Given a weighted graph represented as an adjacency list, find the longest path from a given source vertex to a destination vertex.\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "Constraints:\n" +
-//                                                                "- `1 <= number of vertices <= 1000`\n" +
-//                                                                "- `1 <= weight of edges <= 1000`\n" +
-//                                                                "---\n" +
-//                                                                "## 2. Examples\n" +
-//                                                                "---\n" +
-//                                                                "### Example 1: Basic Usage\n" +
-//                                                                "| Input          | Output          |\n" +
-//                                                                "| -------------- | --------------- |\n" +
-//                                                                "| graph = [[(1, 2), (2, 4)], [(2, 1)], []], source = 0, destination = 2 | 6 |\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "> **Explanation:** The longest path from vertex 0 to 2 is 0 -> 1 -> 2 with total weight 6.\n"
-//                                                                +
-//                                                                "---\n" +
-//                                                                "### Example 2: Advanced Scenario\n" +
-//                                                                "| Input          | Output          |\n" +
-//                                                                "| -------------- | --------------- |\n" +
-//                                                                "| graph = [[(1, 1)], [(2, 2)], [(0, 1)]], source = 0, destination = 2 | 3 |\n"
-//                                                                +
-//                                                                "\n" +
-//                                                                "> **Explanation:** The longest path from vertex 0 to 2 is 0 -> 1 -> 2 with total weight 3.\n")
-//                                .difficulty(Problem.EDifficulty.HARD)
-//                                .topics(topics)
-//                                .functionName("longestPath")
-//                                .isDeleted(false)
-//                                .outputDataType("int")
-//                                .correctAnswer("import java.util.*;\n" +
-//                                                "\n" +
-//                                                "public class Solution {\n" +
-//                                                "    public int longestPath(List<List<int[]>> graph, int source, int destination) {\n"
-//                                                +
-//                                                "        int n = graph.size();\n" +
-//                                                "        int[] dist = new int[n];\n" +
-//                                                "        Arrays.fill(dist, Integer.MIN_VALUE);\n" +
-//                                                "        dist[source] = 0;\n" +
-//                                                "        boolean[] visited = new boolean[n];\n" +
-//                                                "        Stack<Integer> stack = new Stack<>();\n" +
-//                                                "        for (int i = 0; i < n; i++) {\n" +
-//                                                "            if (!visited[i]) {\n" +
-//                                                "                topologicalSort(i, visited, stack, graph);\n" +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "        while (!stack.isEmpty()) {\n" +
-//                                                "            int u = stack.pop();\n" +
-//                                                "            if (dist[u] != Integer.MIN_VALUE) {\n" +
-//                                                "                for (int[] neighbor : graph.get(u)) {\n" +
-//                                                "                    int v = neighbor[0];\n" +
-//                                                "                    int weight = neighbor[1];\n" +
-//                                                "                    if (dist[u] + weight > dist[v]) {\n" +
-//                                                "                        dist[v] = dist[u] + weight;\n" +
-//                                                "                    }\n" +
-//                                                "                }\n" +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "        return dist[destination];\n" +
-//                                                "    }\n" +
-//                                                "\n" +
-//                                                "    private void topologicalSort(int v, boolean[] visited, Stack<Integer> stack, List<List<int[]>> graph) {\n"
-//                                                +
-//                                                "        visited[v] = true;\n" +
-//                                                "        for (int[] neighbor : graph.get(v)) {\n" +
-//                                                "            if (!visited[neighbor[0]]) {\n" +
-//                                                "                topologicalSort(neighbor[0], visited, stack, graph);\n"
-//                                                +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "        stack.push(v);\n" +
-//                                                "    }\n" +
-//                                                "}")
-//                                .build();
-//
-//                ProblemHint hint = ProblemHint.builder()
-//                                .isLocked(false)
-//                                .overView("To find the longest path in a weighted graph, perform a topological sort and then relax the edges in topological order.")
-//                                .pseudoCode("function longestPath(graph, source, destination):\n" +
-//                                                "    initialize distance array with negative infinity\n" +
-//                                                "    set distance[source] = 0\n" +
-//                                                "    perform topological sort on the graph\n" +
-//                                                "    for each vertex u in topological order do\n" +
-//                                                "        for each neighbor v of u do\n" +
-//                                                "            if distance[u] + weight(u, v) > distance[v] then\n" +
-//                                                "                update distance[v]\n" +
-//                                                "    return distance[destination]")
-//                                .build();
-//                ProblemHint savedHint = problemHintRepository.save(hint);
-//
-//                problem.setProblemHint(hint);
-//                problem = problemRepository.save(problem);
-//
-//                ProblemApproach approach1 = ProblemApproach.builder()
-//                                .intuition("The longest path in a directed acyclic graph can be found by performing a topological sort and then relaxing the edges in topological order.")
-//                                .algorithm("1. Perform a topological sort of the graph.\n" +
-//                                                "2. Initialize distances from the source to all vertices as negative infinity, except the source itself which is 0.\n"
-//                                                +
-//                                                "3. For each vertex in topological order, update the distance of its neighbors if a longer path is found.\n"
-//                                                +
-//                                                "4. Return the distance to the destination vertex.")
-//                                .implementation("public int longestPath(int[int[int[]]] graph, int source, int destination) {\n"
-//                                                +
-//                                                "    int n = graph.size();\n" +
-//                                                "    int[] dist = new int[n];\n" +
-//                                                "    Arrays.fill(dist, Integer.MIN_VALUE);\n" +
-//                                                "    dist[source] = 0;\n" +
-//                                                "    boolean[] visited = new boolean[n];\n" +
-//                                                "    Stack<Integer> stack = new Stack<>();\n" +
-//                                                "    for (int i = 0; i < n; i++) {\n" +
-//                                                "        if (!visited[i]) {\n" +
-//                                                "            topologicalSort(i, visited, stack, graph);\n" +
-//                                                "        }\n" +
-//                                                "    }\n" +
-//                                                "    while (!stack.isEmpty()) {\n" +
-//                                                "        int u = stack.pop();\n" +
-//                                                "        if (dist[u] != Integer.MIN_VALUE) {\n" +
-//                                                "            for (int[] neighbor : graph.get(u)) {\n" +
-//                                                "                int v = neighbor[0];\n" +
-//                                                "                int weight = neighbor[1];\n" +
-//                                                "                if (dist[u] + weight > dist[v]) {\n" +
-//                                                "                    dist[v] = dist[u] + weight;\n" +
-//                                                "                }\n" +
-//                                                "            }\n" +
-//                                                "        }\n" +
-//                                                "    }\n" +
-//                                                "    return dist[destination];\n" +
-//                                                "}")
-//                                .language(Submission.ELanguage.JAVA)
-//                                .problemHint(savedHint)
-//                                .build();
-//
-//                problemApproachRepository.save(approach1);
-//
-//                List<ProblemApproach> approaches = new ArrayList<>();
-//                approaches.add(approach1);
-//                savedHint.setApproaches(approaches);
-//                problemHintRepository.save(savedHint);
-//                problemApproachRepository.save(approach1);
-//
-//                buildTestCase31(problem);
-//                return problemRepository.save(problem);
-//        }
-//
-//        private void buildTestCase31(Problem problem) {
-//                TestCase testCase1 = TestCase.builder()
-//                                .outputData("6")
-//                                .isPublic(true)
-//                                .problem(problem)
-//                                .build();
-//                buildParameters31(testCase1, "{{(1, 2), (2, 4)}, {(2, 1)}, {}}", "0", "2");
-//                testCaseRepository.save(testCase1);
-//
-//                TestCase testCase2 = TestCase.builder()
-//                                .outputData("3")
-//                                .problem(problem)
-//                                .build();
-//                buildParameters31(testCase2, "{{(1, 1)}, {(2, 2)}, {(0, 1)}}", "0", "2");
-//                testCaseRepository.save(testCase2);
-//        }
-//
-//        private void buildParameters31(TestCase testCase, String graph, String source, String destination) {
-//                Parameter parameter1 = Parameter.builder()
-//                                .inputDataType("int[int[int[]]]")
-//                                .name("graph")
-//                                .inputData(graph)
-//                                .index(1)
-//                                .testCase(testCase)
-//                                .build();
-//
-//                Parameter parameter2 = Parameter.builder()
-//                                .inputDataType("int")
-//                                .name("source")
-//                                .inputData(source)
-//                                .index(2)
-//                                .testCase(testCase)
-//                                .build();
-//
-//                Parameter parameter3 = Parameter.builder()
-//                                .inputDataType("int")
-//                                .name("destination")
-//                                .inputData(destination)
-//                                .index(3)
-//                                .testCase(testCase)
-//                                .build();
-//
-//                parameterRepository.save(parameter1);
-//                parameterRepository.save(parameter2);
-//                parameterRepository.save(parameter3);
-//        }
 
         public Problem buildProblem32(User user) {
                 List<Problem.ETopic> topics = new ArrayList<>();
@@ -4640,17 +4091,9 @@ public class initialData {
                                 .build();
 
                 ProblemHint hint = ProblemHint.builder()
-                                .isLocked(false)
-                                .overView("To find the minimum spanning tree, sort all edges by weight and use a union-find structure to ensure no cycles are formed.")
-                                .pseudoCode("function kruskalMST(edges, V):\n" +
-                                                "    sort edges by weight\n" +
-                                                "    initialize subsets for each vertex\n" +
-                                                "    result = 0\n" +
-                                                "    for each edge in sorted edges do\n" +
-                                                "        if adding edge does not form a cycle then\n" +
-                                                "            add edge to result\n" +
-                                                "            union the sets of the two vertices\n" +
-                                                "    return result")
+                                .isLocked(true)
+                                .overView("## Overview\n\nTo find the minimum spanning tree, sort all edges by weight and use a union-find structure to ensure no cycles are formed.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction kruskalMST(edges, V):\n    sort edges by weight\n    initialize subsets for each vertex\n    result = 0\n    for each edge in sorted edges do\n        if adding edge does not form a cycle then\n            add edge to result\n            union the sets of the two vertices\n    return result\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -4658,17 +4101,45 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("Kruskal's algorithm finds the MST by adding edges in increasing order of weight, ensuring no cycles are formed.")
-                                .algorithm("1. Sort all edges in non-decreasing order of their weight.\n" +
-                                                "2. Initialize a union-find structure to keep track of connected components.\n"
+                                .intuition("## Intuition\n\nKruskal's algorithm finds the MST by adding edges in increasing order of weight, ensuring no cycles are formed.")
+                                .algorithm("## Algorithm\n\n1. **Sort** all edges in non-decreasing order of their weight.\n"
                                                 +
-                                                "3. Iterate over the sorted edges and add them to the MST if they do not form a cycle.\n"
+                                                "2. **Initialize** a union-find structure to keep track of connected components.\n"
                                                 +
-                                                "4. Use union-find to manage the connected components.\n" +
-                                                "5. Stop when the MST contains V-1 edges.")
-                                .implementation("public int kruskalMST(int[][] edges, int V) {\n" +
-                                                "    // Implementation as shown in the correctAnswer\n" +
-                                                "}")
+                                                "3. **Iterate** over the sorted edges and add them to the MST if they do not form a cycle.\n"
+                                                +
+                                                "4. **Use** union-find to manage the connected components.\n" +
+                                                "5. **Stop** when the MST contains V-1 edges.")
+                                .implementation("## Implementation\n\n```java\npublic int kruskalMST(int[][] edges, int V) {\n"
+                                                +
+                                                "    Edge[] edgeList = new Edge[edges.length];\n" +
+                                                "    for (int i = 0; i < edges.length; i++) {\n" +
+                                                "        edgeList[i] = new Edge();\n" +
+                                                "        edgeList[i].src = edges[i][0];\n" +
+                                                "        edgeList[i].dest = edges[i][1];\n" +
+                                                "        edgeList[i].weight = edges[i][2];\n" +
+                                                "    }\n" +
+                                                "    Arrays.sort(edgeList);\n" +
+                                                "    Subset[] subsets = new Subset[V];\n" +
+                                                "    for (int v = 0; v < V; ++v) {\n" +
+                                                "        subsets[v] = new Subset();\n" +
+                                                "        subsets[v].parent = v;\n" +
+                                                "        subsets[v].rank = 0;\n" +
+                                                "    }\n" +
+                                                "    int result = 0;\n" +
+                                                "    int e = 0;\n" +
+                                                "    for (int i = 0; e < V - 1; i++) {\n" +
+                                                "        Edge nextEdge = edgeList[i];\n" +
+                                                "        int x = find(subsets, nextEdge.src);\n" +
+                                                "        int y = find(subsets, nextEdge.dest);\n" +
+                                                "        if (x != y) {\n" +
+                                                "            result += nextEdge.weight;\n" +
+                                                "            union(subsets, x, y);\n" +
+                                                "            e++;\n" +
+                                                "        }\n" +
+                                                "    }\n" +
+                                                "    return result;\n" +
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -4786,9 +4257,8 @@ public class initialData {
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
-                                .overView("To check if three sides can form a triangle, ensure that the sum of any two sides is greater than the third side.")
-                                .pseudoCode("function isValidTriangle(a, b, c):\n" +
-                                                "    return (a + b > c) and (a + c > b) and (b + c > a)")
+                                .overView("## Overview\n\nTo check if three sides can form a triangle, ensure that the sum of any two sides is greater than the third side.")
+                                .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isValidTriangle(a, b, c):\n    return (a + b > c) and (a + c > b) and (b + c > a)\n```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -4796,12 +4266,14 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("A valid triangle requires that the sum of any two sides must be greater than the third side.")
-                                .algorithm("1. Check if the sum of any two sides is greater than the third side.\n" +
+                                .intuition("## Intuition\n\nA valid triangle requires that the sum of any two sides must be greater than the third side.")
+                                .algorithm("## Algorithm\n\n1. Check if the sum of any two sides is greater than the third side.\n"
+                                                +
                                                 "2. If all conditions are satisfied, the sides can form a triangle.")
-                                .implementation("public boolean isValidTriangle(int a, int b, int c) {\n" +
+                                .implementation("## Implementation\n\n```java\npublic boolean isValidTriangle(int a, int b, int c) {\n"
+                                                +
                                                 "    return (a + b > c) && (a + c > b) && (b + c > a);\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
@@ -4953,10 +4425,11 @@ public class initialData {
                                                 "}")
                                 .build();
 
-                                ProblemHint hint = ProblemHint.builder()
-                                .isLocked(false)
-                                .overView("To find the shortest path in a maze, use Breadth-First Search (BFS) to explore all possible paths from the start to the end.")
-                                .pseudoCode("function shortestPathInMaze(grid):\n" +
+                ProblemHint hint = ProblemHint.builder()
+                                .isLocked(true)
+                                .overView("**To find the shortest path in a maze, use Breadth-First Search (BFS) to explore all possible paths from the start to the end.**")
+                                .pseudoCode("```pseudo\n" +
+                                                "function shortestPathInMaze(grid):\n" +
                                                 "    if grid[0][0] == 1 or grid[end][end] == 1 then return -1\n" +
                                                 "    initialize queue with start position\n" +
                                                 "    mark start as visited\n" +
@@ -4967,7 +4440,8 @@ public class initialData {
                                                 "                if new position is valid and not visited then\n" +
                                                 "                    add new position to queue\n" +
                                                 "                    mark new position as visited\n" +
-                                                "    return -1")
+                                                "    return -1\n" +
+                                                "```")
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -4975,16 +4449,18 @@ public class initialData {
                 problem = problemRepository.save(problem);
 
                 ProblemApproach approach1 = ProblemApproach.builder()
-                                .intuition("Breadth-First Search (BFS) is ideal for finding the shortest path in an unweighted grid because it explores all nodes at the present depth level before moving on to nodes at the next depth level.")
-                                .algorithm("1. Initialize a queue and add the starting position.\n" +
-                                                "2. Mark the starting position as visited.\n" +
-                                                "3. While the queue is not empty, process each position:\n" +
-                                                "   - If the position is the end, return the path length.\n" +
-                                                "   - For each possible direction, check if the new position is valid and not visited.\n"
+                                .intuition("### Intuition\n\nBreadth-First Search (BFS) is ideal for finding the shortest path in an unweighted grid because it explores all nodes at the present depth level before moving on to nodes at the next depth level.")
+                                .algorithm("### Algorithm\n\n1. **Initialize** a queue and add the starting position.\n"
                                                 +
-                                                "   - Add the new position to the queue and mark it as visited.\n" +
-                                                "4. If the end is not reached, return -1.")
-                                .implementation("public int shortestPathInMaze(int[][] grid) {\n" +
+                                                "2. **Mark** the starting position as visited.\n" +
+                                                "3. **While** the queue is not empty, process each position:\n" +
+                                                "   - If the position is the end, **return** the path length.\n" +
+                                                "   - For each possible direction, **check** if the new position is valid and not visited.\n"
+                                                +
+                                                "   - **Add** the new position to the queue and mark it as visited.\n" +
+                                                "4. If the end is not reached, **return** -1.")
+                                .implementation("### Implementation\n\n```java\npublic int shortestPathInMaze(int[][] grid) {\n"
+                                                +
                                                 "    int m = grid.length, n = grid[0].length;\n" +
                                                 "    if (grid[0][0] == 1 || grid[m-1][n-1] == 1) return -1;\n" +
                                                 "    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};\n" +
@@ -5010,7 +4486,7 @@ public class initialData {
                                                 "        pathLength++;\n" +
                                                 "    }\n" +
                                                 "    return -1;\n" +
-                                                "}")
+                                                "}\n```")
                                 .language(Submission.ELanguage.JAVA)
                                 .problemHint(savedHint)
                                 .build();
