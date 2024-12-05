@@ -436,11 +436,12 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
-
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo determine if a number is a palindrome, we need to check if it reads the same forwards and backwards.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPalindrome(x):\n    if x < 0 or (x mod 10 = 0 and x ≠ 0) then\n        return false\n    end if\n    \n    reversedHalf = 0\n    while x > reversedHalf do\n        reversedHalf = reversedHalf * 10 + x mod 10\n        x = x div 10\n    end while\n    \n    return x = reversedHalf or x = reversedHalf div 10\n```")
+                                .problem(problem)
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -645,6 +646,8 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
+
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("<h1 style=\"font-size: 2em; margin: 0.67em 0; font-weight: bold;text-align: center;\">Overview</h1>\r\n"
@@ -693,7 +696,9 @@ public class initialData {
                                                 "    end for\r\n" + //
                                                 "    return expectedSum - actualSum\r\n" + //
                                                 "~~~")
-                                .build();
+                        .problem(problem)
+                        .build();
+
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -847,6 +852,7 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
@@ -860,7 +866,8 @@ public class initialData {
                                                 "    end for\r\n" + //
                                                 "    return sum\r\n" + //
                                                 "~~~")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -1030,6 +1037,7 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\r\n" + //
@@ -1054,7 +1062,8 @@ public class initialData {
                                                 "                right = mid - 1\r\n" + //
                                                 "    return -1\r\n" + //
                                                 "~~~")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -1268,12 +1277,14 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the longest palindromic subsequence, use dynamic programming to build a table that stores the length of the longest palindromic subsequence for each substring.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction longestPalindromeSubseq(s):\n    n = length of s\n    dp = 2D array of size n x n\n    for i from 0 to n-1 do\n        dp[i][i] = 1\n    for length from 2 to n do\n        for i from 0 to n-length do\n            j = i + length - 1\n            if s[i] == s[j] then\n                dp[i][j] = dp[i+1][j-1] + 2\n            else\n                dp[i][j] = max(dp[i+1][j], dp[i][j-1])\n    return dp[0][n-1]\n```\n")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -1464,12 +1475,14 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the number of unique paths, use dynamic programming to build a table that stores the number of ways to reach each cell.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction uniquePaths(m, n):\n    dp = 2D array of size m x n\n    for i from 0 to m-1 do\n        dp[i][0] = 1\n    for j from 0 to n-1 do\n        dp[0][j] = 1\n    for i from 1 to m-1 do\n        for j from 1 to n-1 do\n            dp[i][j] = dp[i-1][j] + dp[i][j-1]\n    return dp[m-1][n-1]\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -1630,11 +1643,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the number of distinct ways to climb to the top, use dynamic programming to store the number of ways to reach each step.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction climbStairs(n):\n    if n <= 2 then return n\n    first = 1, second = 2\n    for i from 3 to n do\n        third = first + second\n        first = second\n        second = third\n    return second\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -1815,11 +1830,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo determine if the parentheses are valid, use a stack to track open brackets and ensure they are closed in the correct order.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isValid(s):\n    stack = empty stack\n    for each character c in s do\n        if c is an opening bracket then\n            push c onto stack\n        else if stack is empty or top of stack does not match c then\n            return false\n        else\n            pop from stack\n    return stack is empty\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2002,11 +2019,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo determine if one string is a subsequence of another, iterate through both strings and check if all characters of the first string appear in the second string in order.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isSubsequence(s, t):\n    i = 0, j = 0\n    while i < length of s and j < length of t do\n        if s[i] == t[j] then\n            increment i\n        increment j\n    return i == length of s\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2170,11 +2189,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the maximum product of three numbers, consider both the largest three numbers and the two smallest numbers with the largest number.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction maximumProduct(nums):\n    sort nums\n    n = length of nums\n    return max(nums[0] * nums[1] * nums[n-1], nums[n-1] * nums[n-2] * nums[n-3])\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2343,12 +2364,14 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
 
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo count the number of primes below n, use the Sieve of Eratosthenes algorithm to mark non-prime numbers.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countPrimes(n):\n    if n <= 2 then return 0\n    isPrime = array of boolean of size n, initialized to true\n    isPrime[0] = isPrime[1] = false\n    for i from 2 to sqrt(n) do\n        if isPrime[i] then\n            for j from i*i to n, step i do\n                isPrime[j] = false\n    count = 0\n    for each prime in isPrime do\n        if prime then count++\n    return count\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2511,11 +2534,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the maximum number in an array, iterate through the array and keep track of the largest number encountered.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findMax(nums):\n    max = -infinity\n    for num in nums do\n        if num > max then\n            max = num\n    return max\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2648,11 +2673,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the sum of elements in an array, iterate through the array and accumulate the sum of all elements.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findSum(nums):\n    sum = 0\n    for num in nums do\n        sum += num\n    return sum\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2789,11 +2816,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo check if a string is a palindrome, use two pointers to compare characters from the start and end of the string moving towards the center.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPalindrome(s):\n    left = 0, right = length of s - 1\n    while left < right do\n        if s[left] != s[right] then\n            return false\n        increment left\n        decrement right\n    return true\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -2952,10 +2981,12 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo find the minimum in a rotated sorted array, use binary search to efficiently locate the pivot point where the rotation occurs.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction findMin(nums):\n    left = 0, right = length of nums - 1\n    while left < right do\n        mid = left + (right - left) / 2\n        if nums[mid] > nums[right] then\n            left = mid + 1\n        else\n            right = mid\n    return nums[left]\n```")
+                        .problem(problem)
                                 .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
@@ -3123,11 +3154,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo calculate the Fibonacci number, use an iterative approach to sum the two preceding numbers.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction fib(n):\n    if n <= 1 then return n\n    a = 0, b = 1\n    for i from 2 to n do\n        temp = a + b\n        a = b\n        b = temp\n    return b\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -3279,11 +3312,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo count the even numbers in an array, iterate through the array and increment a counter each time an even number is found.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countEven(nums):\n    count = 0\n    for num in nums do\n        if num % 2 == 0 then\n            count++\n    return count\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -3423,11 +3458,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo check if a number is prime, iterate from 2 to the square root of the number and check for divisibility.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPrime(n):\n    if n <= 1 then return false\n    for i from 2 to sqrt(n) do\n        if n % i == 0 then\n            return false\n    return true\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -3569,11 +3606,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo count the number of prime numbers less than or equal to n, use the Sieve of Eratosthenes algorithm to efficiently mark non-prime numbers.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction countPrimes(n):\n    if n <= 2 then return 0\n    create a boolean array isPrime of size n, initialized to true\n    set isPrime[0] and isPrime[1] to false\n    for i from 2 to sqrt(n) do\n        if isPrime[i] then\n            for j from i*i to n, incrementing by i do\n                set isPrime[j] to false\n    count = 0\n    for each value in isPrime do\n        if value is true then increment count\n    return count\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -3744,11 +3783,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo check if a number is perfect, calculate the sum of its divisors and compare it to the number itself.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isPerfectNumber(n):\n    if n <= 1 then return false\n    sum = 1\n    for i from 2 to sqrt(n) do\n        if n % i == 0 then\n            sum += i\n            if i != n / i then\n                sum += n / i\n    return sum == n\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -3900,11 +3941,13 @@ public class initialData {
                                                 "    }\n" +
                                                 "}")
                                 .build();
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo add two large numbers represented as strings, process each digit from right to left, keeping track of the carry.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction addLargeNumbers(num1, num2):\n    initialize result as an empty string\n    initialize carry as 0\n    set i to the last index of num1, j to the last index of num2\n    while i >= 0 or j >= 0 or carry != 0 do\n        x = digit at index i of num1 if i >= 0 else 0\n        y = digit at index j of num2 if j >= 0 else 0\n        sum = x + y + carry\n        append sum % 10 to result\n        carry = sum / 10\n        decrement i and j\n    return reverse of result\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -4090,11 +4133,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(true)
                                 .overView("## Overview\n\nTo find the minimum spanning tree, sort all edges by weight and use a union-find structure to ensure no cycles are formed.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction kruskalMST(edges, V):\n    sort edges by weight\n    initialize subsets for each vertex\n    result = 0\n    for each edge in sorted edges do\n        if adding edge does not form a cycle then\n            add edge to result\n            union the sets of the two vertices\n    return result\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -4255,11 +4300,13 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(false)
                                 .overView("## Overview\n\nTo check if three sides can form a triangle, ensure that the sum of any two sides is greater than the third side.")
                                 .pseudoCode("## Pseudo Code\n\n```plaintext\nfunction isValidTriangle(a, b, c):\n    return (a + b > c) and (a + c > b) and (b + c > a)\n```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);
@@ -4425,6 +4472,7 @@ public class initialData {
                                                 "}")
                                 .build();
 
+                problem = problemRepository.save(problem);
                 ProblemHint hint = ProblemHint.builder()
                                 .isLocked(true)
                                 .overView("**To find the shortest path in a maze, use Breadth-First Search (BFS) to explore all possible paths from the start to the end.**")
@@ -4442,7 +4490,8 @@ public class initialData {
                                                 "                    mark new position as visited\n" +
                                                 "    return -1\n" +
                                                 "```")
-                                .build();
+                        .problem(problem)
+                        .build();
                 ProblemHint savedHint = problemHintRepository.save(hint);
 
                 problem.setProblemHint(hint);

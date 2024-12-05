@@ -1,9 +1,12 @@
 package com.example.codoceanb.submitcode.problem.service;
 
 import com.example.codoceanb.profile.dto.TestCaseDTO;
+import com.example.codoceanb.submitcode.DTO.ProblemApproachDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemHintDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
+import com.example.codoceanb.submitcode.problem.entity.ProblemApproach;
 import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
+import com.example.codoceanb.submitcode.problem.repository.ProblemApproachRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemHintRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,6 +25,8 @@ public class ProfileProblemServiceImpl implements ProfileProblemService{
     private ProblemRepository problemRepository;
     @Autowired
     private ProblemHintRepository problemHintRepository;
+    @Autowired
+    private ProblemApproachRepository problemApproachRepository;
     
 
     @Override
@@ -65,12 +71,37 @@ public class ProfileProblemServiceImpl implements ProfileProblemService{
 
         ProblemHint newHint = ProblemHint.builder()
                 .overView(problemHintDTO.getOverView())
+                .pseudoCode(problemHintDTO.getPseudoCode())
                 .problem(problem)
                 .build();
         problem.setProblemHint(newHint);
-        
-        problemHintRepository.save(newHint);
+
+        ProblemHint savedNewHint = problemHintRepository.save(newHint);
+
+        saveApproach(problemHintDTO.getApproachDTOs(), savedNewHint);
+
         problemRepository.save(problem);
+    }
+
+    private void saveApproach(List<ProblemApproachDTO> approachDTOs, ProblemHint savedNewHint) {
+        List<ProblemApproach> approaches = savedNewHint.getApproaches();
+        for(ProblemApproachDTO problemApproachDTO : approachDTOs) {
+            ProblemApproach problemApproach = ProblemApproach.builder()
+                    .language(problemApproachDTO.getLanguage())
+                    .algorithm(problemApproachDTO.getAlgorithm())
+                    .intuition(problemApproachDTO.getIntuition())
+                    .implementation(problemApproachDTO.getImplementation())
+                    .problemHint(savedNewHint)
+                    .build();
+            problemApproach = problemApproachRepository.save(problemApproach);
+
+            if(approaches == null || approaches.isEmpty()) {
+                approaches = new ArrayList<>();
+            }
+
+            approaches.add(problemApproach);
+            savedNewHint.setApproaches(approaches);
+        }
     }
 
     @Override

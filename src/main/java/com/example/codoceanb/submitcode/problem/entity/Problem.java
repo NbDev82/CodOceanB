@@ -59,7 +59,7 @@ public class Problem implements Serializable {
     @ElementCollection(targetClass = ETopic.class)
     private List<ETopic> topics;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "problem")
     private ProblemHint problemHint;
 
     @ManyToOne(fetch = FetchType.EAGER)
