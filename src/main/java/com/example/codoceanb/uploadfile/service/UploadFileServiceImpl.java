@@ -89,7 +89,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             // Remove the file extension (e.g., .png, .jpg) from the public_id
             return publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.'));
         } else {
-            throw new IllegalArgumentException("Invalid Cloudinary URL format");
+            return null;
         }
     }
 

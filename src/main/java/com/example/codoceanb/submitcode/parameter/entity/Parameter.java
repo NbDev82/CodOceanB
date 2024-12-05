@@ -1,5 +1,6 @@
 package com.example.codoceanb.submitcode.parameter.entity;
 
+import com.example.codoceanb.submitcode.DTO.ParameterDTO;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,13 @@ public class Parameter implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "test_case_id")
     private TestCase testCase;
+
+    public ParameterDTO toDTO() {
+        return ParameterDTO.builder()
+                .index(this.index)
+                .name(this.name)
+                .inputDataType(this.inputDataType)
+                .inputData(this.inputData)
+                .build();
+    }
 }

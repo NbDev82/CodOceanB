@@ -1,5 +1,6 @@
 package com.example.codoceanb.submitcode.testcase.entity;
 
+import com.example.codoceanb.profile.dto.TestCaseDTO;
 import com.example.codoceanb.submitcode.parameter.entity.Parameter;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import jakarta.persistence.*;
@@ -35,4 +36,14 @@ public class TestCase implements Serializable {
 
     @OneToMany(mappedBy = "testCase", cascade = CascadeType.ALL)
     private List<Parameter> parameters;
+
+    public TestCaseDTO toDTO() {
+        return TestCaseDTO.builder()
+                .isPublic(this.isPublic)
+                .parameterDTOs(this.parameters.stream()
+                        .map(Parameter::toDTO)
+                        .toList())
+                .output(this.outputData)
+                .build();
+    }
 }

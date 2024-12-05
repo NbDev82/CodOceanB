@@ -440,8 +440,11 @@ public class JavaCompiler implements CompilerStrategy {
 
     private List<ParameterDTO> generateParametersDTO(List<Parameter> parameters) {
         return parameters.stream()
-                .map(p -> new ParameterDTO(p.getName(), p.getInputDataType(), p.getInputData()))
-                .collect(Collectors.toList());
+                .map(p -> ParameterDTO.builder()
+                        .inputDataType(p.getInputDataType())
+                        .inputData(p.getInputData())
+                        .name(p.getName())
+                        .build()).collect(Collectors.toList());
     }
 
     @Override
