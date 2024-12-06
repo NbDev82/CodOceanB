@@ -126,6 +126,7 @@ public class Problem implements Serializable {
                 .title(title)
                 .description(description)
                 .difficulty(difficulty.name())
+                .outputDataType(outputDataType)
                 .problemHintDTO(hintDTO)
                 .acceptedCount(metrics.acceptedCount)
                 .submissionCount(metrics.submissionCount)
