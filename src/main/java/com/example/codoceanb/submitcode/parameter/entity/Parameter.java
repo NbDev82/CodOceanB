@@ -32,7 +32,7 @@ public class Parameter implements Serializable {
     @Column(name = "input_data")
     private String inputData;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "test_case_id")
     private TestCase testCase;
 

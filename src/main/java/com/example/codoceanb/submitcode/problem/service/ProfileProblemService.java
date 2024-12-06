@@ -1,9 +1,9 @@
 package com.example.codoceanb.submitcode.problem.service;
 
 import com.example.codoceanb.profile.dto.TestCaseDTO;
+import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemHintDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
-import com.example.codoceanb.submitcode.testcase.entity.TestCase;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,5 +23,5 @@ public interface ProfileProblemService {
 
     void unlockHint(UUID problemId);
 
-//    void updateTestCases(UUID problemId, List<TestCaseDTO> testCases);
+    void updateTestCases(UUID problemId, List<AddTestCaseRequestDTO> testcases);
 }

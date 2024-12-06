@@ -1,15 +1,21 @@
 package com.example.codoceanb.submitcode.problem.service;
 
 import com.example.codoceanb.profile.dto.TestCaseDTO;
+import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
+import com.example.codoceanb.submitcode.DTO.InputDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemApproachDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemHintDTO;
+import com.example.codoceanb.submitcode.parameter.entity.Parameter;
+import com.example.codoceanb.submitcode.parameter.repository.ParameterRepository;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.entity.ProblemApproach;
 import com.example.codoceanb.submitcode.problem.entity.ProblemHint;
 import com.example.codoceanb.submitcode.problem.repository.ProblemApproachRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemHintRepository;
 import com.example.codoceanb.submitcode.problem.repository.ProblemRepository;
+import com.example.codoceanb.submitcode.request.AddProblemRequest;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
+import com.example.codoceanb.submitcode.testcase.repository.TestCaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +33,10 @@ public class ProfileProblemServiceImpl implements ProfileProblemService{
     private ProblemHintRepository problemHintRepository;
     @Autowired
     private ProblemApproachRepository problemApproachRepository;
+    @Autowired
+    private TestCaseRepository testCaseRepository;
+    @Autowired
+    private ParameterRepository parameterRepository;
     
 
     @Override
@@ -130,24 +140,44 @@ public class ProfileProblemServiceImpl implements ProfileProblemService{
         problemHintRepository.save(hint);
     }
 
-//    @Override
-//    @Transactional
-//    public void updateTestCases(UUID problemId, List<TestCaseDTO> testCases) {
-//        Problem problem = problemRepository.findById(problemId)
-//                .orElseThrow(() -> new RuntimeException("Problem not found"));
-//
-//        // Xóa các test case cũ
-//        if (!problem.getTestCases().isEmpty()) {
-//            testCaseRepository.deleteAll(problem.getTestCases());
-//            testCaseRepository.flush();
-//        }
-//
-//        testCases.forEach(testCase -> {
-//            testCase.setProblem(problem);
-//            testCaseRepository.save(testCase);
-//        });
-//
-//        problem.setTestCases(testCases);
-//        problemRepository.save(problem);
-//    }
+    @Override
+    @Transactional
+    public void updateTestCases(UUID problemId, List<AddTestCaseRequestDTO> testCases) {
+        Problem problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new RuntimeException("Problem not found"));
+
+        if (!problem.getTestCases().isEmpty()) {
+            for (TestCase t : problem.getTestCases()) {
+                testCaseRepository.delete(t);
+            }
+            testCaseRepository.flush();
+            List<UUID> uuids = problem.getTestCases().stream().map(TestCase::getId).toList();
+            testCaseRepository.deleteAllById(uuids);
+            testCaseRepository.flush();
+
+        }
+
+        for (AddTestCaseRequestDTO dto : testCases) {
+            TestCase testCase = TestCase.builder()
+                    .isPublic(dto.isPublic())
+                    .outputData(dto.getOutput())
+                    .problem(problem)
+                    .build();
+            createAndSaveParameterFromRequest(testCase, dto.getInput());
+            testCaseRepository.save(testCase);
+        }
+    }
+
+    private void createAndSaveParameterFromRequest(TestCase testCase, List<InputDTO> inputDTOs) {
+        for (InputDTO input : inputDTOs) {
+            Parameter parameter = Parameter.builder()
+                    .inputDataType(input.getDatatype())
+                    .name(input.getParamName())
+                    .inputData(input.getValue())
+                    .index(input.getIndex())
+                    .testCase(testCase)
+                    .build();
+            parameterRepository.save(parameter);
+        }
+    }
 }

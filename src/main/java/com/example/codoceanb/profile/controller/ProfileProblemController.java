@@ -1,6 +1,8 @@
 package com.example.codoceanb.profile.controller;
 
 import com.example.codoceanb.profile.dto.TestCaseDTO;
+import com.example.codoceanb.profile.request.UpdateTestCaseRequest;
+import com.example.codoceanb.submitcode.DTO.AddTestCaseRequestDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemHintDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.problem.service.ProfileProblemService;
@@ -48,6 +50,12 @@ public class ProfileProblemController {
         return ResponseEntity.ok(testCases);
     }
 
+    @PutMapping("/testcases/{problemId}")
+    public ResponseEntity<Void> updateTestCases(@PathVariable UUID problemId, @RequestBody UpdateTestCaseRequest request) {
+        profileProblemService.updateTestCases(problemId, request.getTestcases());
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/hint/{problemId}/lock")
     public ResponseEntity<Void> lockHint(@PathVariable UUID problemId) {
         profileProblemService.lockHint(problemId);
@@ -59,10 +67,4 @@ public class ProfileProblemController {
         profileProblemService.unlockHint(problemId);
         return ResponseEntity.ok().build();
     }
-
-//    @PutMapping("/testcases/{problemId}")
-//    public ResponseEntity<Void> updateTestCases(@PathVariable UUID problemId, @RequestBody List<TestCaseDTO> testCases) {
-//        profileProblemService.updateTestCases(problemId, testCases);
-//        return ResponseEntity.ok().build();
-//    }
 }

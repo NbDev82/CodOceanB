@@ -30,11 +30,11 @@ public class TestCase implements Serializable {
     @Column(name = "is_public")
     private boolean isPublic = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @OneToMany(mappedBy = "testCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "testCase", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Parameter> parameters;
 
     public TestCaseDTO toDTO() {
