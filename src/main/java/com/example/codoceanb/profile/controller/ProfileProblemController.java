@@ -48,6 +48,18 @@ public class ProfileProblemController {
         return ResponseEntity.ok(testCases);
     }
 
+    @PutMapping("/hint/{problemId}/lock")
+    public ResponseEntity<Void> lockHint(@PathVariable UUID problemId) {
+        profileProblemService.lockHint(problemId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/hint/{problemId}/unlock") 
+    public ResponseEntity<Void> unlockHint(@PathVariable UUID problemId) {
+        profileProblemService.unlockHint(problemId);
+        return ResponseEntity.ok().build();
+    }
+
 //    @PutMapping("/testcases/{problemId}")
 //    public ResponseEntity<Void> updateTestCases(@PathVariable UUID problemId, @RequestBody List<TestCaseDTO> testCases) {
 //        profileProblemService.updateTestCases(problemId, testCases);

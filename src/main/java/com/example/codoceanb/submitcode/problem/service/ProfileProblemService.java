@@ -19,5 +19,9 @@ public interface ProfileProblemService {
 
     List<TestCaseDTO> getTestCases(UUID problemId);
 
+    void lockHint(UUID problemId);
+
+    void unlockHint(UUID problemId);
+
 //    void updateTestCases(UUID problemId, List<TestCaseDTO> testCases);
 }

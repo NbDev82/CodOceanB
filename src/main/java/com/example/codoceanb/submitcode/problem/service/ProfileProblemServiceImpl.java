@@ -108,7 +108,26 @@ public class ProfileProblemServiceImpl implements ProfileProblemService{
     public List<TestCaseDTO> getTestCases(UUID problemId) {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new RuntimeException("Problem not found"));
-        return problem.getTestCases().stream().map(tc -> tc.toDTO()).collect(Collectors.toList());
+        return problem.getTestCases().stream().map(TestCase::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public void lockHint(UUID problemId) {
+
+        ProblemHint hint = problemHintRepository.findByProblemId(problemId)
+                .orElseThrow(() -> new RuntimeException("Problem hint not found"));
+        
+        hint.setLocked(true);
+        problemHintRepository.save(hint);
+    }
+
+    @Override 
+    public void unlockHint(UUID problemId) {
+        ProblemHint hint = problemHintRepository.findByProblemId(problemId)
+                .orElseThrow(() -> new RuntimeException("Problem hint not found"));
+        
+        hint.setLocked(false);
+        problemHintRepository.save(hint);
     }
 
 //    @Override
