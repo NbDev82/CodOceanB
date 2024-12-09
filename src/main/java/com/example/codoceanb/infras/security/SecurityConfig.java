@@ -21,6 +21,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
@@ -78,8 +81,11 @@ public class SecurityConfig {
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> frontEndUrls = Arrays.stream(frontendUrl.split(",")).toList();
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin(frontendUrl);
+//        configuration.addAllowedOrigin(frontendUrl);
+        configuration.setAllowedOriginPatterns(frontEndUrls);
+        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin(frontendMobileUrl);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");

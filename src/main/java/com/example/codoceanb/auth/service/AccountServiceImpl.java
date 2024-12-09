@@ -56,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(encodedPassword);
         userRepos.save(user);
-        tokenRepos.deleteByUser(user);
+        tokenRepos.deleteByUserId(user.getId());
     }
 
     @Override

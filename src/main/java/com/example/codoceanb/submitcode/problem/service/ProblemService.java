@@ -1,8 +1,10 @@
 package com.example.codoceanb.submitcode.problem.service;
 
+import com.example.codoceanb.comment.dto.CommentDTO;
 import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemDTO;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
+import com.example.codoceanb.submitcode.request.AddProblemCommentRequest;
 import com.example.codoceanb.submitcode.request.AddProblemRequest;
 
 import java.util.List;
@@ -22,4 +24,8 @@ public interface ProblemService {
     List<TrendingProblemDTO> getTopProblems(int limit);
 
     String getCorrectAnswer(UUID problemId);
+
+    List<CommentDTO> getCommentsByProblem(UUID problemId);
+
+    CommentDTO createComment(AddProblemCommentRequest request, String authHeader);
 }

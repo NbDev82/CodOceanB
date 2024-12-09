@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ParameterDTO {
+    private int index;
     private String name;
     private String inputDataType;
     private String inputData;

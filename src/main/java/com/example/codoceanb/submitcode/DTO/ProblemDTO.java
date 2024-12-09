@@ -17,6 +17,8 @@ public class ProblemDTO {
     private String title;
     private String description;
     private String difficulty;
+    private String outputDataType;
+    private ProblemHintDTO problemHintDTO;
     private int acceptedCount;
     private int discussCount;
     private int submissionCount;

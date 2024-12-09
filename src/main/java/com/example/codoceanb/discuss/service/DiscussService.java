@@ -13,16 +13,21 @@ public interface DiscussService {
     List<DiscussDTO> getAllUploadedDiscussesByUser(String token);
 
     DiscussResponse getDiscusses(String authHeader,
-                                 int pageNumber,
-                                 int limit,
-                                 String searchTerm,
-                                 String category);
+            int pageNumber,
+            int limit,
+            String searchTerm,
+            String category);
+
     DiscussDTO getDiscussById(UUID id, String authHeader);
+
     Discuss getDiscuss(UUID id);
+
     DiscussDTO addDiscuss(AddDiscussRequest request, String authHeader);
 
-    DiscussDTO updateDiscuss(UUID id, UpdateDiscussRequest request);
-    void deleteDiscuss(UUID id);
+    DiscussDTO addDiscussWithoutImages(AddDiscussRequest request, String authHeader);
 
+    DiscussDTO updateDiscuss(UUID id, UpdateDiscussRequest request);
+
+    void deleteDiscuss(UUID id);
 
 }

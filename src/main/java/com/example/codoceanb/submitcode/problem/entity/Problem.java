@@ -4,6 +4,7 @@ import com.example.codoceanb.contest.entity.Contest;
 import com.example.codoceanb.auth.entity.User;
 import com.example.codoceanb.statistic.dto.TrendingProblemDTO;
 import com.example.codoceanb.submitcode.DTO.ProblemDTO;
+import com.example.codoceanb.submitcode.DTO.ProblemHintDTO;
 import com.example.codoceanb.submitcode.library.entity.LibrariesSupport;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
 import com.example.codoceanb.submitcode.testcase.entity.TestCase;
@@ -57,6 +58,9 @@ public class Problem implements Serializable {
     @Enumerated(EnumType.STRING)
     @ElementCollection(targetClass = ETopic.class)
     private List<ETopic> topics;
+
+    @OneToOne(mappedBy = "problem")
+    private ProblemHint problemHint;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
@@ -114,11 +118,16 @@ public class Problem implements Serializable {
 
     public ProblemDTO toDTO() {
         ProblemMetrics metrics = calculateMetrics();
+        ProblemHintDTO hintDTO = new ProblemHintDTO();
+        if(getProblemHint() != null)
+            hintDTO = getProblemHint().toDTO();
         return ProblemDTO.builder()
                 .id(id)
                 .title(title)
                 .description(description)
                 .difficulty(difficulty.name())
+                .outputDataType(outputDataType)
+                .problemHintDTO(hintDTO)
                 .acceptedCount(metrics.acceptedCount)
                 .submissionCount(metrics.submissionCount)
                 .discussCount(metrics.commentCount)

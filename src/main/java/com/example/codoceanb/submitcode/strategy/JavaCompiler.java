@@ -440,8 +440,11 @@ public class JavaCompiler implements CompilerStrategy {
 
     private List<ParameterDTO> generateParametersDTO(List<Parameter> parameters) {
         return parameters.stream()
-                .map(p -> new ParameterDTO(p.getName(), p.getInputDataType(), p.getInputData()))
-                .collect(Collectors.toList());
+                .map(p -> ParameterDTO.builder()
+                        .inputDataType(p.getInputDataType())
+                        .inputData(p.getInputData())
+                        .name(p.getName())
+                        .build()).collect(Collectors.toList());
     }
 
     @Override
@@ -475,7 +478,7 @@ public class JavaCompiler implements CompilerStrategy {
         // Kiểm tra các mẫu nguy hiểm
         String[] dangerousPatterns = {
             // Các mẫu nguy hiểm có thể gây hại cho hệ thống
-            
+            "import java.io",
             // Dừng chương trình đột ngột
             "System\\.exit",
             
@@ -548,6 +551,8 @@ public class JavaCompiler implements CompilerStrategy {
         };
 
         for (String pattern : dangerousPatterns) {
+            if(code.toLowerCase().contains(pattern))
+                return true;
             if (code.toLowerCase().matches("(?i).*\\b" + pattern + "\\b.*")) {
                 return true;
             }

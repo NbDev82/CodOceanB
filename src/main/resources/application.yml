@@ -6,7 +6,7 @@ server:
 
 spring:
     application:
-        name: code-solution-app
+        name: cod-ocean-app
 
     devtools:
         livereload:

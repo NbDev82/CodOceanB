@@ -29,6 +29,7 @@ public class Discuss implements Serializable {
     @Column(length = 100000000)
     private String title;
 
+    @Column(columnDefinition = "text")
     private String description;
 
     @Column(name = "created_at")
