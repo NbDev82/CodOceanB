@@ -478,7 +478,7 @@ public class JavaCompiler implements CompilerStrategy {
         // Kiểm tra các mẫu nguy hiểm
         String[] dangerousPatterns = {
             // Các mẫu nguy hiểm có thể gây hại cho hệ thống
-            
+            "import java.io",
             // Dừng chương trình đột ngột
             "System\\.exit",
             
@@ -551,6 +551,8 @@ public class JavaCompiler implements CompilerStrategy {
         };
 
         for (String pattern : dangerousPatterns) {
+            if(code.toLowerCase().contains(pattern))
+                return true;
             if (code.toLowerCase().matches("(?i).*\\b" + pattern + "\\b.*")) {
                 return true;
             }
