@@ -226,8 +226,15 @@ public class ProblemServiceImpl implements ProblemService{
                     .outputData(dto.getOutput())
                     .problem(problem)
                     .build();
+            testCase = testCaseRepository.save(testCase);
             createAndSaveParameterFromRequest(testCase, dto.getInput());
-            testCaseRepository.save(testCase);
+
+            List<TestCase> testCases = problem.getTestCases();
+            if(testCases == null) {
+                testCases = new ArrayList<>();
+            }
+            testCases.add(testCase);
+            problem.setTestCases(testCases);
         }
     }
 
