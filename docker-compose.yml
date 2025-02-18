@@ -1,0 +1,37 @@
+services:
+  cod-ocean-db:
+    image: postgres:latest
+    container_name: cod-ocean-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: CodOcean
+    ports:
+      - "4321:5432"
+    volumes:
+      - cod-ocean-data:/var/lib/postgresql
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - pgnetwork
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: my_pgadmin_codocean
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "82:80"
+    depends_on:
+      - cod-ocean-db
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    networks:
+      - pgnetwork
+
+volumes:
+  cod-ocean-data:
+
+networks:
+  pgnetwork:
+    driver: bridge
