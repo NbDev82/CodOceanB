@@ -199,6 +199,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UserNotFoundException("User not found")));
     }
 
+    @Override
+    public void update(User user) {
+        userRepos.save(user);
+    }
 
 
     @Override

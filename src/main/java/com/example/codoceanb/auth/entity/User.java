@@ -8,6 +8,7 @@ import com.example.codoceanb.notification.entity.Notification;
 import com.example.codoceanb.payment.entity.Payment;
 import com.example.codoceanb.submitcode.problem.entity.Problem;
 import com.example.codoceanb.submitcode.submission.entity.Submission;
+import com.example.codoceanb.survey.entity.Survey;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -86,6 +87,9 @@ public class User implements UserDetails {
 
     @Column(name = "is_locked")
     private boolean isLocked;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Survey survey;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Problem> ownedProblems;
