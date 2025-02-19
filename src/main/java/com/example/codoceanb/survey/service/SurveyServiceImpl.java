@@ -5,6 +5,7 @@ import com.example.codoceanb.auth.exception.UnauthorizedException;
 import com.example.codoceanb.auth.service.UserService;
 import com.example.codoceanb.infras.externalapi.dto.ExternalApiResponseDTO;
 import com.example.codoceanb.infras.externalapi.service.ExternalApiService;
+import com.example.codoceanb.survey.dto.AnswerDTO;
 import com.example.codoceanb.survey.dto.SurveyDTO;
 import com.example.codoceanb.survey.dto.SurveyQuestionDTO;
 import com.example.codoceanb.survey.entity.Survey;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import javax.naming.ServiceUnavailableException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,5 +78,55 @@ public class SurveyServiceImpl implements SurveyService{
         userService.update(user);
 
         return true;
+    }
+    @Override
+    public Boolean addQuestion(SurveyQuestionDTO question) {
+        SurveyQuestion surveyQuestion = question.toEntity();
+        surveyQuestionRepository.save(surveyQuestion);
+        return true;
+    }
+
+    @Override
+    public Boolean deleteQuestion(UUID id) {
+        if (surveyQuestionRepository.existsById(id)) {
+            surveyQuestionRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean updateQuestion(UUID id, SurveyQuestionDTO question) {
+        if (surveyQuestionRepository.existsById(id)) {
+            SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(id).orElseThrow();
+            surveyQuestion.setQuestion(question.getQuestion());
+            surveyQuestion.setAnswers(question.getAnswerDTOs()
+                    .stream()
+                    .map(AnswerDTO::toEntity)
+                    .collect(Collectors.toList()));
+            surveyQuestionRepository.save(surveyQuestion);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getStatistics() {
+        return null;
+        // List<Survey> surveys = surveyRepository.findAll();
+        // Map<String, Long> questionStats = surveys.stream()
+        //         .flatMap(survey -> Arrays.stream(survey.getSurveyData().split(";")))
+        //         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        
+        // Map<String, Long> courseSuggestionStats = surveys.stream()
+        //         .flatMap(survey -> Arrays.stream(survey.getSurveyData().split(";")))
+        //         .filter(data -> data.contains("course"))
+        //         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        
+        // return Map.of(
+        //         "totalSurveys", surveys.size(),
+        //         "questionStats", questionStats,
+        //         "courseSuggestionStats", courseSuggestionStats
+        // );
     }
 }

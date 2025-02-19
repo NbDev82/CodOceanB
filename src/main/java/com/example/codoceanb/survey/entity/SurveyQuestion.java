@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 public class SurveyQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
