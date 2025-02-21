@@ -72,7 +72,7 @@ public class SecurityConfig {
                                 "/api/profile/**",
                                 "/api/user/**",
                                 "/api/v1/discuss/categories/**")
-                        .hasAnyRole("USER", "ADMIN", "USER_VIP", "MODERATOR")
+                        .hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

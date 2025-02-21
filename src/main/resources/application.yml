@@ -53,3 +53,7 @@ third-party:
         mode: ${PRO_PAYPAL_MODE}
         returnUrl: ${PRO_PAYPAL_RETURN_URL}
         cancelUrl: ${PRO_PAYPAL_CANCEL_URL}
+
+external:
+    api:
+        baseUrl: ${EXTERNAL_API_URL}

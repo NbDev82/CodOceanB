@@ -24,14 +24,14 @@ public class NotificationController {
     private SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'USER_VIP', 'ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<NotificationDTO> getNotificationById(@PathVariable UUID id) {
         NotificationDTO notificationDTO = notificationService.getNotificationById(id);
         return ResponseEntity.ok(notificationDTO);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'USER_VIP', 'ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<List<NotificationDTO>> getNotifications(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int limit,
@@ -41,7 +41,7 @@ public class NotificationController {
     }
 
     @PostMapping("/send-broadcast")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Boolean> sendNotificationBroadcast(@RequestBody SendNotificationBroadcastRequest request) {
         NotificationDTO notificationDTO = notificationService.saveNotificationBroadcast(request);
 
@@ -56,7 +56,7 @@ public class NotificationController {
     }
 
     @PostMapping("/send-personal")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Boolean> sendNotificationPersonal(@RequestBody SendNotificationPersonalRequest request,
                                                             @RequestHeader("Authorization") String authHeader) {
         NotificationDTO notificationDTO = notificationService.saveNotificationPersonal(request, authHeader);
@@ -72,14 +72,14 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'USER_VIP', 'ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Boolean> setNotificationRead(@PathVariable UUID id) {
         notificationService.setNotificationRead(id);
         return ResponseEntity.ok(true);
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyRole('USER', 'USER_VIP', 'ADMIN', 'MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Boolean> setAllNotificationRead(@RequestHeader("Authorization") String authHeader) {
         notificationService.setAllNotificationRead(authHeader);
         return ResponseEntity.ok(true);
