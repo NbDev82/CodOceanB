@@ -97,17 +97,10 @@ public class SurveyServiceImpl implements SurveyService{
 
     @Override
     public Boolean updateQuestion(UUID id, SurveyQuestionDTO question) {
-        if (surveyQuestionRepository.existsById(id)) {
-            SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(id).orElseThrow();
-            surveyQuestion.setQuestion(question.getQuestion());
-            surveyQuestion.setAnswers(question.getAnswerDTOs()
-                    .stream()
-                    .map(AnswerDTO::toEntity)
-                    .collect(Collectors.toList()));
-            surveyQuestionRepository.save(surveyQuestion);
-            return true;
-        }
-        return false;
+        SurveyQuestion surveyQuestion = question.toEntity();
+        surveyQuestion.setId(id);
+        surveyQuestionRepository.save(surveyQuestion);
+        return true;
     }
 
     @Override

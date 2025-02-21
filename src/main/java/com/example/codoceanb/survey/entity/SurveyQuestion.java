@@ -30,7 +30,7 @@ public class SurveyQuestion {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "surveyQuestion", cascade = CascadeType.ALL)
     private List<Answer> answers;
 
     public SurveyQuestionDTO toDTO() {
