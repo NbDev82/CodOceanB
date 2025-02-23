@@ -20,10 +20,17 @@ public class LessonController {
         this.lessonService = lessonService;
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<LessonDTO> getLessonDetail(@PathVariable UUID id) {
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<LessonDTO> getLessonDetailForAdmin(@PathVariable UUID id) {
         LessonDTO lesson = lessonService.getLessonById(id);
+        return ResponseEntity.ok(lesson);
+    }
+
+    @GetMapping("/user/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<LessonDTO> getLessonDetailForUser(@PathVariable UUID id) {
+        LessonDTO lesson = lessonService.getPublicLessonById(id);
         return ResponseEntity.ok(lesson);
     }
 
