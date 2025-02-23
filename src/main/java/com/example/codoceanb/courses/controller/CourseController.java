@@ -20,10 +20,17 @@ public class CourseController {
         this.courseService = courseService;
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CourseDTO> getCourseDetail(@PathVariable UUID id) {
         CourseDTO course = courseService.getCourseById(id);
+        return ResponseEntity.ok(course);
+    }
+
+    @GetMapping("/user/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<CourseDTO> getPublicCourseDetail(@PathVariable UUID id) {
+        CourseDTO course = courseService.getPublicCourseById(id);
         return ResponseEntity.ok(course);
     }
 
@@ -47,5 +54,12 @@ public class CourseController {
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
         courseService.deleteCourse(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/public/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> publicCourse(@PathVariable UUID id) {
+        courseService.publicCourse(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -21,6 +21,7 @@ public class CourseDTO {
     private int duration;
     private Double price;
     private Course.ECurrency currency;
+    private boolean isPublic;
     private List<LessonDTO> lessons;
 
     public Course toEntity() {
@@ -32,15 +33,6 @@ public class CourseDTO {
                 .duration(duration)
                 .price(price)
                 .currency(currency)
-                .lessons(lessons.stream().map(
-                        lessonDTO -> {
-                            if (lessonDTO.getLessonType().equals(LessonDTO.EType.THEORY)) {
-                                return lessonDTO.toTheoryEntity();
-                            } else {
-                                return lessonDTO.toPracticeEntity();
-                            }
-                        }
-                ).toList())
                 .build();
     }
 }

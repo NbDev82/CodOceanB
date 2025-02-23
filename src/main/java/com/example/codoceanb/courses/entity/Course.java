@@ -39,6 +39,9 @@ public class Course {
     @Column(nullable = false)
     private ECurrency currency;
 
+    @Column(nullable = false)
+    private boolean isPublic = false;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Lesson> lessons;
 
@@ -51,6 +54,7 @@ public class Course {
                 .price(price)
                 .duration(duration)
                 .currency(currency)
+                .isPublic(isPublic)
                 .lessons(lessons.stream().map(Lesson::toDTO).toList())
                 .build();
     }

@@ -14,4 +14,8 @@ public interface CourseService {
     CourseDTO updateCourse(CourseDTO request);
 
     void deleteCourse(UUID id);
+
+    void publicCourse(UUID id);
+
+    CourseDTO getPublicCourseById(UUID id);
 }
