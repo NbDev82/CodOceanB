@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.codoceanb.courses.entity.Course;
 import com.example.codoceanb.courses.repository.CourseRepository;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -35,6 +37,18 @@ public class CourseServiceImpl implements CourseService {
         if(!courseDTO.isPublic())
             throw new CourseNotPublicException(CourseConstants.COURSE_NOT_PUBLIC_YET, HttpStatus.BAD_REQUEST);
         return null;
+    }
+
+    @Override
+    public List<CourseDTO> getAllCourses() {
+        List<Course> courses = courseRepository.findAll();
+        return courses.stream().map(Course::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDTO> getAllPublicCourses() {
+        List<Course> publicCourses = courseRepository.findByPublic(true);
+        return publicCourses.stream().map(Course::toDTO).collect(Collectors.toList());
     }
 
     @Override

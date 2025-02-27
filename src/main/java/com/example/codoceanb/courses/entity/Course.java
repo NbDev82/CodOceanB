@@ -25,6 +25,9 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ELevel level;
@@ -50,6 +53,7 @@ public class Course {
                 .id(id)
                 .title(title)
                 .description(description)
+                .imageUrl(imageUrl)
                 .level(level)
                 .price(price)
                 .duration(duration)

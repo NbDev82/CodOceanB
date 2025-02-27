@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +19,20 @@ public class CourseController {
     @Autowired
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<CourseDTO>> getAllPublicCourses() {
+        List<CourseDTO> courses = courseService.getAllPublicCourses();
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CourseDTO>> getAllCourses() {
+        List<CourseDTO> courses = courseService.getAllCourses();
+        return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/admin/{id}")

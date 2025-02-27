@@ -18,4 +18,8 @@ public interface CourseService {
     void publicCourse(UUID id);
 
     CourseDTO getPublicCourseById(UUID id);
+
+    List<CourseDTO> getAllCourses();
+
+    List<CourseDTO> getAllPublicCourses();
 }
